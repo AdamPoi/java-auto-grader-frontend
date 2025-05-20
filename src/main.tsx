@@ -1,14 +1,15 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, type QueryFunctionContext } from '@tanstack/react-query'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
-import './styles.css'
+import './App.css'
 import reportWebVitals from './reportWebVitals.ts'
 
+const BASE_URL = import.meta.env.VITE_BACKEND_URL
 // Create a new router instance
 const router = createRouter({
   routeTree,
@@ -19,7 +20,22 @@ const router = createRouter({
   defaultPreloadStaleTime: 0,
 })
 
-const queryClient = new QueryClient()
+console.log(BASE_URL)
+
+
+const defaultQueryFn = async (context: QueryFunctionContext) => {
+  const response = await fetch(`${BASE_URL}/${context.queryKey[0]}`);
+  const data = await response.json();
+  return data;
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: defaultQueryFn,
+    },
+  },
+})
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {

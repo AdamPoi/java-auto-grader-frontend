@@ -1,0 +1,15 @@
+[
+    {
+        "name": "Profile",
+        "url": "/profile",
+        "icon": "Lu/LuUser",
+        "role": null
+      },
+     
+      {
+        "name": "Settings",
+        "url": "/settings",
+        "icon": "Lu/LuUser",
+        "role": "admin"
+      }
+]

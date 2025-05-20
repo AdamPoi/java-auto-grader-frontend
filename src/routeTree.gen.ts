@@ -11,35 +11,30 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as RegisterImport } from './routes/register'
-import { Route as LoginImport } from './routes/login'
-import { Route as DashboardImport } from './routes/dashboard'
-import { Route as AboutImport } from './routes/about'
+import { Route as StudentLayoutImport } from './routes/_studentLayout'
+import { Route as GuestLayoutImport } from './routes/_guestLayout'
+import { Route as AdminLayoutImport } from './routes/_adminLayout'
 import { Route as IndexImport } from './routes/index'
+import { Route as StudentLayoutProfileImport } from './routes/_studentLayout/profile'
+import { Route as StudentLayoutAboutImport } from './routes/_studentLayout/about'
+import { Route as GuestLayoutRegisterImport } from './routes/_guestLayout/register'
+import { Route as GuestLayoutLoginImport } from './routes/_guestLayout/login'
+import { Route as AdminLayoutDashboardImport } from './routes/_adminLayout/dashboard'
 
 // Create/Update Routes
 
-const RegisterRoute = RegisterImport.update({
-  id: '/register',
-  path: '/register',
+const StudentLayoutRoute = StudentLayoutImport.update({
+  id: '/_studentLayout',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
+const GuestLayoutRoute = GuestLayoutImport.update({
+  id: '/_guestLayout',
   getParentRoute: () => rootRoute,
 } as any)
 
-const DashboardRoute = DashboardImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+const AdminLayoutRoute = AdminLayoutImport.update({
+  id: '/_adminLayout',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -47,6 +42,36 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const StudentLayoutProfileRoute = StudentLayoutProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => StudentLayoutRoute,
+} as any)
+
+const StudentLayoutAboutRoute = StudentLayoutAboutImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => StudentLayoutRoute,
+} as any)
+
+const GuestLayoutRegisterRoute = GuestLayoutRegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => GuestLayoutRoute,
+} as any)
+
+const GuestLayoutLoginRoute = GuestLayoutLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => GuestLayoutRoute,
+} as any)
+
+const AdminLayoutDashboardRoute = AdminLayoutDashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminLayoutRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -60,87 +85,178 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
+    '/_adminLayout': {
+      id: '/_adminLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AdminLayoutImport
       parentRoute: typeof rootRoute
     }
-    '/dashboard': {
-      id: '/dashboard'
+    '/_guestLayout': {
+      id: '/_guestLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof GuestLayoutImport
+      parentRoute: typeof rootRoute
+    }
+    '/_studentLayout': {
+      id: '/_studentLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof StudentLayoutImport
+      parentRoute: typeof rootRoute
+    }
+    '/_adminLayout/dashboard': {
+      id: '/_adminLayout/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AdminLayoutDashboardImport
+      parentRoute: typeof AdminLayoutImport
     }
-    '/login': {
-      id: '/login'
+    '/_guestLayout/login': {
+      id: '/_guestLayout/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof GuestLayoutLoginImport
+      parentRoute: typeof GuestLayoutImport
     }
-    '/register': {
-      id: '/register'
+    '/_guestLayout/register': {
+      id: '/_guestLayout/register'
       path: '/register'
       fullPath: '/register'
-      preLoaderRoute: typeof RegisterImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof GuestLayoutRegisterImport
+      parentRoute: typeof GuestLayoutImport
+    }
+    '/_studentLayout/about': {
+      id: '/_studentLayout/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof StudentLayoutAboutImport
+      parentRoute: typeof StudentLayoutImport
+    }
+    '/_studentLayout/profile': {
+      id: '/_studentLayout/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof StudentLayoutProfileImport
+      parentRoute: typeof StudentLayoutImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AdminLayoutRouteChildren {
+  AdminLayoutDashboardRoute: typeof AdminLayoutDashboardRoute
+}
+
+const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
+  AdminLayoutDashboardRoute: AdminLayoutDashboardRoute,
+}
+
+const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
+  AdminLayoutRouteChildren,
+)
+
+interface GuestLayoutRouteChildren {
+  GuestLayoutLoginRoute: typeof GuestLayoutLoginRoute
+  GuestLayoutRegisterRoute: typeof GuestLayoutRegisterRoute
+}
+
+const GuestLayoutRouteChildren: GuestLayoutRouteChildren = {
+  GuestLayoutLoginRoute: GuestLayoutLoginRoute,
+  GuestLayoutRegisterRoute: GuestLayoutRegisterRoute,
+}
+
+const GuestLayoutRouteWithChildren = GuestLayoutRoute._addFileChildren(
+  GuestLayoutRouteChildren,
+)
+
+interface StudentLayoutRouteChildren {
+  StudentLayoutAboutRoute: typeof StudentLayoutAboutRoute
+  StudentLayoutProfileRoute: typeof StudentLayoutProfileRoute
+}
+
+const StudentLayoutRouteChildren: StudentLayoutRouteChildren = {
+  StudentLayoutAboutRoute: StudentLayoutAboutRoute,
+  StudentLayoutProfileRoute: StudentLayoutProfileRoute,
+}
+
+const StudentLayoutRouteWithChildren = StudentLayoutRoute._addFileChildren(
+  StudentLayoutRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '': typeof StudentLayoutRouteWithChildren
+  '/dashboard': typeof AdminLayoutDashboardRoute
+  '/login': typeof GuestLayoutLoginRoute
+  '/register': typeof GuestLayoutRegisterRoute
+  '/about': typeof StudentLayoutAboutRoute
+  '/profile': typeof StudentLayoutProfileRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '': typeof StudentLayoutRouteWithChildren
+  '/dashboard': typeof AdminLayoutDashboardRoute
+  '/login': typeof GuestLayoutLoginRoute
+  '/register': typeof GuestLayoutRegisterRoute
+  '/about': typeof StudentLayoutAboutRoute
+  '/profile': typeof StudentLayoutProfileRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '/_adminLayout': typeof AdminLayoutRouteWithChildren
+  '/_guestLayout': typeof GuestLayoutRouteWithChildren
+  '/_studentLayout': typeof StudentLayoutRouteWithChildren
+  '/_adminLayout/dashboard': typeof AdminLayoutDashboardRoute
+  '/_guestLayout/login': typeof GuestLayoutLoginRoute
+  '/_guestLayout/register': typeof GuestLayoutRegisterRoute
+  '/_studentLayout/about': typeof StudentLayoutAboutRoute
+  '/_studentLayout/profile': typeof StudentLayoutProfileRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/dashboard' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | ''
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/dashboard' | '/login' | '/register'
-  id: '__root__' | '/' | '/about' | '/dashboard' | '/login' | '/register'
+  to: '/' | '' | '/dashboard' | '/login' | '/register' | '/about' | '/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/_adminLayout'
+    | '/_guestLayout'
+    | '/_studentLayout'
+    | '/_adminLayout/dashboard'
+    | '/_guestLayout/login'
+    | '/_guestLayout/register'
+    | '/_studentLayout/about'
+    | '/_studentLayout/profile'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  DashboardRoute: typeof DashboardRoute
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
+  AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
+  GuestLayoutRoute: typeof GuestLayoutRouteWithChildren
+  StudentLayoutRoute: typeof StudentLayoutRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  DashboardRoute: DashboardRoute,
-  LoginRoute: LoginRoute,
-  RegisterRoute: RegisterRoute,
+  AdminLayoutRoute: AdminLayoutRouteWithChildren,
+  GuestLayoutRoute: GuestLayoutRouteWithChildren,
+  StudentLayoutRoute: StudentLayoutRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -154,26 +270,53 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
-        "/dashboard",
-        "/login",
-        "/register"
+        "/_adminLayout",
+        "/_guestLayout",
+        "/_studentLayout"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/about": {
-      "filePath": "about.tsx"
+    "/_adminLayout": {
+      "filePath": "_adminLayout.tsx",
+      "children": [
+        "/_adminLayout/dashboard"
+      ]
     },
-    "/dashboard": {
-      "filePath": "dashboard.tsx"
+    "/_guestLayout": {
+      "filePath": "_guestLayout.tsx",
+      "children": [
+        "/_guestLayout/login",
+        "/_guestLayout/register"
+      ]
     },
-    "/login": {
-      "filePath": "login.tsx"
+    "/_studentLayout": {
+      "filePath": "_studentLayout.tsx",
+      "children": [
+        "/_studentLayout/about",
+        "/_studentLayout/profile"
+      ]
     },
-    "/register": {
-      "filePath": "register.tsx"
+    "/_adminLayout/dashboard": {
+      "filePath": "_adminLayout/dashboard.tsx",
+      "parent": "/_adminLayout"
+    },
+    "/_guestLayout/login": {
+      "filePath": "_guestLayout/login.tsx",
+      "parent": "/_guestLayout"
+    },
+    "/_guestLayout/register": {
+      "filePath": "_guestLayout/register.tsx",
+      "parent": "/_guestLayout"
+    },
+    "/_studentLayout/about": {
+      "filePath": "_studentLayout/about.tsx",
+      "parent": "/_studentLayout"
+    },
+    "/_studentLayout/profile": {
+      "filePath": "_studentLayout/profile.tsx",
+      "parent": "/_studentLayout"
     }
   }
 }
