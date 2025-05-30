@@ -1,4 +1,4 @@
-import { type HTMLAttributes, useState } from 'react'
+import { type HTMLAttributes } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,19 +15,13 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
-import { loginSchema } from '@/schemas/auth.validation.schema'
-import { useMutation } from '@tanstack/react-query'
-import { loginQuery } from '@/services/auth.service'
-import { useNavigate } from '@tanstack/react-router'
-import { useAuthStore } from '@/stores/auth.store'
+import { loginSchema } from '@/schemas/auth.schema'
+import { useLogin } from '../api/use-login'
 
 type UserAuthFormProps = HTMLAttributes<HTMLFormElement>
 
-
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const navigate = useNavigate()
-  const { auth } = useAuthStore()
-  const [isLoading, setIsLoading] = useState(false)
+  const { mutate: login, isLoading, isError, error, reset } = useLogin()
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -37,25 +31,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   })
 
-
-  const loginMutation = useMutation({
-    mutationFn: (data: z.infer<typeof loginSchema>) => loginQuery(data),
-    onMutate: () => setIsLoading(true),
-    onError: (err) => setIsLoading(false),
-    onSuccess: (data) => {
-      console.log("Login successful:", data),
-        auth.setAccessToken(data.token)
-      navigate({ to: "/" })
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
-    }
-
-  })
   function onSubmit(data: z.infer<typeof loginSchema>) {
-    loginMutation.mutate(data)
+    reset()
+    login(data)
   }
-
 
   return (
     <Form {...form}>
@@ -64,6 +43,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         className={cn('grid gap-3', className)}
         {...props}
       >
+        {/* Show error message if login fails */}
+        {isError && (
+          <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error?.message || 'Login failed. Please try again.'}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name='email'
@@ -77,6 +63,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name='password'
@@ -87,12 +74,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
               <FormMessage />
-
             </FormItem>
           )}
         />
+
         <Button className='mt-2' disabled={isLoading}>
-          Login
+          {isLoading ? 'Signing in...' : 'Login'}
         </Button>
 
         <div className='relative my-2'>
