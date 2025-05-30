@@ -14,6 +14,4 @@ export const registerSchema = z
         password: passwordSchema,
     })
 
-export type LoginSchema = z.infer<typeof loginSchema>
-export type RegisterSchema = z.infer<typeof registerSchema>
 

@@ -1,41 +1,81 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider, type QueryFunctionContext } from '@tanstack/react-query'
+import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
 import './App.css'
 import reportWebVitals from './reportWebVitals.ts'
+import { ThemeProvider } from './contexts/theme-context.tsx'
+import { FontProvider } from './contexts/font-context.tsx'
+import { AxiosError } from 'axios'
+import { handleServerError } from './utils/handle-server-error.ts'
+import { toast } from 'sonner'
+import { useAuthStore } from './stores/auth.store.ts'
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        // eslint-disable-next-line no-console
+        if (import.meta.env.DEV) console.log({ failureCount, error })
+
+        if (failureCount >= 0 && import.meta.env.DEV) return false
+        if (failureCount > 3 && import.meta.env.PROD) return false
+
+        return !(
+          error instanceof AxiosError &&
+          [401, 403].includes(error.response?.status ?? 0)
+        )
+      },
+      refetchOnWindowFocus: import.meta.env.PROD,
+      staleTime: 10 * 1000, // 10s
+    },
+    // mutations: {
+    //   onError: (error) => {
+    //     handleServerError(error)
+    //     if (error instanceof AxiosError) {
+    //       if (error.response?.status === 304) {
+    //         toast.error('Content not modified!')
+    //       }
+    //     }
+    //   },
+    // },
+  },
+  queryCache: new QueryCache({
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          toast.error('Session expired!')
+          useAuthStore.getState().auth.reset()
+          const redirect = `${router.history.location.href}`
+          router.navigate({ to: '/login', search: { redirect } })
+        }
+        if (error.response?.status === 500) {
+          toast.error('Internal Server Error!')
+          router.navigate({ to: '/500' })
+        }
+        if (error.response?.status === 403) {
+          router.navigate({ to: '/403' });
+        }
+      }
+    },
+  }),
+})
 // Create a new router instance
 const router = createRouter({
   routeTree,
-  context: {},
+  context: { queryClient },
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
 })
 
-console.log(BASE_URL)
 
-
-const defaultQueryFn = async (context: QueryFunctionContext) => {
-  const response = await fetch(`${BASE_URL}/${context.queryKey[0]}`);
-  const data = await response.json();
-  return data;
-}
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      queryFn: defaultQueryFn,
-    },
-  },
-})
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
@@ -51,7 +91,11 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
+          <FontProvider>
+            <RouterProvider router={router} />
+          </FontProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,
   )

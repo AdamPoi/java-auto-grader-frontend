@@ -11,252 +11,269 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as StudentLayoutImport } from './routes/_studentLayout'
-import { Route as GuestLayoutImport } from './routes/_guestLayout'
-import { Route as AdminLayoutImport } from './routes/_adminLayout'
-import { Route as IndexImport } from './routes/index'
-import { Route as StudentLayoutProfileImport } from './routes/_studentLayout/profile'
-import { Route as StudentLayoutAboutImport } from './routes/_studentLayout/about'
-import { Route as GuestLayoutRegisterImport } from './routes/_guestLayout/register'
-import { Route as GuestLayoutLoginImport } from './routes/_guestLayout/login'
-import { Route as AdminLayoutDashboardImport } from './routes/_adminLayout/dashboard'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
+import { Route as errors503Import } from './routes/(errors)/503'
+import { Route as errors500Import } from './routes/(errors)/500'
+import { Route as errors404Import } from './routes/(errors)/404'
+import { Route as errors403Import } from './routes/(errors)/403'
+import { Route as errors401Import } from './routes/(errors)/401'
+import { Route as authLoginImport } from './routes/(auth)/login'
+import { Route as AuthenticatedUsersIndexImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedDashboardIndexImport } from './routes/_authenticated/dashboard/index'
 
 // Create/Update Routes
 
-const StudentLayoutRoute = StudentLayoutImport.update({
-  id: '/_studentLayout',
+const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
-const GuestLayoutRoute = GuestLayoutImport.update({
-  id: '/_guestLayout',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AdminLayoutRoute = AdminLayoutImport.update({
-  id: '/_adminLayout',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
+const errors503Route = errors503Import.update({
+  id: '/(errors)/503',
+  path: '/503',
   getParentRoute: () => rootRoute,
 } as any)
 
-const StudentLayoutProfileRoute = StudentLayoutProfileImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => StudentLayoutRoute,
+const errors500Route = errors500Import.update({
+  id: '/(errors)/500',
+  path: '/500',
+  getParentRoute: () => rootRoute,
 } as any)
 
-const StudentLayoutAboutRoute = StudentLayoutAboutImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => StudentLayoutRoute,
+const errors404Route = errors404Import.update({
+  id: '/(errors)/404',
+  path: '/404',
+  getParentRoute: () => rootRoute,
 } as any)
 
-const GuestLayoutRegisterRoute = GuestLayoutRegisterImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => GuestLayoutRoute,
+const errors403Route = errors403Import.update({
+  id: '/(errors)/403',
+  path: '/403',
+  getParentRoute: () => rootRoute,
 } as any)
 
-const GuestLayoutLoginRoute = GuestLayoutLoginImport.update({
-  id: '/login',
+const errors401Route = errors401Import.update({
+  id: '/(errors)/401',
+  path: '/401',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authLoginRoute = authLoginImport.update({
+  id: '/(auth)/login',
   path: '/login',
-  getParentRoute: () => GuestLayoutRoute,
+  getParentRoute: () => rootRoute,
 } as any)
 
-const AdminLayoutDashboardRoute = AdminLayoutDashboardImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AdminLayoutRoute,
+const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_adminLayout': {
-      id: '/_adminLayout'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AdminLayoutImport
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRoute
     }
-    '/_guestLayout': {
-      id: '/_guestLayout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof GuestLayoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/_studentLayout': {
-      id: '/_studentLayout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof StudentLayoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/_adminLayout/dashboard': {
-      id: '/_adminLayout/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AdminLayoutDashboardImport
-      parentRoute: typeof AdminLayoutImport
-    }
-    '/_guestLayout/login': {
-      id: '/_guestLayout/login'
+    '/(auth)/login': {
+      id: '/(auth)/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof GuestLayoutLoginImport
-      parentRoute: typeof GuestLayoutImport
+      preLoaderRoute: typeof authLoginImport
+      parentRoute: typeof rootRoute
     }
-    '/_guestLayout/register': {
-      id: '/_guestLayout/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof GuestLayoutRegisterImport
-      parentRoute: typeof GuestLayoutImport
+    '/(errors)/401': {
+      id: '/(errors)/401'
+      path: '/401'
+      fullPath: '/401'
+      preLoaderRoute: typeof errors401Import
+      parentRoute: typeof rootRoute
     }
-    '/_studentLayout/about': {
-      id: '/_studentLayout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof StudentLayoutAboutImport
-      parentRoute: typeof StudentLayoutImport
+    '/(errors)/403': {
+      id: '/(errors)/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof errors403Import
+      parentRoute: typeof rootRoute
     }
-    '/_studentLayout/profile': {
-      id: '/_studentLayout/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof StudentLayoutProfileImport
-      parentRoute: typeof StudentLayoutImport
+    '/(errors)/404': {
+      id: '/(errors)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof errors404Import
+      parentRoute: typeof rootRoute
+    }
+    '/(errors)/500': {
+      id: '/(errors)/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof errors500Import
+      parentRoute: typeof rootRoute
+    }
+    '/(errors)/503': {
+      id: '/(errors)/503'
+      path: '/503'
+      fullPath: '/503'
+      preLoaderRoute: typeof errors503Import
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/users/': {
+      id: '/_authenticated/users/'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface AdminLayoutRouteChildren {
-  AdminLayoutDashboardRoute: typeof AdminLayoutDashboardRoute
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
 }
 
-const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
-  AdminLayoutDashboardRoute: AdminLayoutDashboardRoute,
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
 }
 
-const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
-  AdminLayoutRouteChildren,
-)
-
-interface GuestLayoutRouteChildren {
-  GuestLayoutLoginRoute: typeof GuestLayoutLoginRoute
-  GuestLayoutRegisterRoute: typeof GuestLayoutRegisterRoute
-}
-
-const GuestLayoutRouteChildren: GuestLayoutRouteChildren = {
-  GuestLayoutLoginRoute: GuestLayoutLoginRoute,
-  GuestLayoutRegisterRoute: GuestLayoutRegisterRoute,
-}
-
-const GuestLayoutRouteWithChildren = GuestLayoutRoute._addFileChildren(
-  GuestLayoutRouteChildren,
-)
-
-interface StudentLayoutRouteChildren {
-  StudentLayoutAboutRoute: typeof StudentLayoutAboutRoute
-  StudentLayoutProfileRoute: typeof StudentLayoutProfileRoute
-}
-
-const StudentLayoutRouteChildren: StudentLayoutRouteChildren = {
-  StudentLayoutAboutRoute: StudentLayoutAboutRoute,
-  StudentLayoutProfileRoute: StudentLayoutProfileRoute,
-}
-
-const StudentLayoutRouteWithChildren = StudentLayoutRoute._addFileChildren(
-  StudentLayoutRouteChildren,
-)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '': typeof StudentLayoutRouteWithChildren
-  '/dashboard': typeof AdminLayoutDashboardRoute
-  '/login': typeof GuestLayoutLoginRoute
-  '/register': typeof GuestLayoutRegisterRoute
-  '/about': typeof StudentLayoutAboutRoute
-  '/profile': typeof StudentLayoutProfileRoute
+  '': typeof AuthenticatedRouteRouteWithChildren
+  '/login': typeof authLoginRoute
+  '/401': typeof errors401Route
+  '/403': typeof errors403Route
+  '/404': typeof errors404Route
+  '/500': typeof errors500Route
+  '/503': typeof errors503Route
+  '/': typeof AuthenticatedIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/users': typeof AuthenticatedUsersIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '': typeof StudentLayoutRouteWithChildren
-  '/dashboard': typeof AdminLayoutDashboardRoute
-  '/login': typeof GuestLayoutLoginRoute
-  '/register': typeof GuestLayoutRegisterRoute
-  '/about': typeof StudentLayoutAboutRoute
-  '/profile': typeof StudentLayoutProfileRoute
+  '/login': typeof authLoginRoute
+  '/401': typeof errors401Route
+  '/403': typeof errors403Route
+  '/404': typeof errors404Route
+  '/500': typeof errors500Route
+  '/503': typeof errors503Route
+  '/': typeof AuthenticatedIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/users': typeof AuthenticatedUsersIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/_adminLayout': typeof AdminLayoutRouteWithChildren
-  '/_guestLayout': typeof GuestLayoutRouteWithChildren
-  '/_studentLayout': typeof StudentLayoutRouteWithChildren
-  '/_adminLayout/dashboard': typeof AdminLayoutDashboardRoute
-  '/_guestLayout/login': typeof GuestLayoutLoginRoute
-  '/_guestLayout/register': typeof GuestLayoutRegisterRoute
-  '/_studentLayout/about': typeof StudentLayoutAboutRoute
-  '/_studentLayout/profile': typeof StudentLayoutProfileRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
+  '/(errors)/401': typeof errors401Route
+  '/(errors)/403': typeof errors403Route
+  '/(errors)/404': typeof errors404Route
+  '/(errors)/500': typeof errors500Route
+  '/(errors)/503': typeof errors503Route
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | ''
-    | '/dashboard'
     | '/login'
-    | '/register'
-    | '/about'
-    | '/profile'
+    | '/401'
+    | '/403'
+    | '/404'
+    | '/500'
+    | '/503'
+    | '/'
+    | '/dashboard'
+    | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/dashboard' | '/login' | '/register' | '/about' | '/profile'
+  to:
+    | '/login'
+    | '/401'
+    | '/403'
+    | '/404'
+    | '/500'
+    | '/503'
+    | '/'
+    | '/dashboard'
+    | '/users'
   id:
     | '__root__'
-    | '/'
-    | '/_adminLayout'
-    | '/_guestLayout'
-    | '/_studentLayout'
-    | '/_adminLayout/dashboard'
-    | '/_guestLayout/login'
-    | '/_guestLayout/register'
-    | '/_studentLayout/about'
-    | '/_studentLayout/profile'
+    | '/_authenticated'
+    | '/(auth)/login'
+    | '/(errors)/401'
+    | '/(errors)/403'
+    | '/(errors)/404'
+    | '/(errors)/500'
+    | '/(errors)/503'
+    | '/_authenticated/'
+    | '/_authenticated/dashboard/'
+    | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
-  GuestLayoutRoute: typeof GuestLayoutRouteWithChildren
-  StudentLayoutRoute: typeof StudentLayoutRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  authLoginRoute: typeof authLoginRoute
+  errors401Route: typeof errors401Route
+  errors403Route: typeof errors403Route
+  errors404Route: typeof errors404Route
+  errors500Route: typeof errors500Route
+  errors503Route: typeof errors503Route
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdminLayoutRoute: AdminLayoutRouteWithChildren,
-  GuestLayoutRoute: GuestLayoutRouteWithChildren,
-  StudentLayoutRoute: StudentLayoutRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  authLoginRoute: authLoginRoute,
+  errors401Route: errors401Route,
+  errors403Route: errors403Route,
+  errors404Route: errors404Route,
+  errors500Route: errors500Route,
+  errors503Route: errors503Route,
 }
 
 export const routeTree = rootRoute
@@ -269,54 +286,52 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/_adminLayout",
-        "/_guestLayout",
-        "/_studentLayout"
+        "/_authenticated",
+        "/(auth)/login",
+        "/(errors)/401",
+        "/(errors)/403",
+        "/(errors)/404",
+        "/(errors)/500",
+        "/(errors)/503"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/_adminLayout": {
-      "filePath": "_adminLayout.tsx",
+    "/_authenticated": {
+      "filePath": "_authenticated/route.tsx",
       "children": [
-        "/_adminLayout/dashboard"
+        "/_authenticated/",
+        "/_authenticated/dashboard/",
+        "/_authenticated/users/"
       ]
     },
-    "/_guestLayout": {
-      "filePath": "_guestLayout.tsx",
-      "children": [
-        "/_guestLayout/login",
-        "/_guestLayout/register"
-      ]
+    "/(auth)/login": {
+      "filePath": "(auth)/login.tsx"
     },
-    "/_studentLayout": {
-      "filePath": "_studentLayout.tsx",
-      "children": [
-        "/_studentLayout/about",
-        "/_studentLayout/profile"
-      ]
+    "/(errors)/401": {
+      "filePath": "(errors)/401.tsx"
     },
-    "/_adminLayout/dashboard": {
-      "filePath": "_adminLayout/dashboard.tsx",
-      "parent": "/_adminLayout"
+    "/(errors)/403": {
+      "filePath": "(errors)/403.tsx"
     },
-    "/_guestLayout/login": {
-      "filePath": "_guestLayout/login.tsx",
-      "parent": "/_guestLayout"
+    "/(errors)/404": {
+      "filePath": "(errors)/404.tsx"
     },
-    "/_guestLayout/register": {
-      "filePath": "_guestLayout/register.tsx",
-      "parent": "/_guestLayout"
+    "/(errors)/500": {
+      "filePath": "(errors)/500.tsx"
     },
-    "/_studentLayout/about": {
-      "filePath": "_studentLayout/about.tsx",
-      "parent": "/_studentLayout"
+    "/(errors)/503": {
+      "filePath": "(errors)/503.tsx"
     },
-    "/_studentLayout/profile": {
-      "filePath": "_studentLayout/profile.tsx",
-      "parent": "/_studentLayout"
+    "/_authenticated/": {
+      "filePath": "_authenticated/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/dashboard/": {
+      "filePath": "_authenticated/dashboard/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/users/": {
+      "filePath": "_authenticated/users/index.tsx",
+      "parent": "/_authenticated"
     }
   }
 }

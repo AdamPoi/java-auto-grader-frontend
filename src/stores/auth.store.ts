@@ -1,33 +1,52 @@
+import Cookies from 'js-cookie'
 import { create } from 'zustand'
-import { authService } from '@/services/auth.service'
+
+
+interface AuthUser {
+    id: string
+    name: string
+    role: string[]
+}
+const ACCESS_TOKEN = 'java-grader-access-token'
 
 interface AuthState {
-    user: Record<string, any> | null
-    token: string | null
-    authError: string | null
-    login: (data: { email: string; password: string }) => Promise<void>
-    logout: () => void
+    auth: {
+        user: AuthUser | null
+        setUser: (user: AuthUser | null) => void
+        accessToken: string
+        setAccessToken: (accessToken: string) => void
+        resetAccessToken: () => void
+        reset: () => void
+    }
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-    user: null,
-    token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-    authError: null,
-
-    login: async ({ email, password }) => {
-        try {
-            const token = await authService.login({ email, password })
-            const user = await authService.getMe(token)
-
-            set({ token, user, authError: null })
-            localStorage.setItem('token', token)
-        } catch (err: any) {
-            set({ authError: err.message })
-        }
-    },
-
-    logout: () => {
-        set({ token: null, user: null })
-        localStorage.removeItem('token')
-    },
-}))
+export const useAuthStore = create<AuthState>()((set) => {
+    const cookieState = Cookies.get(ACCESS_TOKEN)
+    const initToken = cookieState ? JSON.parse(cookieState) : ''
+    return {
+        auth: {
+            user: null,
+            setUser: (user) =>
+                set((state) => ({ ...state, auth: { ...state.auth, user } })),
+            accessToken: initToken,
+            setAccessToken: (accessToken) =>
+                set((state) => {
+                    Cookies.set(ACCESS_TOKEN, JSON.stringify(accessToken))
+                    return { ...state, auth: { ...state.auth, accessToken } }
+                }),
+            resetAccessToken: () =>
+                set((state) => {
+                    Cookies.remove(ACCESS_TOKEN)
+                    return { ...state, auth: { ...state.auth, accessToken: '' } }
+                }),
+            reset: () =>
+                set((state) => {
+                    Cookies.remove(ACCESS_TOKEN)
+                    return {
+                        ...state,
+                        auth: { ...state.auth, user: null, accessToken: '' },
+                    }
+                }),
+        },
+    }
+})
