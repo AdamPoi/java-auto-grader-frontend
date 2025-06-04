@@ -1,6 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
 import Dashboard from '@/features/dashboard'
 import { getAuth } from '@/hooks/use-auth'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/dashboard/')({
   component: Dashboard,
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/')({
     const { isAuthenticated } = await getAuth()
     if (!isAuthenticated) {
       throw redirect({
-        to: '/login',
+        to: '/401',
       })
     }
   },

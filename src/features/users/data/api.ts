@@ -1,9 +1,9 @@
-import type { SearchParams } from "@/types/backendTypes";
+import axios from "@/lib/axios";
+import type { SearchRequestParams } from "@/types/api.types";
 import type { User } from "./schema";
-import axios from "@/utils/axios.config";
 
 export const UserApi = {
-    getUsers: async (params: SearchParams): Promise<User[]> => {
+    getUsers: async (params: SearchRequestParams): Promise<User[]> => {
         return (await axios.put("/api/users", params));
     },
 

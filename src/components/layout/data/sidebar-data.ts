@@ -1,7 +1,10 @@
 import {
   IconBarrierBlock,
+  IconBook,
   IconBrowserCheck,
   IconBug,
+  IconChalkboard,
+  IconChalkboardTeacher,
   IconChecklist,
   IconError404,
   IconHelp,
@@ -12,6 +15,7 @@ import {
   IconNotification,
   IconPackages,
   IconPalette,
+  IconSchool,
   IconServerOff,
   IconSettings,
   IconTool,
@@ -46,6 +50,7 @@ export const sidebarData: SidebarData = {
     },
   ],
   navGroups: [
+
     {
       title: 'General',
       items: [
@@ -54,11 +59,35 @@ export const sidebarData: SidebarData = {
           url: '/',
           icon: IconLayoutDashboard,
         },
-
+      ],
+    },
+    {
+      title: 'Data',
+      items: [
         {
           title: 'Users',
           url: '/users',
           icon: IconUsers,
+        },
+        {
+          title: 'Students',
+          url: '/',
+          icon: IconSchool,
+        },
+        {
+          title: 'Teachers',
+          url: '/',
+          icon: IconChalkboardTeacher,
+        },
+        {
+          title: 'Classroom',
+          url: '/',
+          icon: IconChalkboard,
+        },
+        {
+          title: 'Course',
+          url: '/',
+          icon: IconBook,
         },
       ],
     },

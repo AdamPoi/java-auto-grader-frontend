@@ -3,3 +3,12 @@ export type ErrorResponse = {
     message: string;
     path: string;
 }
+
+
+export type SearchRequestParams = {
+    search: string;
+    page: number;
+    sort: string;
+    limit: number;
+    order: string;
+}
