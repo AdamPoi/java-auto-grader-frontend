@@ -21,10 +21,24 @@ export const queryClient = new QueryClient({
                     [401, 403].includes(error.response?.status ?? 0)
                 )
             },
+            select: (data: any) => {
+                if (data && typeof data === 'object' && 'data' in data) {
+                    return data.data;
+                }
+                return data;
+            },
             refetchOnWindowFocus: import.meta.env.PROD,
             staleTime: 10 * 1000, // 10s
+            placeholderData: (previousData: any) => previousData,
         },
-
+        mutations: {
+            onSuccess: (data: any, variables: any, context: any) => {
+                if (data && typeof data === 'object' && 'data' in data) {
+                    return data.data;
+                }
+                return data;
+            },
+        },
     },
     queryCache: new QueryCache({
         onError: (error) => {

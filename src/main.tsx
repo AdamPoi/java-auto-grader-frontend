@@ -10,7 +10,7 @@ import './App.css'
 import reportWebVitals from './reportWebVitals.ts'
 import { ThemeProvider } from './contexts/theme-context.tsx'
 import { FontProvider } from './contexts/font-context.tsx'
-import { queryClient } from './api/query-client.ts'
+import { queryClient } from './lib/query-client.ts'
 
 
 

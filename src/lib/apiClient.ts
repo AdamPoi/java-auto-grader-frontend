@@ -1,4 +1,4 @@
-import axios from '@/api/axios'
+import axios from '@/lib/axios'
 import { isAxiosError } from "axios"
 import type { ErrorResponse } from '../types/api.types'
 import { toast } from 'sonner'
@@ -38,7 +38,7 @@ function handleError(error: unknown, method: string, url: string): never {
         if (error?.response?.status === 401) {
             errorMessage = 'You are not authorized to perform this action'
         }
-        errorMessage = data?.message
+        errorMessage = data?.error.message
         console.error(`[API][${method}] ${url} → status=${status}`, data || error.message)
         toast.error(errorMessage);
         throw new ApiError(errorMessage, status, data)
@@ -51,16 +51,16 @@ function handleError(error: unknown, method: string, url: string): never {
 export const apiClient = {
     get: async <T = unknown>({ url, params = {}, signal }: RequestOptions): Promise<T> => {
         try {
-            const res = await axios.get<T>(url, { params, signal })
-            return res.data
+            const res = await axios.get<{ data: T }>(url, { params, signal })
+            return res.data.data
         } catch (err) {
             handleError(err, 'GET', url)
         }
     },
     post: async <T = unknown, R = unknown>({ url, data, params = {}, signal }: DataRequestOptions<T>): Promise<R> => {
         try {
-            const res = await axios.post<R>(url, data, { params, signal })
-            return res.data
+            const res = await axios.post<{ data: R }>(url, data, { params, signal })
+            return res.data.data
         } catch (err) {
             handleError(err, 'POST', url)
         }
@@ -75,8 +75,8 @@ export const apiClient = {
     },
     put: async <T = unknown, R = unknown>({ url, data, params = {}, signal }: DataRequestOptions<T>): Promise<R> => {
         try {
-            const res = await axios.put<R>(url, data, { params, signal })
-            return res.data
+            const res = await axios.put<{ data: R }>(url, data, { params, signal })
+            return res.data.data
         } catch (err) {
             handleError(err, 'PUT', url)
         }

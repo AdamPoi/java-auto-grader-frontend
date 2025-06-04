@@ -1,11 +1,15 @@
-import Axios from "axios";
+import Axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
+import { refreshTokenQuery } from "@/api/auth";
+import type { ErrorResponse } from "@/types/api.types";
 
 const axios = Axios.create({});
 
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+    _retry?: boolean;
+}
 // Axios default option
 const serverUrl = import.meta.env.VITE_BACKEND_API_URL ?? 'http://localhost:3000';
-console.log("serverUrl", serverUrl);
 export const baseURL = `${serverUrl}`;
 
 axios.defaults.timeout = 60000; // Milliseconds
@@ -16,7 +20,6 @@ axios.interceptors.request.use(
 
         if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
-            config.headers["Access-Control-Allow-Credentials"] = true;
         }
         config.headers["Content-Type"] = "application/json";
         config.baseURL = baseURL;
@@ -27,4 +30,5 @@ axios.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
 export default axios

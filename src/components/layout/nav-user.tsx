@@ -39,7 +39,6 @@ export function NavUser({
   const navigate = useNavigate()
   const logout = () => {
     auth.reset()
-    console.log("logout")
     return navigate({ to: '/login', replace: true })
   }
 

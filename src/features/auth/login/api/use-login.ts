@@ -1,24 +1,28 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { LoginRequest, LoginResponse } from '@/types/auth.types';
-import { loginRequest } from '@/api/auth';
-import { useNavigate } from '@tanstack/react-router';
+import { loginQuery } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
+import { meQuery } from '@/api/auth';
+
 
 export function useLogin() {
     const { auth } = useAuthStore.getState()
-    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const mutation = useMutation<LoginResponse, Error, LoginRequest>({
-        mutationFn: (credentials: LoginRequest) => loginRequest(credentials),
-        onMutate: () => {
-            console.log('Attempting login…');
-        },
-        onError: (error: Error) => {
-            console.error('Login failed:', error);
-        },
-        onSuccess: (data: LoginResponse) => {
-            auth.setAccessToken(data.token);
-            navigate({ to: '/dashboard' });
+        mutationFn: (credentials: LoginRequest) => loginQuery(credentials),
+        onSuccess: async (data: LoginResponse) => {
+            try {
+                auth.setAccessToken(data.accessToken, data.expireIn);
+                auth.setRefreshToken(data.refreshToken)
+                const userData = await meQuery();
+                auth.setUser(userData);
+                queryClient.invalidateQueries({ queryKey: ['me'] });
+            } catch (error) {
+                console.error('Failed to fetch user data after login:', error);
+                auth.resetTokens();
+                throw error;
+            }
         },
     });
 
