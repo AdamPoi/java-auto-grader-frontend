@@ -1,6 +1,6 @@
+import { refreshTokenQuery } from '@/api/auth'; // You'll need to implement this
 import Cookies from 'js-cookie'
 import { create } from 'zustand'
-import { refreshTokenQuery } from '@/api/auth' // You'll need to implement this
 
 interface AuthUser {
     id: string
@@ -36,7 +36,6 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => {
-    // Initialize tokens from cookies
     const getTokenFromCookie = (key: string): string => {
         const cookieValue = Cookies.get(key)
         return cookieValue ? JSON.parse(cookieValue) : ''
@@ -47,13 +46,11 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         return cookieValue ? JSON.parse(cookieValue) : null
     }
 
-    // Initialize user from cookies
     const getUserFromCookie = (): AuthUser | null => {
         const userCookie = Cookies.get(USER)
         return userCookie ? JSON.parse(userCookie) : null
     }
 
-    // Calculate expiry date from expireIn seconds
     const calculateExpiryDate = (expireInSeconds: number): number => {
         return Date.now() + (expireInSeconds * 1000)
     }
@@ -127,7 +124,6 @@ export const useAuthStore = create<AuthState>()((set, get) => {
             isTokenExpired: () => {
                 const { tokenExpiry } = get().auth
                 if (!tokenExpiry) return true
-                // Add 5 minute buffer before actual expiry
                 return Date.now() >= (tokenExpiry - 5 * 60 * 1000)
             },
 
@@ -157,8 +153,6 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                     const response = await refreshTokenQuery(refreshToken)
                     const { setAccessToken } = get().auth
 
-                    // Note: Your RefreshTokenResponse doesn't include a new refreshToken
-                    // so we only update the access token
                     setAccessToken(response.accessToken, response.expireIn)
                     return true
                 } catch (error) {

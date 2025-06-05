@@ -3,23 +3,79 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import type { SearchRequestParams } from '@/types/api.types'
+import { type SortingState } from '@tanstack/react-table'
+import { useEffect, useState } from 'react'
 import { columns } from './components/users-columns'
 import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersTable } from './components/users-table'
 import UsersProvider from './context/users-context'
-import { userListSchema } from './data/schema'
-import { users } from './data/users'
 import { useUsers } from './hooks/use-user'
-import UserQuery from './data/query'
 
 export default function Users() {
-  // Parse user list
-  // const userList = userListSchema.parse(users)
-  const { data, error, isLoading } = UserQuery.MyUser.useQuery({});
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [filter, setFilter] = useState<string | undefined>(undefined);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (searchValue === '') {
+      setDebouncedSearchValue('');
+    } else {
+      const handler = setTimeout(() => {
+        setDebouncedSearchValue(searchValue);
+      }, 500);
+
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [searchValue]);
+
+  useEffect(() => {
+    const filters: string[] = [];
+    if (debouncedSearchValue) {
+      filters.push(`search=like:${debouncedSearchValue}`);
+    }
+    if (roleFilter.length > 0) {
+      filters.push(`roles=in:${roleFilter.join(',')}`);
+    }
+    if (sorting.length > 0) {
+      const sort = sorting[0];
+      const sortString = `sort=${sort.desc ? '-' : '+'}${sort.id}`;
+      filters.push(sortString);
+    }
+    setFilter(filters.length > 0 ? filters.join('&') : undefined);
+
+    const url = new URL(window.location.href);
+    if (filters.length > 0) {
+      url.searchParams.set('filter', filters.join('&'));
+    } else {
+      url.searchParams.delete('filter');
+    }
+    window.history.replaceState({}, '', url.toString());
+
+  }, [debouncedSearchValue, roleFilter, sorting]);
+
+
+  const searchParams: SearchRequestParams = {
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    filter: filter, // RHS colon filter
+  };
+
+  const { data, isLoading, refetch } = useUsers(searchParams);
+
+
+  const content = data?.content || [];
+  const totalRowCount = data?.totalElements || 0;
 
   return (
     <UsersProvider>
@@ -30,7 +86,6 @@ export default function Users() {
           <ProfileDropdown />
         </div>
       </Header>
-
       <Main>
         <div className='mb-2 flex flex-wrap items-center justify-between space-y-2'>
           <div>
@@ -42,10 +97,22 @@ export default function Users() {
           <UsersPrimaryButtons />
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
-          <UsersTable data={users} columns={columns} />
+          <UsersTable
+            columns={columns}
+            data={content}
+            isLoading={isLoading}
+            pagination={pagination}
+            setPagination={setPagination}
+            sorting={sorting}
+            setSorting={setSorting}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            roleFilter={roleFilter}
+            setRoleFilter={setRoleFilter}
+            totalRowCount={totalRowCount}
+          />
         </div>
-      </Main>
-
+      </Main>// Dependencies for the effect
       <UsersDialogs />
     </UsersProvider>
   )

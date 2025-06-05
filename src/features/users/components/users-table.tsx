@@ -1,19 +1,3 @@
-import { useState } from 'react'
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type RowData,
-  type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
 import {
   Table,
   TableBody,
@@ -22,6 +6,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type OnChangeFn,
+  type PaginationState,
+  type RowData,
+  type SortingState,
+  type VisibilityState,
+} from '@tanstack/react-table'
+import { useState } from 'react'
 import { type User } from '../data/schema'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
@@ -36,13 +38,35 @@ declare module '@tanstack/react-table' {
 interface DataTableProps {
   columns: ColumnDef<User>[]
   data: User[]
+  isLoading: boolean
+  pagination: PaginationState
+  setPagination: OnChangeFn<PaginationState>
+  sorting: SortingState
+  setSorting: OnChangeFn<SortingState>
+  searchValue: string; // Add searchValue prop
+  setSearchValue: (value: string) => void; // Add setSearchValue prop
+  roleFilter: string[]; // Add roleFilter prop
+  setRoleFilter: (value: string[]) => void; // Add setRoleFilter prop
+  totalRowCount: number
 }
 
-export function UsersTable({ columns, data }: DataTableProps) {
+export function UsersTable({
+  columns,
+  data,
+  isLoading,
+  pagination,
+  setPagination,
+  sorting,
+  setSorting,
+  searchValue,
+  setSearchValue,
+  roleFilter,
+  setRoleFilter,
+  totalRowCount,
+}: DataTableProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
@@ -52,23 +76,30 @@ export function UsersTable({ columns, data }: DataTableProps) {
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+    pageCount: Math.ceil(totalRowCount / pagination.pageSize),
+    rowCount: totalRowCount,
   })
 
   return (
     <div className='space-y-4'>
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} searchValue={searchValue} setSearchValue={setSearchValue} roleFilter={roleFilter} setRoleFilter={setRoleFilter} /> {/* Pass search and role filter states and setters to toolbar */}
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
@@ -94,7 +125,13 @@ export function UsersTable({ columns, data }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

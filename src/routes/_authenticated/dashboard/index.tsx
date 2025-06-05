@@ -8,7 +8,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/')({
     const { isAuthenticated } = await getAuth()
     if (!isAuthenticated) {
       throw redirect({
-        to: '/401',
+        to: '/login',
       })
     }
   },

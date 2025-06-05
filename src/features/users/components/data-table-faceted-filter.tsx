@@ -1,7 +1,3 @@
-import * as React from 'react'
-import { CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons'
-import { type Column } from '@tanstack/react-table'
-import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,6 +15,11 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
+import { CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons'
+import { type Column } from '@tanstack/react-table'
+import * as React from 'react'
+import { useState } from 'react'; // Import useState
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -28,15 +29,28 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
+  onFilterChange: (selectedValues: string[]) => void; // Add onFilterChange prop
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  onFilterChange, // Destructure onFilterChange
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues()
-  const selectedValues = new Set(column?.getFilterValue() as string[])
+  const selectedValues = new Set(column?.getFilterValue() as string[]) // Keep for initial state if needed, but will be managed externally
+  const [localSelectedValues, setLocalSelectedValues] = useState<Set<string>>(selectedValues); // Use local state
+
+  React.useEffect(() => {
+    // Initialize local state from column filter if needed
+    const initialFilterValue = column?.getFilterValue() as string[] | undefined;
+    if (initialFilterValue) {
+      setLocalSelectedValues(new Set(initialFilterValue));
+    }
+  }, [column]);
+
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -85,20 +99,19 @@ export function DataTableFacetedFilter<TData, TValue>({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = selectedValues.has(option.value)
+                const isSelected = localSelectedValues.has(option.value); // Use local state for isSelected
                 return (
                   <CommandItem
                     key={option.value}
                     onSelect={() => {
+                      const newSelectedValues = new Set(localSelectedValues);
                       if (isSelected) {
-                        selectedValues.delete(option.value)
+                        newSelectedValues.delete(option.value);
                       } else {
-                        selectedValues.add(option.value)
+                        newSelectedValues.add(option.value);
                       }
-                      const filterValues = Array.from(selectedValues)
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      )
+                      setLocalSelectedValues(newSelectedValues);
+                      onFilterChange(Array.from(newSelectedValues) as string[]); // Call the callback with explicit cast
                     }}
                   >
                     <div
@@ -124,12 +137,15 @@ export function DataTableFacetedFilter<TData, TValue>({
                 )
               })}
             </CommandGroup>
-            {selectedValues.size > 0 && (
+            {localSelectedValues.size > 0 && ( // Use local state for conditional rendering
               <>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => {
+                      setLocalSelectedValues(new Set()); // Clear local state
+                      onFilterChange([]); // Call the callback with empty array
+                    }}
                     className='justify-center text-center'
                   >
                     Clear filters

@@ -1,5 +1,5 @@
-import { useAuthStore } from '@/stores/auth.store'
 import { meQuery } from '@/api/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { useLoaderStore } from '@/stores/loader.store'
 
 export const getAuth = async (): Promise<{
@@ -10,16 +10,14 @@ export const getAuth = async (): Promise<{
     const { auth } = useAuthStore.getState()
     const { setIsLoading } = useLoaderStore.getState()
 
-    // Check if token is expired and try to refresh
     if (!auth.accessToken || (auth.isTokenExpired() && auth.refreshToken)) {
         try {
             setIsLoading(true)
             const success = await auth.refreshAccessToken()
 
             if (success) {
-                // Get updated auth state after refresh
                 setIsLoading(false)
-                return getAuth() // Recursive call with new token
+                return getAuth()
             } else {
                 setIsLoading(false)
                 return { isAuthenticated: false, user: null, accessToken: null }
@@ -32,7 +30,6 @@ export const getAuth = async (): Promise<{
         }
     }
 
-    // If have access token but no user, fetch user
     if (auth.accessToken && !auth.user && !auth.isTokenExpired()) {
         try {
             setIsLoading(true)
@@ -50,18 +47,16 @@ export const getAuth = async (): Promise<{
             console.error('User fetch failed:', error)
             setIsLoading(false)
 
-            // If 401, token might be invalid, try refresh if we have refresh token
             if (error?.status === 401 || error?.response?.status === 401) {
                 if (auth.refreshToken) {
-                    auth.resetTokens() // Clear invalid access token but keep refresh token
-                    return getAuth() // Try refresh
+                    auth.resetTokens()
+                    return getAuth()
                 } else {
                     auth.reset()
                     return { isAuthenticated: false, user: null, accessToken: null }
                 }
             }
 
-            // For other errors, still consider authenticated but without user data
             return {
                 isAuthenticated: !auth.isTokenExpired(),
                 user: null,

@@ -1,31 +1,45 @@
-import { useDataFetching } from '@/hooks/use-data-fetching';
-import type { SearchParams } from '@/types/backendTypes';
-import { useQuery } from '@tanstack/react-query';
+import type { SearchRequestParams } from '@/types/api.types'; // Corrected import
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { UserApi } from '../data/api';
-// import { UserApi } from '@/app/api/userApi';
-// import { USERS } from '@/app/ts/constants/process';
-// import { useDataFetching } from '@/hooks/useDataFetching';
-// import { useQueryProps } from '@/app/ts/interfaces/configs/types';
-// import { ERROR_FETCHING_USERS } from '@/app/ts/constants/messages';
 
-export const useUsers = (params: SearchParams) => {
-    const errorMessage = "Something went wrong while fetching users";
-    const getUsers = async () => {
-        return await UserApi.getUsers(params);
-    };
-    const {
-        data: users,
-        isLoading: isLoadingUsers,
-        refetch: refetchUsers,
-        error: errorUsers,
-        isError: isErrorUsers,
-    } = useQuery({
-        queryKey: ['users'],
-        queryFn: getUsers,
-        retry: 0,
+
+const QUERY_KEY = "users";
+
+export function getQueryKey(params: SearchRequestParams) {
+    return [QUERY_KEY, params];
+}
+
+export const useUsers = (params: SearchRequestParams) => {
+    const query = useQuery({
+        queryKey: getQueryKey(params),
+        queryFn: async () => {
+            const response = await UserApi.getUsers(params);
+            return response;
+        },
     });
 
-    useDataFetching({ isLoading: isLoadingUsers, isError: isErrorUsers, error: errorUsers, errorMessage });
 
-    return { users, isLoadingUsers, refetchUsers, errorUsers };
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        if (query.data?.hasNext) {
+            const nextPageParams = { ...params, page: params.page + 1 };
+            queryClient.prefetchQuery({
+                queryKey: getQueryKey(nextPageParams),
+                queryFn: async () => {
+                    return await UserApi.getUsers(nextPageParams);
+                },
+            });
+        }
+    }, [query.data, params, queryClient]);
+
+    return {
+        data: query.data,
+        isLoading: query.isLoading,
+        isError: query.isError,
+        error: query.error,
+        refetch: async () => {
+            await query.refetch();
+        },
+    };
 };

@@ -6,9 +6,18 @@ export type ErrorResponse = {
 
 
 export type SearchRequestParams = {
-    search: string;
     page: number;
-    sort: string;
-    limit: number;
-    order: string;
+    size: number;
+    filter?: string;
+}
+
+export type SearchResponse<T> = {
+    content: T[];
+    page: number;
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
 }
