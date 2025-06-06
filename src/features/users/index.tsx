@@ -112,7 +112,7 @@ export default function Users() {
             totalRowCount={totalRowCount}
           />
         </div>
-      </Main>// Dependencies for the effect
+      </Main>
       <UsersDialogs />
     </UsersProvider>
   )

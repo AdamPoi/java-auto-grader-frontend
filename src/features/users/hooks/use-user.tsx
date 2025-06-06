@@ -1,7 +1,8 @@
 import type { SearchRequestParams } from '@/types/api.types'; // Corrected import
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { UserApi } from '../data/api';
+import { type User } from '../data/schema';
 
 
 const QUERY_KEY = "users";
@@ -42,4 +43,34 @@ export const useUsers = (params: SearchRequestParams) => {
             await query.refetch();
         },
     };
+};
+
+export const useCreateUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'confirmPassword'>) => UserApi.createUser(userData),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+        },
+    });
+};
+
+export const useUpdateUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, userData }: { userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'permissions' | 'isActive'>> }) => UserApi.updateUser(userId, userData),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+        },
+    });
+};
+
+export const useDeleteUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: UserApi.deleteUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+        },
+    });
 };

@@ -1,6 +1,7 @@
 import { meQuery } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLoaderStore } from '@/stores/loader.store'
+import { Navigate } from '@tanstack/react-router'
 
 export const getAuth = async (): Promise<{
     isAuthenticated: boolean
@@ -14,7 +15,6 @@ export const getAuth = async (): Promise<{
         try {
             setIsLoading(true)
             const success = await auth.refreshAccessToken()
-
             if (success) {
                 setIsLoading(false)
                 return getAuth()
@@ -26,6 +26,7 @@ export const getAuth = async (): Promise<{
             console.error('Token refresh failed:', error)
             auth.reset()
             setIsLoading(false)
+            Navigate({ to: '/login' })
             return { isAuthenticated: false, user: null, accessToken: null }
         }
     }

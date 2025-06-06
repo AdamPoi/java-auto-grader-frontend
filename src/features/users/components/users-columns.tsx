@@ -1,8 +1,9 @@
 import LongText from '@/components/long-text'
+import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { type ColumnDef } from '@tanstack/react-table'
-import { userTypes } from '../data/data'
+import { statusTypes, userTypes } from '../data/data'
 import { type User } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
@@ -78,56 +79,54 @@ export const columns: ColumnDef<User>[] = [
     ),
   },
   {
-    accessorKey: 'phoneNumber',
+    accessorKey: 'isActive',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Phone Number' />
+      <DataTableColumnHeader column={column} title='Active' />
     ),
-    cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
+    cell: ({ row }) => {
+      const { isActive } = row.original
+      const badgeColor = statusTypes.get(isActive ? 'active' : 'inactive')
+      return (
+        <div className='flex space-x-2'>
+          <Badge variant='outline' className={cn('capitalize', badgeColor)}>
+            {row.getValue('isActive') ? 'Active' : 'Inactive'}
+          </Badge>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableHiding: false,
     enableSorting: false,
   },
-  // {
-  //   accessorKey: 'status',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title='Status' />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const { status } = row.original
-  //     const badgeColor = callTypes.get(status)
-  //     return (
-  //       <div className='flex space-x-2'>
-  //         <Badge variant='outline' className={cn('capitalize', badgeColor)}>
-  //           {row.getValue('status')}
-  //         </Badge>
-  //       </div>
-  //     )
-  //   },
-  //   filterFn: (row, id, value) => {
-  //     return value.includes(row.getValue(id))
-  //   },
-  //   enableHiding: false,
-  //   enableSorting: false,
-  // },
   {
     accessorKey: 'role',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Role' />
     ),
     cell: ({ row }) => {
-      const { roles } = row.original
-      const userType = userTypes.find(({ value }) => value === roles[0])
-
-      if (!userType) {
-        return null
-      }
-
+      const { roles } = row.original;
       return (
-        <div className='flex items-center gap-x-2'>
-          {userType.icon && (
-            <userType.icon size={16} className='text-muted-foreground' />
-          )}
-          <span className='text-sm capitalize'>{row.getValue('role')}</span>
+        <div className='flex flex-wrap items-center gap-x-2'>
+          {roles.map(roleValue => {
+            const userType = userTypes.find(type => type.value === roleValue);
+
+            if (!userType) {
+              return null;
+            }
+
+            return (
+              <div key={roleValue} className='flex items-center gap-x-1'>
+                {userType.icon && (
+                  <userType.icon size={14} className='text-muted-foreground' />
+                )}
+                <span className='text-sm capitalize'>{userType.label}</span>
+              </div>
+            );
+          })}
         </div>
-      )
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))

@@ -10,4 +10,21 @@ export const UserApi = {
         return response.data;
     },
 
+    createUser: async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'confirmPassword'>): Promise<User> => {
+        const response = await axios.post("/users", userData);
+        return response.data;
+    },
+
+    updateUser: async (userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'permissions' | 'isActive'>>): Promise<User> => {
+        const filteredUserData = Object.fromEntries(
+            Object.entries(userData).filter(([_, value]) => value !== null && value !== '' && !(Array.isArray(value) && value.length === 0))
+        );
+        console.log(filteredUserData)
+        const response = await axios.patch(`/users/${userId}`, filteredUserData);
+        return response.data;
+    },
+
+    deleteUser: async (userId: string): Promise<void> => {
+        await axios.delete(`/users/${userId}`);
+    },
 };
