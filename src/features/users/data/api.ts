@@ -19,7 +19,6 @@ export const UserApi = {
         const filteredUserData = Object.fromEntries(
             Object.entries(userData).filter(([_, value]) => value !== null && value !== '' && !(Array.isArray(value) && value.length === 0))
         );
-        console.log(filteredUserData)
         const response = await axios.patch(`/users/${userId}`, filteredUserData);
         return response.data;
     },

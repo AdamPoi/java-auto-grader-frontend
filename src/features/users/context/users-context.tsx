@@ -2,7 +2,7 @@ import useDialogState from '@/hooks/use-dialog-state'
 import React, { useState } from 'react'
 import { type User } from '../data/schema'
 
-type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete'
+type UsersDialogType = 'add' | 'edit' | 'delete'
 
 interface UsersContextType {
   open: UsersDialogType | null
@@ -29,11 +29,11 @@ export default function UsersProvider({ children }: Props) {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useUsers = () => {
+export const useUsersContext = () => {
   const usersContext = React.useContext(UsersContext)
 
   if (!usersContext) {
-    throw new Error('useUsers has to be used within <UsersContext>')
+    throw new Error('useUsersContext has to be used within <UsersContext>')
   }
 
   return usersContext

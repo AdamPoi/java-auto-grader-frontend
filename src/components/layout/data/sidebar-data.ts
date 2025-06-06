@@ -1,27 +1,18 @@
 import {
   IconBarrierBlock,
   IconBook,
-  IconBrowserCheck,
   IconBug,
   IconChalkboard,
   IconChalkboardTeacher,
-  IconChecklist,
   IconError404,
-  IconHelp,
   IconLayoutDashboard,
   IconLock,
   IconLockAccess,
-  IconMessages,
-  IconNotification,
-  IconPackages,
-  IconPalette,
   IconSchool,
   IconServerOff,
-  IconSettings,
-  IconTool,
-  IconUserCog,
+  IconShield,
   IconUserOff,
-  IconUsers,
+  IconUsers
 } from '@tabler/icons-react'
 import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -68,6 +59,11 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: IconUsers,
+        },
+        {
+          title: 'Roles',
+          url: '/roles',
+          icon: IconShield,
         },
         {
           title: 'Students',

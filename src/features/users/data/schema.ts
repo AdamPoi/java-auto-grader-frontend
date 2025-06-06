@@ -8,7 +8,7 @@ const userStatusSchema = z.union([
 ])
 export type UserStatus = z.infer<typeof userStatusSchema>
 
-export const userRoleSchema = z.array(z.union([
+export const userRole = z.array(z.union([
   z.literal('admin'),
   z.literal('student'),
   z.literal('teacher'),
@@ -24,7 +24,7 @@ export const userSchema = z.object({
     .email({ message: 'Email is invalid.' }),
   password: z.string().transform((pwd) => pwd.trim()),
   confirmPassword: z.string().transform((pwd) => pwd.trim()),
-  roles: userRoleSchema.default(['student']),
+  roles: userRole.default(['student']),
   permissions: z.array(z.string()).nullable().optional(),
   isActive: z.boolean(),
   createdAt: z.coerce.date().nullish(),
@@ -32,7 +32,7 @@ export const userSchema = z.object({
 })
 
 export type User = z.infer<typeof userSchema>
-export type UserRole = z.infer<typeof userRoleSchema>
+export type UserRole = z.infer<typeof userRole>
 
 export const userFormSchema = z.object({
   firstName: z.string().min(1, { message: 'First Name is required.' }),
@@ -43,7 +43,7 @@ export const userFormSchema = z.object({
     .email({ message: 'Email is invalid.' }),
   password: z.string().transform((pwd) => pwd.trim()),
   confirmPassword: z.string().transform((pwd) => pwd.trim()),
-  roles: userRoleSchema,
+  roles: userRole,
   permissions: z.array(z.string()).nullable().optional(),
   isActive: z.boolean(),
 }).superRefine(({ password, confirmPassword }, ctx) => {

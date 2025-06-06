@@ -21,11 +21,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { queryClient } from '@/lib/query-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { userTypes } from '../data/data';
 import { userFormSchema, type User, type UserFormValues } from '../data/schema';
-import { useCreateUser, useUpdateUser } from '../hooks/use-user';
+import { getQueryKey, useCreateUser, useUpdateUser } from '../hooks/use-user';
 
 
 interface Props {
@@ -61,8 +63,23 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
       },
   })
 
-  const createUserMutation = useCreateUser()
-  const updateUserMutation = useUpdateUser()
+
+  const onSuccess = () => {
+    toast.success(`User ${isEdit ? 'updated' : 'created'} successfully.`);
+    form.reset();
+    onOpenChange(false);
+    queryClient.refetchQueries({ queryKey: getQueryKey({ action: 'list' }) });
+  };
+
+  const onError = (error: Error) => {
+    toast.error(`Failed to ${isEdit ? 'update' : 'create'} user.`, {
+      description: error.message,
+    });
+  };
+
+  const createUserMutation = useCreateUser(onSuccess, onError);
+  const updateUserMutation = useUpdateUser(onSuccess, onError);
+
 
   const onSubmit = (values: UserFormValues) => {
     if (isEdit && currentRow?.id) {
@@ -76,6 +93,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
         password: values.password,
       };
       updateUserMutation.mutate({ userId: currentRow.id, userData: updateUserData });
+
     } else {
       const createUserData = {
         firstName: values.firstName,
@@ -88,9 +106,6 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
       };
       createUserMutation.mutate(createUserData);
     }
-
-    form.reset()
-    onOpenChange(false)
   }
 
   const isPasswordTouched = !!form.formState.dirtyFields.password

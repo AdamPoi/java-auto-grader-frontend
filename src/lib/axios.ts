@@ -1,7 +1,5 @@
-import Axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
-import { refreshTokenQuery } from "@/api/auth";
-import type { ErrorResponse } from "@/types/api.types";
+import Axios, { type InternalAxiosRequestConfig } from "axios";
 
 const axios = Axios.create({});
 

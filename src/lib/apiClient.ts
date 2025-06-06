@@ -32,11 +32,14 @@ function handleError(error: unknown, method: string, url: string): never {
     if (isAxiosError(error)) {
         const status = error.response?.status
         const data = error.response?.data
+        if (error?.response?.status === 401) {
+            errorMessage = 'You are not authorized to perform this action'
+        }
         if (error?.response?.status === 403) {
             errorMessage = 'You are not authorized to perform this action'
         }
-        if (error?.response?.status === 401) {
-            errorMessage = 'You are not authorized to perform this action'
+        if (error?.response?.status === 409) {
+            errorMessage = 'There is a conflict or duplicate entry'
         }
         errorMessage = data?.error.message
         console.error(`[API][${method}] ${url} → status=${status}`, data || error.message)

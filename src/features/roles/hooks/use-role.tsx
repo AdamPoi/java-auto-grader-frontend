@@ -1,11 +1,11 @@
-import type { SearchRequestParams } from '@/types/api.types'; // Corrected import
+import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { UserApi } from '../data/api';
-import { type User } from '../data/schema';
+import { RoleApi } from '../data/api';
+import type { RoleForm } from '../data/schema';
 
 
-const QUERY_KEY = "users";
+const QUERY_KEY = "roles";
 
 export function getQueryKey({ action, params }: { action?: String, params?: SearchRequestParams }) {
     let key = []
@@ -19,14 +19,15 @@ export function getQueryKey({ action, params }: { action?: String, params?: Sear
     return key;
 }
 
-export const useUsersContext = (params: SearchRequestParams) => {
+
+export const useRole = (params: SearchRequestParams) => {
     const query = useQuery({
         queryKey: getQueryKey({
             action: 'list',
             params
         }),
         queryFn: async () => {
-            const response = await UserApi.getUsers(params);
+            const response = await RoleApi.getRoles(params);
             return response;
         },
     });
@@ -37,12 +38,9 @@ export const useUsersContext = (params: SearchRequestParams) => {
         if (query.data?.hasNext) {
             const nextPageParams = { ...params, page: params.page + 1 };
             queryClient.prefetchQuery({
-                queryKey: getQueryKey({
-                    action: 'list',
-                    params: nextPageParams
-                }),
+                queryKey: getQueryKey({ action: 'list', params: nextPageParams }),
                 queryFn: async () => {
-                    return await UserApi.getUsers(nextPageParams);
+                    return await RoleApi.getRoles(nextPageParams);
                 },
             });
         }
@@ -59,10 +57,10 @@ export const useUsersContext = (params: SearchRequestParams) => {
     };
 };
 
-export const useCreateUser = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+export const useCreateRole = (onSuccess?: () => void, onError?: (error: Error) => void) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'confirmPassword'>) => UserApi.createUser(userData),
+        mutationFn: (roleData: RoleForm) => RoleApi.createRole(roleData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'create' }) });
             onSuccess?.();
@@ -74,10 +72,10 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (error: Error) =
     return mutation;
 };
 
-export const useUpdateUser = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+export const useUpdateRole = (onSuccess?: () => void, onError?: (error: Error) => void) => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ userId, userData }: { userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'permissions' | 'isActive'>> }) => UserApi.updateUser(userId, userData),
+        mutationFn: ({ roleId, roleData }: { roleId: string, roleData: Partial<RoleForm> }) => RoleApi.updateRole(roleId, roleData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'update' }) });
             onSuccess?.();
@@ -88,10 +86,10 @@ export const useUpdateUser = (onSuccess?: () => void, onError?: (error: Error) =
     });
 };
 
-export const useDeleteUser = () => {
+export const useDeleteRole = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: UserApi.deleteUser,
+        mutationFn: RoleApi.deleteRole,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'delete' }) });
         },

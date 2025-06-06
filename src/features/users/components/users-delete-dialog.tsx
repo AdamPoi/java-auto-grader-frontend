@@ -4,11 +4,12 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { queryClient } from '@/lib/query-client'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { type User } from '../data/schema'
-import { useDeleteUser } from '../hooks/use-user'
+import { getQueryKey, useDeleteUser } from '../hooks/use-user'
 
 interface Props {
   open: boolean
@@ -31,6 +32,8 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       onSuccess: () => {
         toast.success(`User with Email ${currentRow.email} deleted successfully.`);
         onOpenChange(false);
+        queryClient.refetchQueries({ queryKey: getQueryKey({ action: 'list' }) });
+
       },
       onError: (error) => {
         toast.error(`Failed to delete user with Email ${currentRow.email}: ${error.message}`);

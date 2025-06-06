@@ -136,6 +136,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: 'actions',
+    header: 'Actions',
     cell: DataTableRowActions,
   },
 ]

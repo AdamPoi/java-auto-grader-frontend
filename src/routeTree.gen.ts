@@ -20,7 +20,10 @@ import { Route as errors403Import } from './routes/(errors)/403'
 import { Route as errors401Import } from './routes/(errors)/401'
 import { Route as authLoginImport } from './routes/(auth)/login'
 import { Route as AuthenticatedUsersIndexImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedRolesIndexImport } from './routes/_authenticated/roles/index'
 import { Route as AuthenticatedDashboardIndexImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedRolesCreateIndexImport } from './routes/_authenticated/roles/create/index'
+import { Route as AuthenticatedRolesRoleIdEditIndexImport } from './routes/_authenticated/roles/$roleId/edit/index'
 
 // Create/Update Routes
 
@@ -77,10 +80,30 @@ const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
+const AuthenticatedRolesIndexRoute = AuthenticatedRolesIndexImport.update({
+  id: '/roles/',
+  path: '/roles/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedRolesCreateIndexRoute =
+  AuthenticatedRolesCreateIndexImport.update({
+    id: '/roles/create/',
+    path: '/roles/create/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedRolesRoleIdEditIndexRoute =
+  AuthenticatedRolesRoleIdEditIndexImport.update({
+    id: '/roles/$roleId/edit/',
+    path: '/roles/$roleId/edit/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -151,11 +174,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/roles/': {
+      id: '/_authenticated/roles/'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AuthenticatedRolesIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof AuthenticatedUsersIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/roles/create/': {
+      id: '/_authenticated/roles/create/'
+      path: '/roles/create'
+      fullPath: '/roles/create'
+      preLoaderRoute: typeof AuthenticatedRolesCreateIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/roles/$roleId/edit/': {
+      id: '/_authenticated/roles/$roleId/edit/'
+      path: '/roles/$roleId/edit'
+      fullPath: '/roles/$roleId/edit'
+      preLoaderRoute: typeof AuthenticatedRolesRoleIdEditIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
   }
@@ -166,13 +210,20 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedRolesIndexRoute: typeof AuthenticatedRolesIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedRolesCreateIndexRoute: typeof AuthenticatedRolesCreateIndexRoute
+  AuthenticatedRolesRoleIdEditIndexRoute: typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedRolesIndexRoute: AuthenticatedRolesIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedRolesCreateIndexRoute: AuthenticatedRolesCreateIndexRoute,
+  AuthenticatedRolesRoleIdEditIndexRoute:
+    AuthenticatedRolesRoleIdEditIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -188,7 +239,10 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/roles': typeof AuthenticatedRolesIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
+  '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -200,7 +254,10 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/roles': typeof AuthenticatedRolesIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
+  '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 export interface FileRoutesById {
@@ -214,7 +271,10 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/roles/create/': typeof AuthenticatedRolesCreateIndexRoute
+  '/_authenticated/roles/$roleId/edit/': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -229,7 +289,10 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/dashboard'
+    | '/roles'
     | '/users'
+    | '/roles/create'
+    | '/roles/$roleId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -240,7 +303,10 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/dashboard'
+    | '/roles'
     | '/users'
+    | '/roles/create'
+    | '/roles/$roleId/edit'
   id:
     | '__root__'
     | '/_authenticated'
@@ -252,7 +318,10 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/roles/'
     | '/_authenticated/users/'
+    | '/_authenticated/roles/create/'
+    | '/_authenticated/roles/$roleId/edit/'
   fileRoutesById: FileRoutesById
 }
 
@@ -300,7 +369,10 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/",
         "/_authenticated/dashboard/",
-        "/_authenticated/users/"
+        "/_authenticated/roles/",
+        "/_authenticated/users/",
+        "/_authenticated/roles/create/",
+        "/_authenticated/roles/$roleId/edit/"
       ]
     },
     "/(auth)/login": {
@@ -329,8 +401,20 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/dashboard/index.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/roles/": {
+      "filePath": "_authenticated/roles/index.tsx",
+      "parent": "/_authenticated"
+    },
     "/_authenticated/users/": {
       "filePath": "_authenticated/users/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/roles/create/": {
+      "filePath": "_authenticated/roles/create/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/roles/$roleId/edit/": {
+      "filePath": "_authenticated/roles/$roleId/edit/index.tsx",
       "parent": "/_authenticated"
     }
   }
