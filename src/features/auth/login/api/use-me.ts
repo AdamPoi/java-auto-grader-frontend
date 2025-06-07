@@ -10,8 +10,8 @@ export function useMe() {
     const query = useQuery({
         queryKey: [QUERY_KEY],
         queryFn: meQuery,
-        enabled: !!auth.accessToken, // Only fetch if we have a token
-        staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+        enabled: !!auth.accessToken,
+        staleTime: 5 * 60 * 1000, //  5 minutes
         retry: (failureCount, error: any) => {
             // Don't retry if it's an auth error
             if (error?.status === 401) return false;

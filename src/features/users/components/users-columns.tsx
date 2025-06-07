@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils'
 import { type ColumnDef } from '@tanstack/react-table'
 import { statusTypes, userTypes } from '../data/data'
 import { type User } from '../data/schema'
-import { DataTableColumnHeader } from './data-table-column-header'
-import { DataTableRowActions } from './data-table-row-actions'
+import { DataTableRowActions } from './users-table-row-actions'
+import { DataTableColumnHeader } from '@/components/datatable/data-table-column-header'
 
 export const columns: ColumnDef<User>[] = [
   {

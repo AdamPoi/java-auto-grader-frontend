@@ -1,3 +1,4 @@
+import { DataTablePagination } from '@/components/datatable/data-table-pagination'
 import {
   Table,
   TableBody,
@@ -25,8 +26,7 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 import { type User } from '../data/schema'
-import { DataTablePagination } from './data-table-pagination'
-import { DataTableToolbar } from './data-table-toolbar'
+import { DataTableToolbar } from './users-table-toolbar'
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -43,10 +43,10 @@ interface DataTableProps {
   setPagination: OnChangeFn<PaginationState>
   sorting: SortingState
   setSorting: OnChangeFn<SortingState>
-  searchValue: string; // Add searchValue prop
-  setSearchValue: (value: string) => void; // Add setSearchValue prop
-  roleFilter: string[]; // Add roleFilter prop
-  setRoleFilter: (value: string[]) => void; // Add setRoleFilter prop
+  searchValue: string;
+  setSearchValue: (value: string) => void;
+  roleFilter: string[];
+  setRoleFilter: (value: string[]) => void;
   totalRowCount: number
 }
 
@@ -99,7 +99,11 @@ export function UsersTable({
 
   return (
     <div className='space-y-4'>
-      <DataTableToolbar table={table} searchValue={searchValue} setSearchValue={setSearchValue} roleFilter={roleFilter} setRoleFilter={setRoleFilter} /> {/* Pass search and role filter states and setters to toolbar */}
+      <DataTableToolbar table={table}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+        roleFilter={roleFilter}
+        setRoleFilter={setRoleFilter} />
       <div className='rounded-md border'>
         <Table>
           <TableHeader>

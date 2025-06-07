@@ -1,6 +1,6 @@
-import { refreshTokenQuery } from '@/api/auth'; // You'll need to implement this
-import Cookies from 'js-cookie'
-import { create } from 'zustand'
+import { meQuery, refreshTokenQuery } from '@/api/auth';
+import Cookies from 'js-cookie';
+import { create } from 'zustand';
 
 interface AuthUser {
     id: string
@@ -24,6 +24,7 @@ interface AuthState {
         accessToken: string
         refreshToken: string
         tokenExpiry: number | null
+        isAuthenticated: boolean
         setTokens: (accessToken: string, refreshToken: string, expireIn: number) => void
         setAccessToken: (accessToken: string, expireIn: number) => void
         setRefreshToken: (refreshToken: string) => void
@@ -32,6 +33,9 @@ interface AuthState {
         isTokenExpired: () => boolean
         reset: () => void
         initializeFromCookies: () => void
+        hasPermission: (permissions: string[]) => boolean
+        hasRole: (roles: string[]) => boolean
+        refetchUser: () => Promise<void>
     }
 }
 
@@ -51,22 +55,23 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         return userCookie ? JSON.parse(userCookie) : null
     }
 
-    const calculateExpiryDate = (expireInSeconds: number): number => {
-        return Date.now() + (expireInSeconds * 1000)
+    const calculateExpiryDate = (expireInMilliseconds: number): number => {
+        return Date.now() + expireInMilliseconds
     }
 
     const initToken = getTokenFromCookie(ACCESS_TOKEN)
     const initRefreshToken = getTokenFromCookie(REFRESH_TOKEN)
     const initTokenExpiry = getNumberFromCookie(TOKEN_EXPIRY)
     const initUser = getUserFromCookie()
-
+    const initIsAuthenticated = !!initToken && (!initTokenExpiry || initTokenExpiry > Date.now())
     return {
         auth: {
             user: initUser,
             accessToken: initToken,
             refreshToken: initRefreshToken,
             tokenExpiry: initTokenExpiry,
-
+            isAuthenticated: initIsAuthenticated,
+            setIsAuthenticated: (isAuthenticated: boolean) => set((state) => ({ ...state, auth: { ...state.auth, isAuthenticated } })),
             setUser: (user) =>
                 set((state) => {
                     if (user) {
@@ -77,9 +82,9 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                     return { ...state, auth: { ...state.auth, user } }
                 }),
 
-            setTokens: (accessToken, refreshToken, expireIn) =>
+            setTokens: (accessToken, refreshToken, expireInMilliseconds) =>
                 set((state) => {
-                    const expiryTime = calculateExpiryDate(expireIn)
+                    const expiryTime = calculateExpiryDate(expireInMilliseconds)
                     const cookieExpiry = new Date(expiryTime)
 
                     Cookies.set(ACCESS_TOKEN, JSON.stringify(accessToken), { expires: cookieExpiry })
@@ -92,14 +97,16 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                             ...state.auth,
                             accessToken,
                             refreshToken,
-                            tokenExpiry: expiryTime
+                            tokenExpiry: expiryTime,
+                            isAuthenticated: true,
+
                         }
                     }
                 }),
 
-            setAccessToken: (accessToken, expireIn) =>
+            setAccessToken: (accessToken, expireInMilliseconds) =>
                 set((state) => {
-                    const expiryTime = calculateExpiryDate(expireIn)
+                    const expiryTime = calculateExpiryDate(expireInMilliseconds)
                     const cookieExpiry = new Date(expiryTime)
 
                     Cookies.set(ACCESS_TOKEN, JSON.stringify(accessToken), { expires: cookieExpiry })
@@ -110,7 +117,8 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                         auth: {
                             ...state.auth,
                             accessToken,
-                            tokenExpiry: expiryTime
+                            tokenExpiry: expiryTime,
+                            isAuthenticated: true,
                         }
                     }
                 }),
@@ -124,7 +132,7 @@ export const useAuthStore = create<AuthState>()((set, get) => {
             isTokenExpired: () => {
                 const { tokenExpiry } = get().auth
                 if (!tokenExpiry) return true
-                return Date.now() >= (tokenExpiry - 5 * 60 * 1000)
+                return Date.now() - tokenExpiry > 0
             },
 
             resetTokens: () =>
@@ -138,28 +146,43 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                             ...state.auth,
                             accessToken: '',
                             refreshToken: '',
-                            tokenExpiry: null
+                            tokenExpiry: null,
+                            isAuthenticated: false,
+
                         }
                     }
                 }),
 
             refreshAccessToken: async () => {
-                try {
-                    const { refreshToken } = get().auth
-                    if (!refreshToken) {
-                        throw new Error('No refresh token available')
+                const maxRetries = 3;
+
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    try {
+                        const { refreshToken } = get().auth
+                        if (!refreshToken) {
+                            get().auth.reset()
+                            throw new Error('No refresh token available')
+                        }
+
+                        const response = await refreshTokenQuery(refreshToken);
+
+                        const { setAccessToken } = get().auth
+                        setAccessToken(response.accessToken, response.expireIn)
+                        return true;
+
+                    } catch (error) {
+                        console.error(`Failed to refresh token (attempt ${attempt}/${maxRetries}):`, error)
+
+                        if (attempt === maxRetries) {
+                            get().auth.reset()
+                            return false;
+                        }
+
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                     }
-
-                    const response = await refreshTokenQuery(refreshToken)
-                    const { setAccessToken } = get().auth
-
-                    setAccessToken(response.accessToken, response.expireIn)
-                    return true
-                } catch (error) {
-                    console.error('Failed to refresh token:', error)
-                    get().auth.reset()
-                    return false
                 }
+
+                return false;
             },
 
             reset: () =>
@@ -175,12 +198,13 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                             user: null,
                             accessToken: '',
                             refreshToken: '',
-                            tokenExpiry: null
+                            tokenExpiry: null,
+                            isAuthenticated: false
                         },
                     }
                 }),
 
-            initializeFromCookies: () =>
+            initializeFromCookies: () => {
                 set((state) => ({
                     ...state,
                     auth: {
@@ -190,7 +214,33 @@ export const useAuthStore = create<AuthState>()((set, get) => {
                         refreshToken: getTokenFromCookie(REFRESH_TOKEN),
                         tokenExpiry: getNumberFromCookie(TOKEN_EXPIRY),
                     }
-                })),
+                }));
+                get().auth.refetchUser();
+            },
+            hasPermission: (permissions: string[]) => {
+                const { user } = get().auth
+                if (!user?.permissions) return false;
+                return permissions.some(permission => user.permissions!.includes(permission));
+            },
+            hasRole: (roles: string[]) => {
+                const { user } = get().auth
+                if (!user?.roles) return false;
+                return roles.some(role => user.roles!.includes(role));
+            },
+
+            refetchUser: async () => {
+                const { user, setUser } = get().auth;
+                if (!user) {
+                    try {
+                        const response = await meQuery();
+                        setUser(response);
+                    } catch (error) {
+                        console.error('Error fetching user:', error);
+                        get().auth.reset();
+                    }
+                }
+            },
         },
+
     }
 })

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
@@ -7,12 +7,23 @@ import { RoleApi } from '@/features/roles/data/api';
 import { type RoleForm } from '@/features/roles/data/schema';
 import { usePermission } from '@/features/roles/hooks/use-permission';
 import { getQueryKey, useUpdateRole } from '@/features/roles/hooks/use-role';
+import { useAuthStore } from '@/stores/auth.store';
 import type { SearchRequestParams } from '@/types/api.types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/roles/$roleId/edit/')({
   component: EditRolePage,
+  beforeLoad: async () => {
+    const { auth } = await useAuthStore.getState()
+
+    if (!auth.hasPermission(['ROLE:UPDATE'])) {
+      throw redirect({
+        to: '/403',
+      })
+    }
+
+  }
 });
 
 function EditRolePage() {

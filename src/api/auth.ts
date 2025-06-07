@@ -29,6 +29,9 @@ export async function refreshTokenQuery(refreshToken: string) {
         url: `${ENDPOINT}/refresh`,
         data: {
             refreshToken
+        },
+        headers: {
+            Authorization: undefined
         }
     });
     return data;

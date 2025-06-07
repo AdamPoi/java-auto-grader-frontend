@@ -1,15 +1,17 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
 import Users from '@/features/users'
-import { getAuth } from '@/hooks/use-auth'
+import { useAuthStore } from '@/stores/auth.store'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/users/')({
   component: Users,
   beforeLoad: async () => {
-    const { isAuthenticated } = await getAuth()
-    if (!isAuthenticated) {
+    const { auth } = await useAuthStore.getState()
+
+    if (!auth.hasPermission(['USER:LIST'])) {
       throw redirect({
-        to: '/401',
+        to: '/403',
       })
     }
-  },
+
+  }
 })

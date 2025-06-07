@@ -1,13 +1,14 @@
 import axios from '@/lib/axios'
 import { isAxiosError } from "axios"
-import type { ErrorResponse } from '../types/api.types'
 import { toast } from 'sonner'
+import type { ErrorResponse } from '../types/api.types'
 type Params = Record<string, unknown>
 
 interface RequestOptions {
     url: string
     params?: Params
     signal?: AbortSignal
+    headers?: Record<string, string | undefined>
 }
 
 interface DataRequestOptions<T = unknown> extends RequestOptions {
@@ -52,41 +53,41 @@ function handleError(error: unknown, method: string, url: string): never {
 }
 
 export const apiClient = {
-    get: async <T = unknown>({ url, params = {}, signal }: RequestOptions): Promise<T> => {
+    get: async <T = unknown>({ url, params = {}, signal, headers }: RequestOptions): Promise<T> => {
         try {
-            const res = await axios.get<{ data: T }>(url, { params, signal })
+            const res = await axios.get<{ data: T }>(url, { params, signal, headers })
             return res.data.data
         } catch (err) {
             handleError(err, 'GET', url)
         }
     },
-    post: async <T = unknown, R = unknown>({ url, data, params = {}, signal }: DataRequestOptions<T>): Promise<R> => {
+    post: async <T = unknown, R = unknown>({ url, data, params = {}, signal, headers }: DataRequestOptions<T>): Promise<R> => {
         try {
-            const res = await axios.post<{ data: R }>(url, data, { params, signal })
+            const res = await axios.post<{ data: R }>(url, data, { params, signal, headers })
             return res.data.data
         } catch (err) {
             handleError(err, 'POST', url)
         }
     },
-    patch: async <T = unknown, R = unknown>({ url, data, params = {}, signal }: DataRequestOptions<T>): Promise<R> => {
+    patch: async <T = unknown, R = unknown>({ url, data, params = {}, signal, headers }: DataRequestOptions<T>): Promise<R> => {
         try {
-            const res = await axios.patch<R>(url, data, { params, signal })
+            const res = await axios.patch<R>(url, data, { params, signal, headers })
             return res.data
         } catch (err) {
             handleError(err, 'PATCH', url)
         }
     },
-    put: async <T = unknown, R = unknown>({ url, data, params = {}, signal }: DataRequestOptions<T>): Promise<R> => {
+    put: async <T = unknown, R = unknown>({ url, data, params = {}, signal, headers }: DataRequestOptions<T>): Promise<R> => {
         try {
-            const res = await axios.put<{ data: R }>(url, data, { params, signal })
+            const res = await axios.put<{ data: R }>(url, data, { params, signal, headers })
             return res.data.data
         } catch (err) {
             handleError(err, 'PUT', url)
         }
     },
-    delete: async <R = unknown>({ url, params = {}, signal }: RequestOptions): Promise<R> => {
+    delete: async <R = unknown>({ url, params = {}, signal, headers }: RequestOptions): Promise<R> => {
         try {
-            const res = await axios.delete<R>(url, { params, signal })
+            const res = await axios.delete<R>(url, { params, signal, headers })
             return res.data
         } catch (err) {
             handleError(err, 'DELETE', url)

@@ -14,7 +14,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type Permission, type Role, type RoleForm, roleFormSchema } from '@/features/roles/data/schema';
+import { handleServerErrors } from '@/lib/form-utils';
 import { type UseMutationResult } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
 interface RoleFormProps<TVariables> {
@@ -32,6 +34,7 @@ export function RoleForm<TVariables>({
     isLoadingPermissions,
     permissions,
 }: RoleFormProps<TVariables>) {
+    const router = useRouter()
     const form = useForm<RoleForm>({
         resolver: zodResolver(roleFormSchema),
         defaultValues: initialData || {
@@ -48,6 +51,12 @@ export function RoleForm<TVariables>({
             });
         }
     }, [initialData, form]);
+
+    useEffect(() => {
+        if (mutation.error) {
+            handleServerErrors(mutation.error, form.setError);
+        }
+    }, [mutation.error, form.setError]);
 
     const selectedPermissions = form.watch('permissions');
     const isAllPermissionsSelected = permissions.length > 0 && selectedPermissions?.length === permissions.length;
@@ -147,17 +156,28 @@ export function RoleForm<TVariables>({
                     )}
                     <FormMessage />
                 </FormItem>
-                <div className="flex justify-end items-center mt-4" >
-                    <Button type='submit' disabled={mutation.status === 'pending' || isLoadingPermissions}>
-                        {mutation.status === 'pending'
-                            ? initialData
-                                ? 'Saving...'
-                                : 'Creating...'
-                            : initialData
-                                ? 'Save Changes'
-                                : 'Create Role'}
-                    </Button>
+                <div className="flex justify-between">
+                    <div className="flex justify-start">
+                        <Button type='button' variant='outline' onClick={() => router.history.back()}>
+                            Back
+                        </Button>
+                    </div>
+                    <div className="flex justify-end items-center mt-4" >
+                        <Button type='button' variant='outline' onClick={() => form.reset()}>
+                            Reset
+                        </Button>
+                        <Button type='submit' disabled={mutation.status === 'pending' || isLoadingPermissions}>
+                            {mutation.status === 'pending'
+                                ? initialData
+                                    ? 'Saving...'
+                                    : 'Creating...'
+                                : initialData
+                                    ? 'Save Changes'
+                                    : 'Create Role'}
+                        </Button>
+                    </div>
                 </div>
+
             </form>
         </Form>
     );

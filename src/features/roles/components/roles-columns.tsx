@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from '../../users/components/data-table-column-header';
 import type { Role } from '../data/schema';
 import { RolesTableRowActions } from './roles-table-row-actions';
+import { DataTableColumnHeader } from '@/components/datatable/data-table-column-header';
 
 export const columns: ColumnDef<Role>[] = [
     {

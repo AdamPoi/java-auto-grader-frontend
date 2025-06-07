@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
@@ -7,12 +7,23 @@ import { type RoleForm } from '@/features/roles/data/schema';
 import { usePermission } from '@/features/roles/hooks/use-permission';
 import { useCreateRole } from '@/features/roles/hooks/use-role';
 import { getQueryKey } from '@/features/users/hooks/use-user';
+import { useAuthStore } from '@/stores/auth.store';
 import type { SearchRequestParams } from '@/types/api.types';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/roles/create/')({
   component: RoleFormPage,
+  beforeLoad: async () => {
+    const { auth } = await useAuthStore.getState()
+
+    if (!auth.hasPermission(['ROLE:CREATE'])) {
+      throw redirect({
+        to: '/403',
+      })
+    }
+
+  }
 });
 
 function RoleFormPage() {

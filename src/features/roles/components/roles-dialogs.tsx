@@ -5,16 +5,18 @@ export function RolesDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useRolesContext()
   return (
     <>
-      {currentRow && currentRow?.id != null && (
+      {currentRow && (
         <>
           <RoleDeleteDialog
             key={`role-delete-${currentRow.id}`}
             open={open === 'delete'}
-            onOpenChange={() => {
-              setOpen('delete')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                setOpen(null)
+                setTimeout(() => {
+                  setCurrentRow(null)
+                }, 500)
+              }
             }}
             currentRow={currentRow}
           />

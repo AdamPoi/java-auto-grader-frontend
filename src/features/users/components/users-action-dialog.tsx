@@ -21,8 +21,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { handleServerErrors } from '@/lib/form-utils';
 import { queryClient } from '@/lib/query-client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { userTypes } from '../data/data';
@@ -79,7 +81,12 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
 
   const createUserMutation = useCreateUser(onSuccess, onError);
   const updateUserMutation = useUpdateUser(onSuccess, onError);
-
+  useEffect(() => {
+    const mutation = isEdit ? updateUserMutation : createUserMutation;
+    if (mutation.error) {
+      handleServerErrors(mutation.error, form.setError);
+    }
+  }, [createUserMutation.error, updateUserMutation.error, form]);
 
   const onSubmit = (values: UserFormValues) => {
     if (isEdit && currentRow?.id) {
@@ -150,7 +157,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -170,7 +177,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -189,7 +196,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -210,7 +217,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         className="col-span-4"
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -228,7 +235,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -247,7 +254,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3 first-letter:capitalize' />
                   </FormItem>
                 )}
               />
@@ -267,7 +274,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage className='col-span-4 col-start-3  first-letter:capitalize' />
                   </FormItem>
                 )}
               />

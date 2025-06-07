@@ -1,13 +1,15 @@
+'use client'
+
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { queryClient } from '@/lib/query-client';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useState } from 'react';
-import { Label } from 'recharts';
 import { toast } from 'sonner';
-import { getQueryKey, useDeleteRole } from '../hooks/use-role';
-import { queryClient } from '@/lib/query-client';
 import type { Role } from '../data/schema';
+import { getQueryKey, useDeleteRole } from '../hooks/use-role';
 
 interface Props {
     open: boolean
@@ -29,8 +31,8 @@ export function RoleDeleteDialog({ open, onOpenChange, currentRow }: Props) {
         deleteRoleMutate(currentRow?.id, {
             onSuccess: () => {
                 toast.success(`Role with Name ${currentRow.name} deleted successfully.`);
-                queryClient.refetchQueries({ queryKey: getQueryKey({ action: 'list' }) });
                 onOpenChange(false);
+                queryClient.refetchQueries({ queryKey: getQueryKey({ action: 'list' }) });
             },
             onError: (error) => {
                 toast.error(`Failed to delete role with Name ${currentRow.name}: ${error.message}`);

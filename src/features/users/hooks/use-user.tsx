@@ -1,4 +1,4 @@
-import type { SearchRequestParams } from '@/types/api.types'; // Corrected import
+import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { UserApi } from '../data/api';

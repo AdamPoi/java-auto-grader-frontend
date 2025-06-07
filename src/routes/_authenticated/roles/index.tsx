@@ -1,15 +1,15 @@
 import Roles from '@/features/roles'
-import { getAuth } from '@/hooks/use-auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/roles/')({
     component: () => <Roles />,
     beforeLoad: async () => {
-        const { isAuthenticated } = await getAuth()
-        if (!isAuthenticated) {
+        const { auth } = await useAuthStore.getState()
+        if (!auth.hasPermission(['ROLE:LIST'])) {
             throw redirect({
-                to: '/401',
+                to: '/403',
             })
         }
-    },
+    }
 })

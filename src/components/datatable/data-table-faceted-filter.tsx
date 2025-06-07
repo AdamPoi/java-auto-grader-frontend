@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 import { CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { type Column } from '@tanstack/react-table'
 import * as React from 'react'
-import { useState } from 'react'; // Import useState
+import { useState } from 'react'
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -29,21 +29,20 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
-  onFilterChange: (selectedValues: string[]) => void; // Add onFilterChange prop
+  onFilterChange: (selectedValues: string[]) => void;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
-  onFilterChange, // Destructure onFilterChange
+  onFilterChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues()
-  const selectedValues = new Set(column?.getFilterValue() as string[]) // Keep for initial state if needed, but will be managed externally
-  const [localSelectedValues, setLocalSelectedValues] = useState<Set<string>>(selectedValues); // Use local state
+  const selectedValues = new Set(column?.getFilterValue() as string[])
+  const [localSelectedValues, setLocalSelectedValues] = useState<Set<string>>(selectedValues);
 
   React.useEffect(() => {
-    // Initialize local state from column filter if needed
     const initialFilterValue = column?.getFilterValue() as string[] | undefined;
     if (initialFilterValue) {
       setLocalSelectedValues(new Set(initialFilterValue));
@@ -99,7 +98,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = localSelectedValues.has(option.value); // Use local state for isSelected
+                const isSelected = localSelectedValues.has(option.value);
                 return (
                   <CommandItem
                     key={option.value}
@@ -111,7 +110,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                         newSelectedValues.add(option.value);
                       }
                       setLocalSelectedValues(newSelectedValues);
-                      onFilterChange(Array.from(newSelectedValues) as string[]); // Call the callback with explicit cast
+                      onFilterChange(Array.from(newSelectedValues) as string[]);
                     }}
                   >
                     <div
@@ -137,14 +136,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                 )
               })}
             </CommandGroup>
-            {localSelectedValues.size > 0 && ( // Use local state for conditional rendering
+            {localSelectedValues.size > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
                     onSelect={() => {
-                      setLocalSelectedValues(new Set()); // Clear local state
-                      onFilterChange([]); // Call the callback with empty array
+                      setLocalSelectedValues(new Set());
+                      onFilterChange([]);
                     }}
                     className='justify-center text-center'
                   >

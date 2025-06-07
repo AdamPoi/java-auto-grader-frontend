@@ -21,9 +21,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { DataTablePagination } from '../../users/components/data-table-pagination';
 import type { Role } from '../data/schema';
 import { RolesTableToolbar } from './roles-table-toolbar'; // TODO: Create roles-table-toolbar
+import { DataTablePagination } from '@/components/datatable/data-table-pagination';
 
 interface RolesTableProps {
     columns: ColumnDef<Role, any>[];
