@@ -4,6 +4,7 @@ import {
   IconBug,
   IconChalkboard,
   IconChalkboardTeacher,
+  IconCode,
   IconError404,
   IconLayoutDashboard,
   IconLock,
@@ -70,6 +71,7 @@ export const sidebarData: SidebarData = {
           url: '/',
           icon: IconSchool,
         },
+
         {
           title: 'Teachers',
           url: '/',
@@ -86,6 +88,17 @@ export const sidebarData: SidebarData = {
           icon: IconBook,
         },
       ],
+    },
+
+    {
+      title: 'Submission',
+      items: [
+        {
+          title: 'Compiler',
+          url: '/submission/compiler',
+          icon: IconCode,
+        },
+      ]
     },
     {
       title: 'Pages',

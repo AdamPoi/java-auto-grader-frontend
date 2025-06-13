@@ -8,226 +8,109 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as errors503RouteImport } from './routes/(errors)/503'
+import { Route as errors500RouteImport } from './routes/(errors)/500'
+import { Route as errors404RouteImport } from './routes/(errors)/404'
+import { Route as errors403RouteImport } from './routes/(errors)/403'
+import { Route as errors401RouteImport } from './routes/(errors)/401'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedSubmissionIndexRouteImport } from './routes/_authenticated/submission/index'
+import { Route as AuthenticatedRolesIndexRouteImport } from './routes/_authenticated/roles/index'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedSubmissionCompilerIndexRouteImport } from './routes/_authenticated/submission/compiler/index'
+import { Route as AuthenticatedRolesCreateIndexRouteImport } from './routes/_authenticated/roles/create/index'
+import { Route as AuthenticatedSubmissionCompilerSecondRouteImport } from './routes/_authenticated/submission/compiler/second'
+import { Route as AuthenticatedRolesRoleIdEditIndexRouteImport } from './routes/_authenticated/roles/$roleId/edit/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexImport } from './routes/_authenticated/index'
-import { Route as errors503Import } from './routes/(errors)/503'
-import { Route as errors500Import } from './routes/(errors)/500'
-import { Route as errors404Import } from './routes/(errors)/404'
-import { Route as errors403Import } from './routes/(errors)/403'
-import { Route as errors401Import } from './routes/(errors)/401'
-import { Route as authLoginImport } from './routes/(auth)/login'
-import { Route as AuthenticatedUsersIndexImport } from './routes/_authenticated/users/index'
-import { Route as AuthenticatedRolesIndexImport } from './routes/_authenticated/roles/index'
-import { Route as AuthenticatedDashboardIndexImport } from './routes/_authenticated/dashboard/index'
-import { Route as AuthenticatedRolesCreateIndexImport } from './routes/_authenticated/roles/create/index'
-import { Route as AuthenticatedRolesRoleIdEditIndexImport } from './routes/_authenticated/roles/$roleId/edit/index'
-
-// Create/Update Routes
-
-const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedIndexRoute = AuthenticatedIndexImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-
-const errors503Route = errors503Import.update({
+const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const errors500Route = errors500Import.update({
+const errors500Route = errors500RouteImport.update({
   id: '/(errors)/500',
   path: '/500',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const errors404Route = errors404Import.update({
+const errors404Route = errors404RouteImport.update({
   id: '/(errors)/404',
   path: '/404',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const errors403Route = errors403Import.update({
+const errors403Route = errors403RouteImport.update({
   id: '/(errors)/403',
   path: '/403',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const errors401Route = errors401Import.update({
+const errors401Route = errors401RouteImport.update({
   id: '/(errors)/401',
   path: '/401',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const authLoginRoute = authLoginImport.update({
+const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexImport.update({
+const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-
-const AuthenticatedRolesIndexRoute = AuthenticatedRolesIndexImport.update({
+const AuthenticatedSubmissionIndexRoute =
+  AuthenticatedSubmissionIndexRouteImport.update({
+    id: '/submission/',
+    path: '/submission/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRolesIndexRoute = AuthenticatedRolesIndexRouteImport.update({
   id: '/roles/',
   path: '/roles/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-
 const AuthenticatedDashboardIndexRoute =
-  AuthenticatedDashboardIndexImport.update({
+  AuthenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-
+const AuthenticatedSubmissionCompilerIndexRoute =
+  AuthenticatedSubmissionCompilerIndexRouteImport.update({
+    id: '/submission/compiler/',
+    path: '/submission/compiler/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRolesCreateIndexRoute =
-  AuthenticatedRolesCreateIndexImport.update({
+  AuthenticatedRolesCreateIndexRouteImport.update({
     id: '/roles/create/',
     path: '/roles/create/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-
+const AuthenticatedSubmissionCompilerSecondRoute =
+  AuthenticatedSubmissionCompilerSecondRouteImport.update({
+    id: '/submission/compiler/second',
+    path: '/submission/compiler/second',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRolesRoleIdEditIndexRoute =
-  AuthenticatedRolesRoleIdEditIndexImport.update({
+  AuthenticatedRolesRoleIdEditIndexRouteImport.update({
     id: '/roles/$roleId/edit/',
     path: '/roles/$roleId/edit/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/401': {
-      id: '/(errors)/401'
-      path: '/401'
-      fullPath: '/401'
-      preLoaderRoute: typeof errors401Import
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/403': {
-      id: '/(errors)/403'
-      path: '/403'
-      fullPath: '/403'
-      preLoaderRoute: typeof errors403Import
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/404': {
-      id: '/(errors)/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof errors404Import
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/500': {
-      id: '/(errors)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof errors500Import
-      parentRoute: typeof rootRoute
-    }
-    '/(errors)/503': {
-      id: '/(errors)/503'
-      path: '/503'
-      fullPath: '/503'
-      preLoaderRoute: typeof errors503Import
-      parentRoute: typeof rootRoute
-    }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/dashboard/': {
-      id: '/_authenticated/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/roles/': {
-      id: '/_authenticated/roles/'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof AuthenticatedRolesIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/roles/create/': {
-      id: '/_authenticated/roles/create/'
-      path: '/roles/create'
-      fullPath: '/roles/create'
-      preLoaderRoute: typeof AuthenticatedRolesCreateIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/roles/$roleId/edit/': {
-      id: '/_authenticated/roles/$roleId/edit/'
-      path: '/roles/$roleId/edit'
-      fullPath: '/roles/$roleId/edit'
-      preLoaderRoute: typeof AuthenticatedRolesRoleIdEditIndexImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedRolesIndexRoute: typeof AuthenticatedRolesIndexRoute
-  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
-  AuthenticatedRolesCreateIndexRoute: typeof AuthenticatedRolesCreateIndexRoute
-  AuthenticatedRolesRoleIdEditIndexRoute: typeof AuthenticatedRolesRoleIdEditIndexRoute
-}
-
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedRolesIndexRoute: AuthenticatedRolesIndexRoute,
-  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
-  AuthenticatedRolesCreateIndexRoute: AuthenticatedRolesCreateIndexRoute,
-  AuthenticatedRolesRoleIdEditIndexRoute:
-    AuthenticatedRolesRoleIdEditIndexRoute,
-}
-
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
@@ -240,11 +123,13 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
+  '/submission': typeof AuthenticatedSubmissionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
   '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
+  '/submission/compiler': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/401': typeof errors401Route
@@ -255,13 +140,15 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
+  '/submission': typeof AuthenticatedSubmissionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
   '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
+  '/submission/compiler': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(errors)/401': typeof errors401Route
@@ -272,11 +159,13 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
+  '/_authenticated/submission/': typeof AuthenticatedSubmissionIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
   '/_authenticated/roles/create/': typeof AuthenticatedRolesCreateIndexRoute
+  '/_authenticated/submission/compiler/': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/_authenticated/roles/$roleId/edit/': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -290,8 +179,11 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/roles'
+    | '/submission'
     | '/users'
+    | '/submission/compiler/second'
     | '/roles/create'
+    | '/submission/compiler'
     | '/roles/$roleId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -304,8 +196,11 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/roles'
+    | '/submission'
     | '/users'
+    | '/submission/compiler/second'
     | '/roles/create'
+    | '/submission/compiler'
     | '/roles/$roleId/edit'
   id:
     | '__root__'
@@ -319,12 +214,14 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/roles/'
+    | '/_authenticated/submission/'
     | '/_authenticated/users/'
+    | '/_authenticated/submission/compiler/second'
     | '/_authenticated/roles/create/'
+    | '/_authenticated/submission/compiler/'
     | '/_authenticated/roles/$roleId/edit/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   authLoginRoute: typeof authLoginRoute
@@ -335,6 +232,153 @@ export interface RootRouteChildren {
   errors503Route: typeof errors503Route
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/(errors)/503': {
+      id: '/(errors)/503'
+      path: '/503'
+      fullPath: '/503'
+      preLoaderRoute: typeof errors503RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/500': {
+      id: '/(errors)/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof errors500RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/404': {
+      id: '/(errors)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof errors404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/403': {
+      id: '/(errors)/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof errors403RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/401': {
+      id: '/(errors)/401'
+      path: '/401'
+      fullPath: '/401'
+      preLoaderRoute: typeof errors401RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/users/': {
+      id: '/_authenticated/users/'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/submission/': {
+      id: '/_authenticated/submission/'
+      path: '/submission'
+      fullPath: '/submission'
+      preLoaderRoute: typeof AuthenticatedSubmissionIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/roles/': {
+      id: '/_authenticated/roles/'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AuthenticatedRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/submission/compiler/': {
+      id: '/_authenticated/submission/compiler/'
+      path: '/submission/compiler'
+      fullPath: '/submission/compiler'
+      preLoaderRoute: typeof AuthenticatedSubmissionCompilerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/roles/create/': {
+      id: '/_authenticated/roles/create/'
+      path: '/roles/create'
+      fullPath: '/roles/create'
+      preLoaderRoute: typeof AuthenticatedRolesCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/submission/compiler/second': {
+      id: '/_authenticated/submission/compiler/second'
+      path: '/submission/compiler/second'
+      fullPath: '/submission/compiler/second'
+      preLoaderRoute: typeof AuthenticatedSubmissionCompilerSecondRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/roles/$roleId/edit/': {
+      id: '/_authenticated/roles/$roleId/edit/'
+      path: '/roles/$roleId/edit'
+      fullPath: '/roles/$roleId/edit'
+      preLoaderRoute: typeof AuthenticatedRolesRoleIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+  }
+}
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedRolesIndexRoute: typeof AuthenticatedRolesIndexRoute
+  AuthenticatedSubmissionIndexRoute: typeof AuthenticatedSubmissionIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedSubmissionCompilerSecondRoute: typeof AuthenticatedSubmissionCompilerSecondRoute
+  AuthenticatedRolesCreateIndexRoute: typeof AuthenticatedRolesCreateIndexRoute
+  AuthenticatedSubmissionCompilerIndexRoute: typeof AuthenticatedSubmissionCompilerIndexRoute
+  AuthenticatedRolesRoleIdEditIndexRoute: typeof AuthenticatedRolesRoleIdEditIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedRolesIndexRoute: AuthenticatedRolesIndexRoute,
+  AuthenticatedSubmissionIndexRoute: AuthenticatedSubmissionIndexRoute,
+  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedSubmissionCompilerSecondRoute:
+    AuthenticatedSubmissionCompilerSecondRoute,
+  AuthenticatedRolesCreateIndexRoute: AuthenticatedRolesCreateIndexRoute,
+  AuthenticatedSubmissionCompilerIndexRoute:
+    AuthenticatedSubmissionCompilerIndexRoute,
+  AuthenticatedRolesRoleIdEditIndexRoute:
+    AuthenticatedRolesRoleIdEditIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   authLoginRoute: authLoginRoute,
@@ -344,79 +388,6 @@ const rootRouteChildren: RootRouteChildren = {
   errors500Route: errors500Route,
   errors503Route: errors503Route,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_authenticated",
-        "/(auth)/login",
-        "/(errors)/401",
-        "/(errors)/403",
-        "/(errors)/404",
-        "/(errors)/500",
-        "/(errors)/503"
-      ]
-    },
-    "/_authenticated": {
-      "filePath": "_authenticated/route.tsx",
-      "children": [
-        "/_authenticated/",
-        "/_authenticated/dashboard/",
-        "/_authenticated/roles/",
-        "/_authenticated/users/",
-        "/_authenticated/roles/create/",
-        "/_authenticated/roles/$roleId/edit/"
-      ]
-    },
-    "/(auth)/login": {
-      "filePath": "(auth)/login.tsx"
-    },
-    "/(errors)/401": {
-      "filePath": "(errors)/401.tsx"
-    },
-    "/(errors)/403": {
-      "filePath": "(errors)/403.tsx"
-    },
-    "/(errors)/404": {
-      "filePath": "(errors)/404.tsx"
-    },
-    "/(errors)/500": {
-      "filePath": "(errors)/500.tsx"
-    },
-    "/(errors)/503": {
-      "filePath": "(errors)/503.tsx"
-    },
-    "/_authenticated/": {
-      "filePath": "_authenticated/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/dashboard/": {
-      "filePath": "_authenticated/dashboard/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/roles/": {
-      "filePath": "_authenticated/roles/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/users/": {
-      "filePath": "_authenticated/users/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/roles/create/": {
-      "filePath": "_authenticated/roles/create/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/roles/$roleId/edit/": {
-      "filePath": "_authenticated/roles/$roleId/edit/index.tsx",
-      "parent": "/_authenticated"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
