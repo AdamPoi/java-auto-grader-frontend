@@ -2,7 +2,7 @@ import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { UserApi } from '../data/api';
-import { type User } from '../data/schema';
+import { type User } from '../data/types';
 
 
 const QUERY_KEY = "users";

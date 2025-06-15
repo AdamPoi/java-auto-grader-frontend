@@ -28,7 +28,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { userTypes } from '../data/data';
-import { userFormSchema, type User, type UserFormValues } from '../data/schema';
+import { UserFormSchema } from '../data/schema';
+import type { User, UserForm } from '../data/types';
 import { getQueryKey, useCreateUser, useUpdateUser } from '../hooks/use-user';
 
 
@@ -38,28 +39,37 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
+
+
+
 export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
   const isEdit = !!currentRow
-  const form = useForm<UserFormValues>({
-    resolver: zodResolver<UserFormValues, any, UserFormValues>(userFormSchema),
+  const form = useForm<UserForm>({
+    resolver: zodResolver(UserFormSchema),
     defaultValues: isEdit
       ? {
+        id: currentRow.id,
         firstName: currentRow.firstName,
         lastName: currentRow.lastName,
         email: currentRow.email,
         roles: (currentRow?.roles ?? ["student"]) as ("admin" | "student" | "teacher")[],
         permissions: Array.isArray(currentRow.permissions) ? currentRow.permissions : [],
         isActive: currentRow.isActive,
+        createdAt: currentRow.createdAt,
+        updatedAt: currentRow.updatedAt,
         password: '',
         confirmPassword: '',
       }
       : {
+        id: '',
         firstName: '',
         lastName: '',
         email: '',
         roles: ["student"],
         permissions: [],
         isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         password: '',
         confirmPassword: '',
       },
@@ -88,7 +98,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
     }
   }, [createUserMutation.error, updateUserMutation.error, form]);
 
-  const onSubmit = (values: UserFormValues) => {
+  const onSubmit = (values: UserForm) => {
     if (isEdit && currentRow?.id) {
       const updateUserData = {
         firstName: values.firstName,

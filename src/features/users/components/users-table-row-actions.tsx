@@ -12,7 +12,7 @@ import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { type Row } from '@tanstack/react-table'
 import { useUsersContext } from '../context/users-context'
-import { type User } from '../data/schema'
+import { type User } from '../data/types'
 
 interface DataTableRowActionsProps {
   row: Row<User>

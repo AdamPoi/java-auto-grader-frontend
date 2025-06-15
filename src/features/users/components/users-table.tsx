@@ -25,7 +25,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table'
 import { useState } from 'react'
-import { type User } from '../data/schema'
+import type { User } from '../data/types'
 import { DataTableToolbar } from './users-table-toolbar'
 
 declare module '@tanstack/react-table' {

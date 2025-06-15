@@ -8,7 +8,7 @@ import { queryClient } from '@/lib/query-client'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { type User } from '../data/schema'
+import { type User } from '../data/types'
 import { getQueryKey, useDeleteUser } from '../hooks/use-user'
 
 interface Props {

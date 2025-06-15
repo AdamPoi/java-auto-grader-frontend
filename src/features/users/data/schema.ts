@@ -1,20 +1,16 @@
 import { z } from 'zod';
+import type { User, UserForm, UserStatus } from './types';
 
-const userStatusSchema = z.union([
+const UserStatusSchema: z.ZodType<UserStatus> = z.union([
   z.literal('active'),
   z.literal('inactive'),
   z.literal('invited'),
   z.literal('suspended'),
 ])
-export type UserStatus = z.infer<typeof userStatusSchema>
 
-export const userRole = z.array(z.union([
-  z.literal('admin'),
-  z.literal('student'),
-  z.literal('teacher'),
-]))
+const UserRoleSchema = z.array(z.enum(['admin', 'student', 'teacher']))
 
-export const userSchema = z.object({
+export const UserSchema = z.object({
   id: z.string(),
   firstName: z.string().min(1, { message: 'First Name is required.' }),
   lastName: z.string().min(1, { message: 'Last Name is required.' }),
@@ -22,30 +18,18 @@ export const userSchema = z.object({
     .string()
     .min(1, { message: 'Email is required.' })
     .email({ message: 'Email is invalid.' }),
-  password: z.string().transform((pwd) => pwd.trim()),
-  confirmPassword: z.string().transform((pwd) => pwd.trim()),
-  roles: userRole.default(['student']),
-  permissions: z.array(z.string()).nullable().optional(),
+  password: z.string().transform((password) => password.trim()),
+  roles: UserRoleSchema,
+  permissions: z.array(z.string()),
   isActive: z.boolean(),
-  createdAt: z.coerce.date().nullish(),
-  updatedAt: z.coerce.date().nullish(),
-})
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+}) satisfies z.ZodType<User>
 
-export type User = z.infer<typeof userSchema>
-export type UserRole = z.infer<typeof userRole>
 
-export const userFormSchema = z.object({
-  firstName: z.string().min(1, { message: 'First Name is required.' }),
-  lastName: z.string().min(1, { message: 'Last Name is required.' }),
-  email: z
-    .string()
-    .min(1, { message: 'Email is required.' })
-    .email({ message: 'Email is invalid.' }),
-  password: z.string().transform((pwd) => pwd.trim()),
-  confirmPassword: z.string().transform((pwd) => pwd.trim()),
-  roles: userRole,
-  permissions: z.array(z.string()).nullable().optional(),
-  isActive: z.boolean(),
+
+export const UserFormSchema = UserSchema.extend({
+  confirmPassword: z.string().transform((password) => password.trim()),
 }).superRefine(({ password, confirmPassword }, ctx) => {
   if (password !== '') {
     if (password.length < 6) {
@@ -79,7 +63,27 @@ export const userFormSchema = z.object({
         path: ['confirmPassword'],
       })
     }
+  } else {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Password is required.",
+      path: ['password'],
+    })
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Password must be at least 6 characters long.",
+      path: ['password'],
+    })
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Password must contain at least one lowercase letter.",
+      path: ['password'],
+    })
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Password must contain at least one number.",
+      path: ['password'],
+    });
   }
-});
+}) satisfies z.ZodType<UserForm>
 
-export type UserFormValues = z.infer<typeof userFormSchema>;

@@ -1,6 +1,6 @@
 import axios from "@/lib/axios";
 import type { SearchRequestParams, SearchResponse } from "@/types/api.types";
-import type { User } from "./schema";
+import type { User, UserForm } from "./types";
 
 export const UserApi = {
     getUsers: async (params: SearchRequestParams): Promise<SearchResponse<User>> => {
@@ -10,12 +10,12 @@ export const UserApi = {
         return response.data;
     },
 
-    createUser: async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'confirmPassword'>): Promise<User> => {
+    createUser: async (userData: UserForm): Promise<User> => {
         const response = await axios.post("/users", userData);
         return response.data;
     },
 
-    updateUser: async (userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'permissions' | 'isActive'>>): Promise<User> => {
+    updateUser: async (userId: string, userData: Partial<UserForm>): Promise<User> => {
         const filteredUserData = Object.fromEntries(
             Object.entries(userData).filter(([_, value]) => value !== null && value !== '' && !(Array.isArray(value) && value.length === 0))
         );

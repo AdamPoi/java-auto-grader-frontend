@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { type ColumnDef } from '@tanstack/react-table'
 import { statusTypes, userTypes } from '../data/data'
-import { type User } from '../data/schema'
+import { type User } from '../data/types'
 import { DataTableRowActions } from './users-table-row-actions'
 import { DataTableColumnHeader } from '@/components/datatable/data-table-column-header'
 
