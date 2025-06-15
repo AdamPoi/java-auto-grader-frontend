@@ -1,34 +1,33 @@
+import { TabsTrigger } from '@/components/ui/tabs';
 import React from 'react';
 
-export interface TabsTriggerProps {
+export interface FileTabTriggerProps {
     children: React.ReactNode;
     className?: string;
-    isActive: boolean;
-    onClick: () => void;
     value: string;
-    onDeleteFile: (fileName: string) => void; // Function passed down
-    onRenameFile: (fileName: string) => void; // Function passed down
-    filesLength: number; // Used for conditional rendering of delete button
+    onDeleteFile: (fileName: string) => void;
+    onRenameFile: (fileName: string) => void;
+    filesLength: number;
 }
 
-const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, className, isActive, onClick, value, onDeleteFile, onRenameFile, filesLength }) => {
+const FileTabTrigger: React.FC<FileTabTriggerProps> = ({ children, className, value, onDeleteFile, onRenameFile, filesLength, ...props }) => {
     const isDeletable = filesLength > 1;
 
     const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent tab change when deleting
+        e.stopPropagation();
         onDeleteFile(value);
     };
 
     const handleRenameClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent tab change when renaming
+        e.stopPropagation();
         onRenameFile(value);
     };
 
     return (
-        <button
-            onClick={onClick}
-            className={`group inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 ${isActive ? 'bg-white dark:bg-neutral-950 text-neutral-950 dark:text-neutral-50 shadow-sm' : 'hover:bg-neutral-200 dark:hover:bg-neutral-700'} ${className}`}
+        <TabsTrigger
             value={value}
+            className={className}
+            {...props}
         >
             <span className="mr-2">{children}</span>
             <div className="hidden group-hover:flex items-center space-x-1">
@@ -49,8 +48,8 @@ const TabsTrigger: React.FC<TabsTriggerProps> = ({ children, className, isActive
                     </span>
                 )}
             </div>
-        </button>
+        </TabsTrigger>
     );
 };
 
-export default TabsTrigger;
+export default FileTabTrigger;

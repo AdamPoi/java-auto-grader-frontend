@@ -21,9 +21,10 @@ import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSubmissionIndexRouteImport } from './routes/_authenticated/submission/index'
 import { Route as AuthenticatedRolesIndexRouteImport } from './routes/_authenticated/roles/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
-import { Route as AuthenticatedSubmissionCompilerIndexRouteImport } from './routes/_authenticated/submission/compiler/index'
+import { Route as AuthenticatedAssignmentIndexRouteImport } from './routes/_authenticated/assignment/index'
 import { Route as AuthenticatedRolesCreateIndexRouteImport } from './routes/_authenticated/roles/create/index'
-import { Route as AuthenticatedSubmissionCompilerSecondRouteImport } from './routes/_authenticated/submission/compiler/second'
+import { Route as AuthenticatedAssignmentTestBuilderIndexRouteImport } from './routes/_authenticated/assignment/test-builder/index'
+import { Route as AuthenticatedAssignmentCompilerIndexRouteImport } from './routes/_authenticated/assignment/compiler/index'
 import { Route as AuthenticatedRolesRoleIdEditIndexRouteImport } from './routes/_authenticated/roles/$roleId/edit/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -87,10 +88,10 @@ const AuthenticatedDashboardIndexRoute =
     path: '/dashboard/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSubmissionCompilerIndexRoute =
-  AuthenticatedSubmissionCompilerIndexRouteImport.update({
-    id: '/submission/compiler/',
-    path: '/submission/compiler/',
+const AuthenticatedAssignmentIndexRoute =
+  AuthenticatedAssignmentIndexRouteImport.update({
+    id: '/assignment/',
+    path: '/assignment/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRolesCreateIndexRoute =
@@ -99,10 +100,16 @@ const AuthenticatedRolesCreateIndexRoute =
     path: '/roles/create/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSubmissionCompilerSecondRoute =
-  AuthenticatedSubmissionCompilerSecondRouteImport.update({
-    id: '/submission/compiler/second',
-    path: '/submission/compiler/second',
+const AuthenticatedAssignmentTestBuilderIndexRoute =
+  AuthenticatedAssignmentTestBuilderIndexRouteImport.update({
+    id: '/assignment/test-builder/',
+    path: '/assignment/test-builder/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAssignmentCompilerIndexRoute =
+  AuthenticatedAssignmentCompilerIndexRouteImport.update({
+    id: '/assignment/compiler/',
+    path: '/assignment/compiler/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRolesRoleIdEditIndexRoute =
@@ -121,13 +128,14 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/assignment': typeof AuthenticatedAssignmentIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
   '/submission': typeof AuthenticatedSubmissionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
-  '/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
+  '/assignment/compiler': typeof AuthenticatedAssignmentCompilerIndexRoute
+  '/assignment/test-builder': typeof AuthenticatedAssignmentTestBuilderIndexRoute
   '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
-  '/submission/compiler': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 export interface FileRoutesByTo {
@@ -138,13 +146,14 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/assignment': typeof AuthenticatedAssignmentIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
   '/submission': typeof AuthenticatedSubmissionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
-  '/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
+  '/assignment/compiler': typeof AuthenticatedAssignmentCompilerIndexRoute
+  '/assignment/test-builder': typeof AuthenticatedAssignmentTestBuilderIndexRoute
   '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
-  '/submission/compiler': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 export interface FileRoutesById {
@@ -157,13 +166,14 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/assignment/': typeof AuthenticatedAssignmentIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
   '/_authenticated/submission/': typeof AuthenticatedSubmissionIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
-  '/_authenticated/submission/compiler/second': typeof AuthenticatedSubmissionCompilerSecondRoute
+  '/_authenticated/assignment/compiler/': typeof AuthenticatedAssignmentCompilerIndexRoute
+  '/_authenticated/assignment/test-builder/': typeof AuthenticatedAssignmentTestBuilderIndexRoute
   '/_authenticated/roles/create/': typeof AuthenticatedRolesCreateIndexRoute
-  '/_authenticated/submission/compiler/': typeof AuthenticatedSubmissionCompilerIndexRoute
   '/_authenticated/roles/$roleId/edit/': typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 export interface FileRouteTypes {
@@ -177,13 +187,14 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/assignment'
     | '/dashboard'
     | '/roles'
     | '/submission'
     | '/users'
-    | '/submission/compiler/second'
+    | '/assignment/compiler'
+    | '/assignment/test-builder'
     | '/roles/create'
-    | '/submission/compiler'
     | '/roles/$roleId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -194,13 +205,14 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/assignment'
     | '/dashboard'
     | '/roles'
     | '/submission'
     | '/users'
-    | '/submission/compiler/second'
+    | '/assignment/compiler'
+    | '/assignment/test-builder'
     | '/roles/create'
-    | '/submission/compiler'
     | '/roles/$roleId/edit'
   id:
     | '__root__'
@@ -212,13 +224,14 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/_authenticated/assignment/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/roles/'
     | '/_authenticated/submission/'
     | '/_authenticated/users/'
-    | '/_authenticated/submission/compiler/second'
+    | '/_authenticated/assignment/compiler/'
+    | '/_authenticated/assignment/test-builder/'
     | '/_authenticated/roles/create/'
-    | '/_authenticated/submission/compiler/'
     | '/_authenticated/roles/$roleId/edit/'
   fileRoutesById: FileRoutesById
 }
@@ -318,11 +331,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/submission/compiler/': {
-      id: '/_authenticated/submission/compiler/'
-      path: '/submission/compiler'
-      fullPath: '/submission/compiler'
-      preLoaderRoute: typeof AuthenticatedSubmissionCompilerIndexRouteImport
+    '/_authenticated/assignment/': {
+      id: '/_authenticated/assignment/'
+      path: '/assignment'
+      fullPath: '/assignment'
+      preLoaderRoute: typeof AuthenticatedAssignmentIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/roles/create/': {
@@ -332,11 +345,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRolesCreateIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/submission/compiler/second': {
-      id: '/_authenticated/submission/compiler/second'
-      path: '/submission/compiler/second'
-      fullPath: '/submission/compiler/second'
-      preLoaderRoute: typeof AuthenticatedSubmissionCompilerSecondRouteImport
+    '/_authenticated/assignment/test-builder/': {
+      id: '/_authenticated/assignment/test-builder/'
+      path: '/assignment/test-builder'
+      fullPath: '/assignment/test-builder'
+      preLoaderRoute: typeof AuthenticatedAssignmentTestBuilderIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assignment/compiler/': {
+      id: '/_authenticated/assignment/compiler/'
+      path: '/assignment/compiler'
+      fullPath: '/assignment/compiler'
+      preLoaderRoute: typeof AuthenticatedAssignmentCompilerIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/roles/$roleId/edit/': {
@@ -351,27 +371,29 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAssignmentIndexRoute: typeof AuthenticatedAssignmentIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedRolesIndexRoute: typeof AuthenticatedRolesIndexRoute
   AuthenticatedSubmissionIndexRoute: typeof AuthenticatedSubmissionIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
-  AuthenticatedSubmissionCompilerSecondRoute: typeof AuthenticatedSubmissionCompilerSecondRoute
+  AuthenticatedAssignmentCompilerIndexRoute: typeof AuthenticatedAssignmentCompilerIndexRoute
+  AuthenticatedAssignmentTestBuilderIndexRoute: typeof AuthenticatedAssignmentTestBuilderIndexRoute
   AuthenticatedRolesCreateIndexRoute: typeof AuthenticatedRolesCreateIndexRoute
-  AuthenticatedSubmissionCompilerIndexRoute: typeof AuthenticatedSubmissionCompilerIndexRoute
   AuthenticatedRolesRoleIdEditIndexRoute: typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAssignmentIndexRoute: AuthenticatedAssignmentIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedRolesIndexRoute: AuthenticatedRolesIndexRoute,
   AuthenticatedSubmissionIndexRoute: AuthenticatedSubmissionIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
-  AuthenticatedSubmissionCompilerSecondRoute:
-    AuthenticatedSubmissionCompilerSecondRoute,
+  AuthenticatedAssignmentCompilerIndexRoute:
+    AuthenticatedAssignmentCompilerIndexRoute,
+  AuthenticatedAssignmentTestBuilderIndexRoute:
+    AuthenticatedAssignmentTestBuilderIndexRoute,
   AuthenticatedRolesCreateIndexRoute: AuthenticatedRolesCreateIndexRoute,
-  AuthenticatedSubmissionCompilerIndexRoute:
-    AuthenticatedSubmissionCompilerIndexRoute,
   AuthenticatedRolesRoleIdEditIndexRoute:
     AuthenticatedRolesRoleIdEditIndexRoute,
 }

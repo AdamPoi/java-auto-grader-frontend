@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { type FileData } from './useFileManagement';
+import { type FileData } from './use-file-management';
 
 declare global {
     interface Window {

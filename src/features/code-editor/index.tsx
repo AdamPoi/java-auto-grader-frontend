@@ -1,27 +1,27 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// Import hooks
-import useCodeIntel from '../hooks/useCodeIntel';
-import useDebounce from '../hooks/useDebounce';
-import useFileManagement, { type FileData } from '../hooks/useFileManagement';
-import useJavaSimulator from '../hooks/useJavaSimulator';
+import useDebounce from '../../hooks/use-debounce';
+import useCodeIntel from './hooks/use-code-intel';
+import { useCodeRunner } from './hooks/use-code-runner';
+import useFileManagement, { type FileData } from './hooks/use-file-management';
 
-// Import UI components
-import Modal from './Modal';
-import MonacoEditor from './MonacoEditor';
-import Tabs from './Tabs';
-import TabsList from './TabsList';
-import TabsTrigger from './TabsTrigger';
-import Terminal from './Terminal';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsList } from '@/components/ui/tabs';
+import Terminal from './components/code-terminal';
+import FileTabTrigger from './components/file-tab-trigger';
+import MonacoEditor from './components/monaco-editor';
 
 const initialFilesData: FileData[] = [{ fileName: "Main.java", content: `import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Dog myDog = new Dog("Buddy", 3, "Golden Retriever");\n        myDog.displayInfo();\n\n        System.out.println("\\n--- Error Handling Demo ---");\n        try {\n            System.out.println("Attempting to divide by zero...");\n            int result = 10 / 0;\n            System.out.println("This will not be printed.");\n        } catch (ArithmeticException e) {\n            System.err.println("SUCCESS: Caught an exception as expected!");\n            System.err.println(e.getMessage());\n        }\n\n        System.out.println("\\nExecution continues after the catch block.");\n    }\n}` }, { fileName: "Animal.java", content: `public class Animal {\n    protected String name;\n    public int age;\n    public Animal(String name, int age) { this.name = name; this.age = age; }\n    public void makeSound() { System.out.println(name + " makes a sound"); }\n    public void displayInfo() { System.out.println("Name: " + name + ", Age: " + age); }\n    public static void showAnimalCount() { System.out.println("Animals are amazing creatures!"); }\n}` }, { fileName: "Dog.java", content: `public class Dog extends Animal {\n    private String breed;\n    public Dog(String name, int age, String breed) { super(name, age); this.breed = breed; }\n    @Override\n    public void makeSound() { System.out.println(name + " barks: Woof! Woof!"); }\n    @Override\n    public void displayInfo() { super.displayInfo(); System.out.println("Breed: " + breed); }\n    public void fetch() { System.out.println(name + " is fetching the ball!"); }\n    public static void dogFacts() { System.out.println("Dogs are loyal companions!"); }\n}` }, { fileName: "Cat.java", content: `public class Cat extends Animal {\n    private String furColor;\n    public Cat(String name, int age, String furColor) { super(name, age); this.furColor = furColor; }\n    @Override\n    public void makeSound() { System.out.println(name + " meows."); }\n    public void purr() { System.out.println(name + " is purring."); }\n}` }];
 
 
-export default function CodeTerminal() {
+export default function CodeEditor() {
     const { files, activeFileName, setActiveFileName, handleCreateFile, handleRenameFile, handleDeleteFile, handleEditorChange } = useFileManagement(initialFilesData);
     const debouncedFiles = useDebounce(files, 500);
     const { intel, errors, validateFile } = useCodeIntel(debouncedFiles);
-    const { terminalOutput, isRunning, isAwaitingInput, terminalInputValue, setTerminalInputValue, clearTerminal, runCode, onInputSubmit } = useJavaSimulator();
+    const { terminalOutput, isRunning, clearTerminal, runCode } = useCodeRunner();
 
     const [modal, setModal] = useState<{ type: 'create' | 'rename' | 'delete'; payload: string } | null>(null);
     const [fileNameInput, setFileNameInput] = useState('');
@@ -87,18 +87,21 @@ export default function CodeTerminal() {
                 </header>
                 <div className="flex items-center space-x-2">
                     <Tabs
-                        value={activeFileName}
-                        onValueChange={setActiveFileName}
+                        value={activeFileName || undefined}
+                        onValueChange={(value) => setActiveFileName(value)}
                         className="flex-grow"
-                        onDeleteFile={(name) => showModal('delete', name)}
-                        onRenameFile={(name) => showModal('rename', name)}
-                        filesLength={files.length}
                     >
                         <TabsList>
                             {files.map(f => (
-                                <TabsTrigger key={f.fileName} value={f.fileName}>
+                                <FileTabTrigger
+                                    key={f.fileName}
+                                    value={f.fileName}
+                                    onDeleteFile={(name) => showModal('delete', name)}
+                                    onRenameFile={(name) => showModal('rename', name)}
+                                    filesLength={files.length}
+                                >
                                     {f.fileName}
-                                </TabsTrigger>
+                                </FileTabTrigger>
                             ))}
                         </TabsList>
                     </Tabs>
@@ -137,56 +140,60 @@ export default function CodeTerminal() {
                         output={terminalOutput}
                         onClear={clearTerminal}
                         isRunning={isRunning}
-                        isAwaitingInput={isAwaitingInput}
-                        onInputSubmit={onInputSubmit}
-                        inputValue={terminalInputValue}
-                        onInputChange={setTerminalInputValue}
                     />
                 </div>
             </div>
 
-            {modal && modal.type !== 'delete' && (
-                <Modal onClose={() => setModal(null)}>
+            <Dialog open={!!(modal && modal.type !== 'delete')} onOpenChange={(open) => !open && setModal(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{(modal?.type ? modal.type.charAt(0).toUpperCase() + modal.type.slice(1) : '') + ' File'}</DialogTitle>
+                    </DialogHeader>
                     <form onSubmit={handleModalSubmit}>
-                        <h3 className="text-lg font-semibold mb-4">{modal.type.charAt(0).toUpperCase() + modal.type.slice(1)} File</h3>
-                        <label htmlFor="fileNameInput" className="block text-sm mb-2">File Name</label>
-                        <input
-                            id="fileNameInput"
+                        <Label className='my-2' htmlFor='fileNameInput'>
+                            FileName:
+
+                        </Label>
+                        <Input
+                            id='fileNameInput'
                             value={fileNameInput}
                             onChange={e => setFileNameInput(e.target.value)}
-                            className="bg-neutral-900 border border-neutral-600 rounded-md w-full px-3 py-2 focus:ring-2 focus:ring-blue-500"
                             placeholder="MyClass.java"
                             autoFocus
                         />
-                        {modalError && <p className="text-red-400 text-sm mt-2">{modalError}</p>}
-                        <div className="flex justify-end space-x-3 mt-6">
-                            <button type="button" onClick={() => setModal(null)} className="px-4 py-2 rounded-md bg-neutral-700 hover:bg-neutral-600">Cancel</button>
-                            <button type="submit" className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500">
-                                {modal.type === 'rename' ? 'Save' : 'Create'}
-                            </button>
-                        </div>
-                    </form>
-                </Modal>
-            )}
 
-            {modal?.type === 'delete' && (
-                <Modal onClose={() => setModal(null)}>
-                    <h3 className="text-lg font-semibold mb-2">Confirm Deletion</h3>
-                    <p className="text-neutral-300 mb-6">Are you sure you want to delete <span className="font-semibold text-red-400">{modal.payload}</span>?</p>
-                    <div className="flex justify-end space-x-3">
+                        {modalError && <p className="text-red-400 text-sm mt-2">{modalError}</p>}
+                        <DialogFooter className="mt-6">
+                            <Button variant="outline" onClick={() => setModal(null)} >Cancel</Button>
+                            <Button variant="default" type="submit">
+                                {modal?.type === 'rename' ? 'Save' : 'Create'}
+                            </Button>
+
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!(modal?.type === 'delete')} onOpenChange={(open) => !open && setModal(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Deletion</DialogTitle>
+                        <DialogDescription>Are you sure you want to delete <span className="font-semibold text-red-400">{modal?.payload}</span>?</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
                         <button onClick={() => setModal(null)} className="px-4 py-2 rounded-md bg-neutral-700 hover:bg-neutral-600">Cancel</button>
                         <button
                             onClick={() => {
-                                handleDeleteFile(modal.payload);
+                                handleDeleteFile(modal?.payload || '');
                                 setModal(null);
                             }}
                             className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-500"
                         >
                             Delete
                         </button>
-                    </div>
-                </Modal>
-            )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

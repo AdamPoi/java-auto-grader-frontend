@@ -1,4 +1,5 @@
 import {
+  IconAdjustmentsCheck,
   IconBarrierBlock,
   IconBook,
   IconBug,
@@ -6,6 +7,7 @@ import {
   IconChalkboardTeacher,
   IconCode,
   IconError404,
+  IconFileCode,
   IconLayoutDashboard,
   IconLock,
   IconLockAccess,
@@ -66,87 +68,92 @@ export const sidebarData: SidebarData = {
           url: '/roles',
           icon: IconShield,
         },
-        {
-          title: 'Students',
-          url: '/',
-          icon: IconSchool,
-        },
+        // {
+        //   title: 'Students',
+        //   url: '/',
+        //   icon: IconSchool,
+        // },
 
-        {
-          title: 'Teachers',
-          url: '/',
-          icon: IconChalkboardTeacher,
-        },
-        {
-          title: 'Classroom',
-          url: '/',
-          icon: IconChalkboard,
-        },
-        {
-          title: 'Course',
-          url: '/',
-          icon: IconBook,
-        },
+        // {
+        //   title: 'Teachers',
+        //   url: '/',
+        //   icon: IconChalkboardTeacher,
+        // },
+        // {
+        //   title: 'Classroom',
+        //   url: '/',
+        //   icon: IconChalkboard,
+        // },
+        // {
+        //   title: 'Course',
+        //   url: '/',
+        //   icon: IconBook,
+        // },
       ],
     },
 
     {
-      title: 'Submission',
+      title: 'Assignment',
       items: [
         {
           title: 'Compiler',
-          url: '/submission/compiler',
+          url: '/assignment/compiler',
           icon: IconCode,
+        },
+        {
+          title: 'Test Builder',
+          url: '/assignment/test-builder',
+          icon: IconFileCode,
         },
       ]
     },
-    {
-      title: 'Pages',
-      items: [
-        {
-          title: 'Auth',
-          icon: IconLockAccess,
-          items: [
-            {
-              title: 'Login',
-              url: '/login',
-            },
+    // {
+    //   title: 'Pages',
+    //   items: [
+    //     {
+    //       title: 'Auth',
+    //       icon: IconLockAccess,
+    //       items: [
+    //         {
+    //           title: 'Login',
+    //           url: '/login',
+    //         },
 
-          ],
-        },
-        {
-          title: 'Errors',
-          icon: IconBug,
-          items: [
-            {
-              title: 'Unauthorized',
-              url: '/401',
-              icon: IconLock,
-            },
-            {
-              title: 'Forbidden',
-              url: '/403',
-              icon: IconUserOff,
-            },
-            {
-              title: 'Not Found',
-              url: '/404',
-              icon: IconError404,
-            },
-            {
-              title: 'Internal Server Error',
-              url: '/500',
-              icon: IconServerOff,
-            },
-            {
-              title: 'Maintenance Error',
-              url: '/503',
-              icon: IconBarrierBlock,
-            },
-          ],
-        },
-      ],
-    },
+    //       ],
+    //     },
+    //     {
+    //       title: 'Errors',
+    //       icon: IconBug,
+    //       items: [
+    //         {
+    //           title: 'Unauthorized',
+    //           url: '/401',
+    //           icon: IconLock,
+    //         },
+    //         {
+    //           title: 'Forbidden',
+    //           url: '/403',
+    //           icon: IconUserOff,
+    //         },
+    //         {
+    //           title: 'Not Found',
+    //           url: '/404',
+    //           icon: IconError404,
+    //         },
+    //         {
+    //           title: 'Internal Server Error',
+    //           url: '/500',
+    //           icon: IconServerOff,
+    //         },
+    //         {
+    //           title: 'Maintenance Error',
+    //           url: '/503',
+    //           icon: IconBarrierBlock,
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // },
     // {
     //   title: 'Other',
     //   items: [

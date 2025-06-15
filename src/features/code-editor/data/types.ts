@@ -6,13 +6,13 @@ export type CompilationError = {
     pointer: string;
 }
 
-interface ExecutionResult {
+export interface ExecutionResult {
     success: boolean;
-    output: string | null;  // Changed from null to string | null
+    output: string | null;
     error: string | null;
     exception: string | null;
     executionTime: number;
-    compilationErrors: CompilationError[] | null;  // Allow null
+    compilationErrors: CompilationError[] | null;
 }
 
 export type JavaFile = {
@@ -23,4 +23,9 @@ export type JavaFile = {
 export type JavaProject = {
     files: JavaFile[];
     mainClassName: string;
+}
+
+export interface TerminalOutputLine {
+    text: string;
+    type: 'log' | 'error' | 'input';
 }

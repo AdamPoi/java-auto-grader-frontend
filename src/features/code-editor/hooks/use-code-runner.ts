@@ -1,30 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
-import { useCallback, useRef, useState } from 'react';
-import type { ExecutionResult, JavaFile, JavaProject } from '../data/data';
-import { type FileData } from './useFileManagement';
-
-export interface TerminalOutputLine {
-    text: string;
-    type: 'log' | 'error' | 'input';
-}
-
-interface UseJavaSimulatorReturn {
+import { useCallback, useState } from 'react';
+import { CodeRunnerApi } from '../data/api';
+import type { CompilationError, ExecutionResult, JavaFile, JavaProject, TerminalOutputLine } from '../data/types';
+import { type FileData } from '../hooks/use-file-management';
+interface UseCodeRunnerReturn {
     terminalOutput: TerminalOutputLine[];
     isRunning: boolean;
-    isAwaitingInput: boolean;
-    terminalInputValue: string;
-    setTerminalInputValue: React.Dispatch<React.SetStateAction<string>>;
     clearTerminal: () => void;
     runCode: (files: FileData[]) => Promise<void>;
-    onInputSubmit: (input: string) => void;
 }
 
-function useJavaSimulator(): UseJavaSimulatorReturn {
+export function useCodeRunner(): UseCodeRunnerReturn {
     const [terminalOutput, setTerminalOutput] = useState<TerminalOutputLine[]>([]);
     const [isRunning, setIsRunning] = useState(false);
-    const [isAwaitingInput, setIsAwaitingInput] = useState(false);
-    const [terminalInputValue, setTerminalInputValue] = useState('');
-    const inputPromiseResolveRef = useRef<((value: string | null) => void) | null>(null);
 
     const addOutput = useCallback((text: string, type: 'log' | 'error' = 'log') => {
         setTerminalOutput(p => [...p, { text, type }]);
@@ -32,44 +20,13 @@ function useJavaSimulator(): UseJavaSimulatorReturn {
 
     const clearTerminal = useCallback(() => setTerminalOutput([]), []);
 
-    const promptForInput = useCallback((): Promise<string> => {
-        setIsAwaitingInput(true);
-        return new Promise(resolve => {
-            inputPromiseResolveRef.current = (value: string | null) => {
-                resolve(value ?? ''); // Convert null to empty string
-            };
-        });
-    }, []);
-
-    const onInputSubmit = useCallback((input: string) => {
-        if (isAwaitingInput) {
-            inputPromiseResolveRef.current?.(input);
-            setIsAwaitingInput(false);
-            setTerminalInputValue('');
-            setTerminalOutput(p => [...p, { text: input, type: 'input' }]);
-        }
-    }, [isAwaitingInput]);
-
     const runCodeMutation = useMutation({
         mutationFn: async (javaProject: JavaProject): Promise<ExecutionResult> => {
-            const response = await fetch('http://localhost:8080/api/submission-codes/run', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(javaProject),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to execute Java code');
-            }
-
-            return response.json();
+            return CodeRunnerApi.runCode(javaProject);
         },
-        onSuccess: ({ data }: ExecutionResult) => {
-            // Handle compilation errors (check for null and length)
+        onSuccess: (data: ExecutionResult) => {
             if (data.compilationErrors && Array.isArray(data.compilationErrors) && data.compilationErrors.length > 0) {
-                data.compilationErrors.forEach(error => {
+                data.compilationErrors.forEach((error: CompilationError) => {
                     addOutput(`Compilation Error in ${error.errorFile}:${error.line}`, 'error');
                     addOutput(error.errorMessage, 'error');
                     if (error.codeSnippet) {
@@ -82,14 +39,11 @@ function useJavaSimulator(): UseJavaSimulatorReturn {
                 return;
             }
 
-            // Handle execution datas
-            console.log(data)
             if (data.success) {
                 if (data.output) {
-                    // Split output by newlines and add each line separately
                     const outputLines = data.output.split('\n');
-                    outputLines.forEach(line => {
-                        if (line.trim()) { // Only add non-empty lines
+                    outputLines.forEach((line: string) => {
+                        if (line.trim()) {
                             addOutput(line, 'log');
                         }
                     });
@@ -125,7 +79,7 @@ function useJavaSimulator(): UseJavaSimulatorReturn {
 
         const mainClassName = mainFile.fileName.replace('.java', '');
 
-        const javaFiles: JavaFile[] = files.map(file => ({
+        const javaFiles: JavaFile[] = files.map((file: FileData) => ({
             fileName: file.fileName,
             content: file.content
         }));
@@ -139,9 +93,9 @@ function useJavaSimulator(): UseJavaSimulatorReturn {
     }, [addOutput, runCodeMutation]);
 
     return {
-        terminalOutput, isAwaitingInput, terminalInputValue, setTerminalInputValue, clearTerminal, runCode,
-        isRunning: runCodeMutation.isPending, onInputSubmit
+        terminalOutput,
+        isRunning: runCodeMutation.isPending,
+        clearTerminal,
+        runCode,
     };
 }
-
-export default useJavaSimulator;

@@ -1,12 +1,7 @@
-import React, { useRef, useEffect } from 'react';
-import { type MonacoEditorError, type CodeIntelData } from '../hooks/useCodeIntel';
+import React, { useEffect, useRef } from 'react';
+import { type CodeIntelData, type MonacoEditorError } from '../hooks/use-code-intel';
 
-declare global {
-    interface Window {
-        monaco: any;
-        require: any;
-    }
-}
+import * as monaco from 'monaco-editor';
 
 interface MonacoEditorProps {
     language: string;
@@ -17,62 +12,39 @@ interface MonacoEditorProps {
 }
 
 const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, codeIntel, errors }) => {
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const completionProviderRef = useRef<any>(null);
+    const completionProviderRef = useRef<monaco.IDisposable | null>(null);
     const onchangeRef = useRef(onChange);
 
-    // Update ref when onChange prop changes
     useEffect(() => {
         onchangeRef.current = onChange;
     }, [onChange]);
 
     useEffect(() => {
-        const MONACO_VS_URL = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs';
+        if (containerRef.current && !editorRef.current) {
+            editorRef.current = monaco.editor.create(containerRef.current, {
+                value,
+                language,
+                theme: 'vs-dark',
+                automaticLayout: true,
+                wordWrap: 'on',
+                fontSize: 14
+            });
 
-        const initMonaco = () => {
-            if (containerRef.current && !editorRef.current) {
-                editorRef.current = window.monaco.editor.create(containerRef.current, {
-                    value,
-                    language,
-                    theme: 'vs-dark',
-                    automaticLayout: true,
-                    wordWrap: 'on',
-                    fontSize: 14
-                });
-
-                // Attach content change listener
-                editorRef.current.onDidChangeModelContent(() => {
-                    if (onchangeRef.current) {
-                        onchangeRef.current(editorRef.current.getValue());
-                    }
-                });
-            }
-        };
-
-        if (!window.monaco) {
-            // Load Monaco Editor if not already loaded
-            if (!document.querySelector('script[src*="loader.js"]')) {
-                const script = document.createElement('script');
-                script.src = `${MONACO_VS_URL}/loader.js`;
-                script.onload = () => {
-                    window.require.config({ paths: { 'vs': MONACO_VS_URL } });
-                    window.require(['vs/editor/editor.main'], initMonaco);
-                };
-                document.body.appendChild(script);
-            }
-        } else {
-            initMonaco();
+            editorRef.current.onDidChangeModelContent(() => {
+                if (onchangeRef.current && editorRef.current) {
+                    onchangeRef.current(editorRef.current.getValue());
+                }
+            });
         }
 
-        // Cleanup
         return () => {
             editorRef.current?.dispose();
             editorRef.current = null;
         };
-    }, []); // Empty dependency array means this runs once on mount
+    }, []);
 
-    // Update editor value when prop changes
     useEffect(() => {
         if (editorRef.current && editorRef.current.getValue() !== value) {
             editorRef.current.setValue(value);
@@ -82,18 +54,18 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
     // Update editor language when prop changes
     useEffect(() => {
         if (editorRef.current) {
-            window.monaco.editor.setModelLanguage(editorRef.current.getModel(), language);
+            monaco.editor.setModelLanguage(editorRef.current.getModel()!, language);
         }
     }, [language]);
 
     // Register completion provider for IntelliSense
     useEffect(() => {
-        if (window.monaco && codeIntel) {
-            completionProviderRef.current?.dispose(); // Dispose previous provider if exists
+        if (codeIntel) {
+            completionProviderRef.current?.dispose();
 
-            completionProviderRef.current = window.monaco.languages.registerCompletionItemProvider('java', {
+            completionProviderRef.current = monaco.languages.registerCompletionItemProvider('java', {
                 triggerCharacters: ['.', ' '],
-                provideCompletionItems: (model: any, position: any) => {
+                provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
                     const word = model.getWordUntilPosition(position);
                     const range = {
                         startLineNumber: position.lineNumber,
@@ -129,7 +101,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
                                 .filter(m => isStaticAccess ? m.isStatic : !m.isConstructor)
                                 .map(m => ({
                                     label: m.name,
-                                    kind: m.isMethod ? window.monaco.languages.CompletionItemKind.Method : window.monaco.languages.CompletionItemKind.Field,
+                                    kind: m.isMethod ? monaco.languages.CompletionItemKind.Method : monaco.languages.CompletionItemKind.Field,
                                     insertText: m.name,
                                     detail: m.signature,
                                     range
@@ -143,36 +115,36 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
                         suggestions: [
                             ...keywords.map(k => ({
                                 label: k,
-                                kind: window.monaco.languages.CompletionItemKind.Keyword,
+                                kind: monaco.languages.CompletionItemKind.Keyword,
                                 insertText: k,
                                 range
                             })),
                             ...Object.keys(codeIntel.classes).map(c => ({
                                 label: c,
-                                kind: window.monaco.languages.CompletionItemKind.Class,
+                                kind: monaco.languages.CompletionItemKind.Class,
                                 insertText: c,
                                 range
                             })),
                             ...Object.keys(codeIntel.scope).map(v => ({
                                 label: v,
-                                kind: window.monaco.languages.CompletionItemKind.Variable,
+                                kind: monaco.languages.CompletionItemKind.Variable,
                                 insertText: v,
                                 detail: codeIntel.scope[v],
                                 range
                             })),
                             {
                                 label: 'main',
-                                kind: window.monaco.languages.CompletionItemKind.Snippet,
+                                kind: monaco.languages.CompletionItemKind.Snippet,
                                 insertText: 'public static void main(String[] args) {\n\t${0}\n}',
-                                insertTextRules: window.monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                                 documentation: 'Main method',
                                 range
                             },
                             {
                                 label: 'sysout',
-                                kind: window.monaco.languages.CompletionItemKind.Snippet,
+                                kind: monaco.languages.CompletionItemKind.Snippet,
                                 insertText: 'System.out.println(${0});',
-                                insertTextRules: window.monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                                 documentation: 'Prints to standard out',
                                 range
                             }
@@ -183,16 +155,15 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
         }
 
         return () => {
-            completionProviderRef.current?.dispose(); // Clean up on unmount or when codeIntel changes
+            completionProviderRef.current?.dispose();
         };
-    }, [codeIntel]); // Re-register when codeIntel changes
+    }, [codeIntel]);
 
-    // Apply error markers
     useEffect(() => {
-        if (window.monaco && editorRef.current) {
+        if (editorRef.current) {
             const model = editorRef.current.getModel();
             if (model) {
-                window.monaco.editor.setModelMarkers(model, 'java-validator', errors);
+                monaco.editor.setModelMarkers(model, 'java-validator', errors);
             }
         }
     }, [errors]);
