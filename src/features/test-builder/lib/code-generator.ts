@@ -1,4 +1,4 @@
-import type { AnalyzeFunctionBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlock, FunctionBlock, MatcherBlock, StaticAssertBlock, StructureCheckBlock, VariableBlock } from '../types';
+import type { AnalyzeFunctionBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlock, FunctionBlock, MatcherBlock, StaticAssertBlock, StructureCheckBlock, VariableBlock } from '../data/types';
 
 export function generateTestCode(blocks: Block[]): string {
     let code = 'import static org.assertj.core.api.Assertions.assertThat;\n';
@@ -13,7 +13,7 @@ export function generateTestCode(blocks: Block[]): string {
         let chain = '';
         const children = blocks.filter(b => b.parentId === parentId).sort((a, b) => blockOrderMap[a.id] - blockOrderMap[b.id]);
         children.forEach(block => {
-            const b = block as MatcherBlock; // Assuming only matchers can be in a chain
+            const b = block as MatcherBlock;
             switch (b.type) {
                 case 'IS_EQUAL_TO': chain += `.isEqualTo(${b.value})`; break;
                 case 'IS_NOT_NULL': chain += '.isNotNull()'; break;
