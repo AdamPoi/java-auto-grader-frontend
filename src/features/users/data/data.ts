@@ -3,7 +3,7 @@ import {
   IconSchool,
   IconUserShield
 } from '@tabler/icons-react'
-import { type UserStatus } from './schema'
+import { type UserStatus } from './types'
 
 export const statusTypes = new Map<UserStatus, string>([
   ['active', 'bg-teal-100/30 text-teal-900 dark:text-teal-200 border-teal-200'],

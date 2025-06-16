@@ -68,27 +68,26 @@ export const sidebarData: SidebarData = {
           url: '/roles',
           icon: IconShield,
         },
-        // {
-        //   title: 'Students',
-        //   url: '/',
-        //   icon: IconSchool,
-        // },
-
-        // {
-        //   title: 'Teachers',
-        //   url: '/',
-        //   icon: IconChalkboardTeacher,
-        // },
-        // {
-        //   title: 'Classroom',
-        //   url: '/',
-        //   icon: IconChalkboard,
-        // },
-        // {
-        //   title: 'Course',
-        //   url: '/',
-        //   icon: IconBook,
-        // },
+        {
+          title: 'Students',
+          url: '/users',
+          icon: IconSchool,
+        },
+        {
+          title: 'Teachers',
+          url: '/users',
+          icon: IconChalkboardTeacher,
+        },
+        {
+          title: 'Classrooms',
+          url: '/classrooms',
+          icon: IconChalkboard,
+        },
+        {
+          title: 'Courses',
+          url: '/courses',
+          icon: IconBook,
+        },
       ],
     },
 
@@ -97,12 +96,12 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Compiler',
-          url: '/assignment/compiler',
+          url: '/assignments/compiler',
           icon: IconCode,
         },
         {
           title: 'Test Builder',
-          url: '/assignment/test-builder',
+          url: '/assignments/test-builder',
           icon: IconFileCode,
         },
       ]

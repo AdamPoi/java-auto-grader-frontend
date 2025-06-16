@@ -162,7 +162,7 @@ export function RoleForm<TVariables>({
                             Back
                         </Button>
                     </div>
-                    <div className="flex justify-end items-center mt-4" >
+                    <div className="flex justify-end items-center mt-4 gap-4" >
                         <Button type='button' variant='outline' onClick={() => form.reset()}>
                             Reset
                         </Button>

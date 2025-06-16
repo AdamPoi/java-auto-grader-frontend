@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Command,
@@ -23,23 +22,27 @@ interface Item {
     value: string;
 }
 
-interface MultiSelectProps {
-    value: string[];
-    onChange: (value: string[]) => void;
-    items: { label: string; value: string }[];
+interface SearchableSelectProps {
+    items: Item[];
+    value?: string;
+    onChange: (value: string | undefined) => void;
     placeholder?: string;
     className?: string;
+    disabled?: boolean;
+    allowClear?: boolean;
     onSearch?: (searchTerm: string) => void;
 }
 
-export function MultiSelect({
+export function SearchableSelect({
     items,
     value,
     onChange,
-    placeholder = 'Select items...',
+    placeholder = 'Select item...',
     className,
+    disabled = false,
+    allowClear = false,
     onSearch
-}: MultiSelectProps) {
+}: SearchableSelectProps) {
     const [open, setOpen] = React.useState(false);
     const [searchValue, setSearchValue] = React.useState("");
 
@@ -53,16 +56,15 @@ export function MultiSelect({
         const item = items.find(item => item.label.toLowerCase() === currentValue.toLowerCase());
         if (!item) return;
 
-        const selectedValues = [...value];
-        const index = selectedValues.indexOf(item.value);
-
-        if (index === -1) {
-            selectedValues.push(item.value);
+        if (value === item.value && allowClear) {
+            onChange(undefined);
         } else {
-            selectedValues.splice(index, 1);
+            onChange(item.value);
         }
-        onChange(selectedValues);
+        setOpen(false);
     };
+
+    const selectedItem = items.find(item => item.value === value);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -72,20 +74,12 @@ export function MultiSelect({
                     role="combobox"
                     aria-expanded={open}
                     className={cn("w-full justify-between", className)}
+                    disabled={disabled}
                 >
-                    {value && value.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                            {value.map((itemValue) => {
-                                const item = items.find(i => i.value === itemValue);
-                                return item ? (
-                                    <Badge key={itemValue} variant="secondary">
-                                        {item.label}
-                                    </Badge>
-                                ) : null;
-                            })}
-                        </div>
+                    {selectedItem ? (
+                        selectedItem.label
                     ) : (
-                        placeholder
+                        <span className="text-muted-foreground">{placeholder}</span>
                     )}
                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -93,9 +87,10 @@ export function MultiSelect({
             <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[calc(500px-2rem)] p-0">
                 <Command>
                     <CommandInput
-                        placeholder="Search..."
+                        placeholder={placeholder}
                         value={searchValue}
                         onValueChange={handleSearch}
+                        disabled={disabled}
                     />
                     <CommandEmpty>No item found.</CommandEmpty>
                     <CommandGroup>
@@ -108,7 +103,7 @@ export function MultiSelect({
                                 <CheckIcon
                                     className={cn(
                                         "mr-2 h-4 w-4",
-                                        value.includes(item.value) ? "opacity-100" : "opacity-0"
+                                        value === item.value ? "opacity-100" : "opacity-0"
                                     )}
                                 />
                                 {item.label}
