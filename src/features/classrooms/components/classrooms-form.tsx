@@ -163,17 +163,14 @@ export function ClassroomForm({
         const updatedStudents = [...selectedStudents, ...studentsToAdd];
         setSelectedStudents(updatedStudents);
 
-        // Update form with new student IDs
         form.setValue('studentIds', updatedStudents.map(student => student.id));
     };
 
-    // Handle removing a student from the table
     const handleRemoveStudent = (studentId: string) => {
         const updatedStudents = selectedStudents.filter(student => student.id !== studentId);
         setSelectedStudents(updatedStudents);
         form.setValue('studentIds', updatedStudents.map(student => student.id));
 
-        // Clear selection state for removed student
         const newRowSelection = { ...rowSelection };
         const studentIndex = selectedStudents.findIndex(s => s.id === studentId);
         if (studentIndex !== -1) {
@@ -182,7 +179,6 @@ export function ClassroomForm({
         }
     };
 
-    // Handle bulk delete using DataTable selection
     const handleBulkDelete = () => {
         const selectedIndexes = Object.keys(rowSelection).filter(key => rowSelection[key]);
         const studentsToRemove = selectedIndexes.map(index => selectedStudents[parseInt(index)].id);
@@ -196,7 +192,6 @@ export function ClassroomForm({
         setRowSelection({});
     };
 
-    // Get selected count from DataTable selection
     const selectedCount = Object.values(rowSelection).filter(Boolean).length;
 
 
@@ -290,7 +285,7 @@ export function ClassroomForm({
                             <FormLabel>Add Students</FormLabel>
                             <FormControl>
                                 <MultiSelect
-                                    value={[]} // Always empty since we're just adding
+                                    value={[]}
                                     onChange={handleAddStudents}
                                     items={studentOptions.filter(option =>
                                         !selectedStudents.some(student => student.id === option.value)

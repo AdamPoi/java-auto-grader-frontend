@@ -1,7 +1,6 @@
 import { type LucideProps } from 'lucide-react';
 import { type FC } from 'react';
 
-// --- Type Definitions ---
 export type BlockType =
     | 'FUNCTION' | 'ANALYZE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
     | 'EXCEPTION_ASSERT' | 'STATIC_ASSERT' | 'STRUCTURE_CHECK'

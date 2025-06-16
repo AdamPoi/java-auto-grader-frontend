@@ -20,6 +20,7 @@ import { type User } from '@/features/users/data/types';
 import { useUsersContext } from '@/features/users/hooks/use-user';
 import { handleServerErrors } from '@/lib/form-utils';
 import { debounce } from '@tanstack/pacer';
+import type { UseMutationResult } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -30,6 +31,7 @@ import { createStudentColumns } from './student-columns';
 interface CourseFormProps {
     initialData?: Course;
     onSubmit: (data: CourseForm) => void;
+    mutation?: UseMutationResult<Course, Error, CourseForm, unknown>;
 }
 
 export function CourseForm({
@@ -244,11 +246,9 @@ export function CourseForm({
     const handleFormError = (errors: any) => {
         console.error('Form validation errors:', errors);
 
-        // Show a general error message
         toast.error('Please fix the validation errors before submitting');
         console.log(form.getValues())
 
-        // Optionally, you can show specific field errors
         const errorMessages = Object.entries(errors)
             .map(([field, error]: [string, any]) => `${field}: ${error.message}`)
             .join(', ');
@@ -325,7 +325,7 @@ export function CourseForm({
                             <FormLabel>Add Students</FormLabel>
                             <FormControl>
                                 <MultiSelect
-                                    value={[]} // Always empty since we're just adding
+                                    value={[]}
                                     onChange={handleAddStudents}
                                     items={studentOptions.filter(option =>
                                         !selectedStudents.some(student => student.id === option.value)

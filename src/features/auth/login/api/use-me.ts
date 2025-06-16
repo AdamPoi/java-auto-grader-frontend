@@ -13,7 +13,6 @@ export function useMe() {
         enabled: !!auth.accessToken,
         staleTime: 5 * 60 * 1000, //  5 minutes
         retry: (failureCount, error: any) => {
-            // Don't retry if it's an auth error
             if (error?.status === 401) return false;
             return failureCount < 3;
         },

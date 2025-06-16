@@ -1,6 +1,6 @@
 import useDialogState from '@/hooks/use-dialog-state'
 import React, { useState } from 'react'
-import { type User } from '../data/schema'
+import { type User } from '../data/types'
 
 type UsersDialogType = 'add' | 'edit' | 'delete'
 

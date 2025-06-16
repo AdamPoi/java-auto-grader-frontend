@@ -1,5 +1,8 @@
 import { DataTableColumnHeader } from '@/components/datatable/data-table-column-header';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
+import { ExternalLinkIcon } from 'lucide-react';
 import type { Course } from '../data/types';
 import { CoursesTableRowActions } from './courses-table-row-actions';
 
@@ -35,8 +38,18 @@ export const columns: ColumnDef<Course>[] = [
         accessorKey: 'assignments',
         header: 'Assignments',
         cell: ({ row }) => {
-            const assignments = row.original.assignments;
-            return <div>{assignments?.length || 0}</div>;
+            const navigate = useNavigate();
+            return <Button
+                type='button'
+                variant='outline'
+                onClick={() => {
+                    navigate({
+                        to: '/courses/$courseId/assignments',
+                        params: { courseId: row.original.id },
+                    });
+                }}>
+                {row.original.assignments?.length || 0} Assignments <ExternalLinkIcon className='ml-2 h-4 w-4' />
+            </Button>;
         },
     },
     {
@@ -44,4 +57,5 @@ export const columns: ColumnDef<Course>[] = [
         header: 'Actions',
         cell: ({ row }) => <CoursesTableRowActions row={row} />,
     },
+
 ];

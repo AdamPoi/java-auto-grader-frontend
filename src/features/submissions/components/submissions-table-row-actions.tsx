@@ -10,19 +10,17 @@ import {
 import { useAuthStore } from '@/stores/auth.store'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useNavigate } from '@tanstack/react-router'
 import { type Row } from '@tanstack/react-table'
-import { useCoursesContext } from '../context/courses-context'
-import { type Course } from '../data/types'
+import { useUsersContext } from '../context/users-context'
+import { type User } from '../data/types'
 
-interface CoursesTableRowActionsProps {
-  row: Row<Course>
+interface DataTableRowActionsProps {
+  row: Row<User>
 }
 
-export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
-  const navigate = useNavigate({ from: '/courses' })
-  const { setOpen, setCurrentRow } = useCoursesContext()
-  const { auth } = useAuthStore();
+export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+  const { setOpen, setCurrentRow } = useUsersContext()
+  const { auth } = useAuthStore()
   return (
     <>
       <DropdownMenu modal={false}>
@@ -36,14 +34,11 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-[160px]'>
-
-          {auth.hasPermission(['COURSE:UPDATE']) &&
+          {auth.hasPermission(['USER:UPDATE']) &&
             <DropdownMenuItem
               onClick={() => {
-                navigate({
-                  to: '/courses/$courseId/edit',
-                  params: { courseId: row.original.id },
-                })
+                setCurrentRow(row.original)
+                setOpen('edit')
               }}
             >
               Edit
@@ -51,7 +46,7 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
                 <IconEdit size={16} />
               </DropdownMenuShortcut>
             </DropdownMenuItem>}
-          {auth.hasPermission(['COURSE:DELETE']) &&
+          {auth.hasPermission(['USER:DELETE']) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -68,7 +63,7 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
               </DropdownMenuItem>
             </>}
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu >
     </>
   )
 }

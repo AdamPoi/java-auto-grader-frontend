@@ -10,18 +10,19 @@ import {
 import { useAuthStore } from '@/stores/auth.store'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { type Row } from '@tanstack/react-table'
-import { useCoursesContext } from '../context/courses-context'
-import { type Course } from '../data/types'
+import { useAssignmentsContext } from '../context/assignments-context'
+import { type Assignment } from '../data/types'
 
-interface CoursesTableRowActionsProps {
-  row: Row<Course>
+interface AssignmentsTableRowActionsProps {
+  row: Row<Assignment>
 }
 
-export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
-  const navigate = useNavigate({ from: '/courses' })
-  const { setOpen, setCurrentRow } = useCoursesContext()
+export function AssignmentsTableRowActions({ row }: AssignmentsTableRowActionsProps) {
+  const { courseId } = useParams({ from: '/_authenticated/courses/$courseId/assignments/' });
+  const navigate = useNavigate()
+  const { setOpen, setCurrentRow } = useAssignmentsContext()
   const { auth } = useAuthStore();
   return (
     <>
@@ -37,12 +38,12 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-[160px]'>
 
-          {auth.hasPermission(['COURSE:UPDATE']) &&
+          {auth.hasPermission(['ASSIGNMENT:UPDATE']) &&
             <DropdownMenuItem
               onClick={() => {
                 navigate({
-                  to: '/courses/$courseId/edit',
-                  params: { courseId: row.original.id },
+                  to: '/courses/$courseId/assignments/$assignmentId/edit',
+                  params: { courseId: courseId, assignmentId: row.original.id },
                 })
               }}
             >
@@ -51,7 +52,7 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
                 <IconEdit size={16} />
               </DropdownMenuShortcut>
             </DropdownMenuItem>}
-          {auth.hasPermission(['COURSE:DELETE']) &&
+          {auth.hasPermission(['ASSIGNMENT:DELETE']) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
