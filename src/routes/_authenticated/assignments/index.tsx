@@ -2,7 +2,7 @@ import Roles from '@/features/roles'
 import { useAuthStore } from '@/stores/auth.store'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_authenticated/submission/')({
+export const Route = createFileRoute('/_authenticated/assignments/')({
     component: () => <Roles />,
     // beforeLoad: async () => {
     //     const { auth } = await useAuthStore.getState()

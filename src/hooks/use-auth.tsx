@@ -14,6 +14,8 @@ export const getAuth = async (): Promise<{
     console.log(auth.accessToken)
     console.log(auth.isTokenExpired())
     if (auth.isTokenExpired() && auth.refreshToken) {
+        auth.reset()
+
         try {
             setIsLoading(true)
             const success = await auth.refreshAccessToken()

@@ -10,7 +10,7 @@ const UserStatusSchema: z.ZodType<UserStatus> = z.union([
 
 const UserRoleSchema = z.array(z.enum(['admin', 'student', 'teacher']))
 
-export const UserSchema = z.object({
+export const userSchema = z.object({
   id: z.string(),
   firstName: z.string().min(1, { message: 'First Name is required.' }),
   lastName: z.string().min(1, { message: 'Last Name is required.' }),
@@ -28,7 +28,7 @@ export const UserSchema = z.object({
 
 
 
-export const UserFormSchema = UserSchema.extend({
+export const UserFormSchema = userSchema.extend({
   confirmPassword: z.string().transform((password) => password.trim()),
 }).superRefine(({ password, confirmPassword }, ctx) => {
   if (password !== '') {
