@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate, useParams } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
@@ -8,9 +8,10 @@ import { useCreateAssignment } from '@/features/assignments/hooks/use-assignment
 import { getQueryKey } from '@/features/users/hooks/use-user';
 import { useAuthStore } from '@/stores/auth.store';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/courses/$courseId/assignments/create/')({
+export const Route = createFileRoute('/_authenticated/assignments/create/')({
   component: AssignmentFormPage,
   beforeLoad: async () => {
     const { auth } = await useAuthStore.getState()
@@ -27,8 +28,8 @@ export const Route = createFileRoute('/_authenticated/courses/$courseId/assignme
 function AssignmentFormPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { courseId } = useParams({ from: '/_authenticated/courses/$courseId/assignments/create/' });
-
+  const searchParams = useSearch({ from: '/_authenticated/assignments/create/' }) as { courseId: string };;
+  const courseId = searchParams.courseId;
   const createAssignmentMutation = useCreateAssignment()
 
   const onSubmit = (data: AssignmentForm) => {

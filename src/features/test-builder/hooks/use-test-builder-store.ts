@@ -107,7 +107,12 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
             };
         }
         case 'ADD_RUBRIC_ITEM': {
-            const newItem: RubricItem = { id: uuidv4(), name: 'New Rubric Item', points: 10 };
+            const { id, name, points } = action.payload || {};
+            const newItem: RubricItem = {
+                id: id,
+                name: name || 'New Rubric Item',
+                points: points || 10
+            };
             return { ...state, rubrics: [...state.rubrics, newItem] };
         }
         case 'UPDATE_RUBRIC_ITEM': {
@@ -144,6 +149,10 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
             const { id, name } = action.payload;
             return { ...state, testSuites: state.testSuites.map(s => s.id === id ? { ...s, name } : s) };
         }
+        case 'SET_RUBRICS': {
+            return { ...state, rubrics: action.payload };
+        }
+
         default: return state;
     }
 }
@@ -200,13 +209,14 @@ export const useTestBuilderStore = create<Store>((set, get) => {
         moveBlock: (payload) => { dispatch({ type: 'MOVE_BLOCK', payload }); },
         removeBlock: (payload) => { dispatch({ type: 'REMOVE_BLOCK', payload }); },
         updateBlockData: (payload) => { dispatch({ type: 'UPDATE_BLOCK_DATA', payload }, false); },
-        addRubricItem: () => { dispatch({ type: 'ADD_RUBRIC_ITEM' }); },
+        addRubricItem: (payload) => { dispatch({ type: 'ADD_RUBRIC_ITEM', payload }); },
         updateRubricItem: (payload) => { dispatch({ type: 'UPDATE_RUBRIC_ITEM', payload }); },
         removeRubricItem: (payload) => { dispatch({ type: 'REMOVE_RUBRIC_ITEM', payload }); },
         setSourceFiles: (payload) => { dispatch({ type: 'SET_SOURCE_FILES', payload }); },
         addTestSuite: () => { dispatch({ type: 'ADD_TEST_SUITE' }); },
         setActiveSuite: (payload) => { dispatch({ type: 'SET_ACTIVE_SUITE', payload }); },
         updateSuiteName: (payload) => { dispatch({ type: 'UPDATE_SUITE_NAME', payload }); },
+        setRubrics: (payload) => { dispatch({ type: 'SET_RUBRICS', payload }); },
         undo: () => {
             set(state => {
                 if (state.historyIndex <= 0) return {};
@@ -227,6 +237,5 @@ export const useTestBuilderStore = create<Store>((set, get) => {
         }
     };
 });
-
 // Initialize history
 useTestBuilderStore.getState()._commit();

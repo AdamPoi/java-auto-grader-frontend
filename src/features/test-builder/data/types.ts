@@ -64,13 +64,14 @@ export interface AppActions {
     moveBlock: (payload: { suiteId: string; activeId: string; overId: string; }) => void;
     removeBlock: (payload: { suiteId: string; id: string; }) => void;
     updateBlockData: (payload: { suiteId: string; id: string; field: string; value: any; }) => void;
-    addRubricItem: () => void;
+    addRubricItem: (payload?: { id?: string, name?: string; points?: number }) => void;
     updateRubricItem: (payload: { id: string; name: string; points: number; }) => void;
     removeRubricItem: (payload: { id: string; }) => void;
     setSourceFiles: (payload: SourceFile[]) => void;
     addTestSuite: () => void;
     setActiveSuite: (payload: string) => void;
     updateSuiteName: (payload: { id: string; name: string }) => void;
+    setRubrics: (payload: RubricItem[]) => void;
     undo: () => void;
     redo: () => void;
     _commit: () => void;

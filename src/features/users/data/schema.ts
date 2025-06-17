@@ -28,62 +28,63 @@ export const userSchema = z.object({
 
 
 
-export const UserFormSchema = userSchema.extend({
-  confirmPassword: z.string().transform((password) => password.trim()),
-}).superRefine(({ password, confirmPassword }, ctx) => {
-  if (password !== '') {
-    if (password.length < 6) {
+export const UserFormSchema = userSchema.omit({ id: true, createdAt: true, updatedAt: true }).
+  extend({
+    confirmPassword: z.string().transform((password) => password.trim()),
+  }).superRefine(({ password, confirmPassword }, ctx) => {
+    if (password !== '') {
+      if (password.length < 6) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must be at least 6 characters long.',
+          path: ['password'],
+        })
+      }
+
+      if (!password.match(/[a-z]/)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must contain at least one lowercase letter.',
+          path: ['password'],
+        })
+      }
+
+      if (!password.match(/\d/)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must contain at least one number.',
+          path: ['password'],
+        })
+      }
+
+      if (password !== confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passwords don't match.",
+          path: ['confirmPassword'],
+        })
+      }
+    } else {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Password must be at least 6 characters long.',
+        message: "Password is required.",
         path: ['password'],
       })
-    }
-
-    if (!password.match(/[a-z]/)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Password must contain at least one lowercase letter.',
+        message: "Password must be at least 6 characters long.",
         path: ['password'],
       })
-    }
-
-    if (!password.match(/\d/)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Password must contain at least one number.',
+        message: "Password must contain at least one lowercase letter.",
         path: ['password'],
       })
-    }
-
-    if (password !== confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Passwords don't match.",
-        path: ['confirmPassword'],
-      })
+        message: "Password must contain at least one number.",
+        path: ['password'],
+      });
     }
-  } else {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Password is required.",
-      path: ['password'],
-    })
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Password must be at least 6 characters long.",
-      path: ['password'],
-    })
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Password must contain at least one lowercase letter.",
-      path: ['password'],
-    })
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Password must contain at least one number.",
-      path: ['password'],
-    });
-  }
-}) satisfies z.ZodType<UserForm>
+  }) satisfies z.ZodType<UserForm>
 

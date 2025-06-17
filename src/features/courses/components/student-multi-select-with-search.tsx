@@ -1,7 +1,6 @@
 import { MultiSelect } from '@/components/multi-select';
 import { Input } from '@/components/ui/input';
 import { type User } from '@/features/users/data/types';
-import { useUsersContext } from '@/features/users/hooks/use-user';
 import useDebounce from '@/hooks/use-debounce';
 import React, { useEffect, useState } from 'react';
 

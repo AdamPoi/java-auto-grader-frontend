@@ -11,7 +11,7 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersTable } from './components/users-table'
 import UsersProvider from './context/users-context'
-import { useUsersContext } from './hooks/use-user'
+import { useUsersList } from './hooks/use-user'
 
 export default function Users() {
   const [pagination, setPagination] = useState({
@@ -71,7 +71,7 @@ export default function Users() {
     filter: filter, // RHS colon filter
   };
 
-  const { data, isLoading, refetch } = useUsersContext(searchParams);
+  const { data, isLoading, refetch } = useUsersList(searchParams);
 
 
   const content = data?.content || [];

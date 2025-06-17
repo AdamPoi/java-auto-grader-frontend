@@ -3,6 +3,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Assignment } from '../data/types';
 import { AssignmentsTableRowActions } from './assignments-table-row-actions';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from '@tanstack/react-router';
+import { ExternalLinkIcon } from 'lucide-react';
 
 export const columns: ColumnDef<Assignment>[] = [
     {
@@ -91,6 +94,24 @@ export const columns: ColumnDef<Assignment>[] = [
         ),
         enableSorting: true,
         enableHiding: true,
+    },
+    {
+        accessorKey: 'manages',
+        header: 'Manages',
+        cell: ({ row }) => {
+            const navigate = useNavigate();
+            return <Button
+                type='button'
+                variant='outline'
+                onClick={() => {
+                    navigate({
+                        to: '/assignments/$assignmentId',
+                        params: { assignmentId: row.original.id },
+                    });
+                }}>
+                Manage <ExternalLinkIcon className='ml-2 h-4 w-4' />
+            </Button>;
+        },
     },
     {
         id: 'actions',

@@ -39,37 +39,28 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-
-
-
 export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
   const isEdit = !!currentRow
   const form = useForm<UserForm>({
     resolver: zodResolver(UserFormSchema),
     defaultValues: isEdit
       ? {
-        id: currentRow.id,
         firstName: currentRow.firstName,
         lastName: currentRow.lastName,
         email: currentRow.email,
         roles: (currentRow?.roles ?? ["student"]) as ("admin" | "student" | "teacher")[],
         permissions: Array.isArray(currentRow.permissions) ? currentRow.permissions : [],
         isActive: currentRow.isActive,
-        createdAt: currentRow.createdAt,
-        updatedAt: currentRow.updatedAt,
         password: '',
         confirmPassword: '',
       }
       : {
-        id: '',
         firstName: '',
         lastName: '',
         email: '',
         roles: ["student"],
         permissions: [],
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         password: '',
         confirmPassword: '',
       },
@@ -120,6 +111,7 @@ export function UsersActionDialog({ currentRow, open, onOpenChange }: Props) {
         permissions: values.permissions || null,
         isActive: values.isActive,
         password: values.password,
+        confirmPassword: values.confirmPassword,
       };
       createUserMutation.mutate(createUserData);
     }

@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { courseFormSchema } from '@/features/courses/data/schema';
 import { type User } from '@/features/users/data/types';
-import { useUsersContext } from '@/features/users/hooks/use-user';
 import { handleServerErrors } from '@/lib/form-utils';
 import { debounce } from '@tanstack/pacer';
 import type { UseMutationResult } from '@tanstack/react-query';
@@ -27,6 +26,7 @@ import { toast } from 'sonner';
 import type { Course, CourseForm } from '../data/types';
 import { useCreateCourse, useUpdateCourse } from '../hooks/use-course';
 import { createStudentColumns } from './student-columns';
+import { useUsersList } from '@/features/users/hooks/use-user';
 
 interface CourseFormProps {
     initialData?: Course;
@@ -76,7 +76,7 @@ export function CourseForm({
         return baseFilter;
     };
 
-    const { data: usersData, isLoading: isLoadingUsers } = useUsersContext({
+    const { data: usersData, isLoading: isLoadingUsers } = useUsersList({
         page: 0,
         size: 1000,
         filter: buildFilter(searchFilter)
@@ -247,7 +247,6 @@ export function CourseForm({
         console.error('Form validation errors:', errors);
 
         toast.error('Please fix the validation errors before submitting');
-        console.log(form.getValues())
 
         const errorMessages = Object.entries(errors)
             .map(([field, error]: [string, any]) => `${field}: ${error.message}`)

@@ -1,11 +1,11 @@
 import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { UserApi } from '../data/api';
-import { type UserForm } from '../data/types';
+import { rubricApi } from '../data/api';
+import type { RubricForm } from '../data/types';
 
 
-const QUERY_KEY = "users";
+const QUERY_KEY = "rubrics";
 
 export function getQueryKey({ action, params }: { action?: String, params?: SearchRequestParams }) {
     let key = []
@@ -19,14 +19,15 @@ export function getQueryKey({ action, params }: { action?: String, params?: Sear
     return key;
 }
 
-export const useUsersList = (params: SearchRequestParams) => {
+
+export const useRubrics = (params: SearchRequestParams) => {
     const query = useQuery({
         queryKey: getQueryKey({
             action: 'list',
             params
         }),
         queryFn: async () => {
-            const response = await UserApi.getUsers(params);
+            const response = await rubricApi.getRubrics(params);
             return response;
         },
     });
@@ -37,12 +38,9 @@ export const useUsersList = (params: SearchRequestParams) => {
         if (query.data?.hasNext) {
             const nextPageParams = { ...params, page: params.page + 1 };
             queryClient.prefetchQuery({
-                queryKey: getQueryKey({
-                    action: 'list',
-                    params: nextPageParams
-                }),
+                queryKey: getQueryKey({ action: 'list', params: nextPageParams }),
                 queryFn: async () => {
-                    return await UserApi.getUsers(nextPageParams);
+                    return await rubricApi.getRubrics(nextPageParams);
                 },
             });
         }
@@ -59,12 +57,23 @@ export const useUsersList = (params: SearchRequestParams) => {
     };
 };
 
-export const useCreateUser = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+export const useRubricById = (id: string) => {
+    return useQuery({
+        queryKey: [QUERY_KEY, id],
+        queryFn: async () => {
+            const response = await rubricApi.getRubric(id);
+            return response;
+        },
+        enabled: !!id,
+    });
+};
+
+export const useCreateRubric = (onSuccess?: () => void, onError?: (error: Error) => void) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: (userData: UserForm) => UserApi.createUser(userData),
+        mutationFn: (rubricData: RubricForm) => rubricApi.createRubric(rubricData),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'create' }) });
+            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'list' }) });
             onSuccess?.();
         },
         onError: (error) => {
@@ -74,12 +83,13 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (error: Error) =
     return mutation;
 };
 
-export const useUpdateUser = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+export const useUpdateRubric = (onSuccess?: () => void, onError?: (error: Error) => void) => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ userId, userData }: { userId: string, userData: Partial<UserForm> }) => UserApi.updateUser(userId, userData),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'update' }) });
+        mutationFn: ({ rubricId, rubricData }: { rubricId: string, rubricData: Partial<RubricForm> }) => rubricApi.updateRubric(rubricId, rubricData),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'list' }) });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY, variables.rubricId] });
             onSuccess?.();
         },
         onError: (error) => {
@@ -88,12 +98,12 @@ export const useUpdateUser = (onSuccess?: () => void, onError?: (error: Error) =
     });
 };
 
-export const useDeleteUser = () => {
+export const useDeleteRubric = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: UserApi.deleteUser,
+        mutationFn: rubricApi.deleteRubric,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'delete' }) });
+            queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'list' }) });
         },
     });
 };

@@ -11,7 +11,7 @@ export type User = {
     updatedAt?: Date;
 };
 
-export type UserForm = User & {
+export type UserForm = Omit<User, 'id' | 'createdAt' | 'updatedAt'> & {
     confirmPassword: string;
 }
 

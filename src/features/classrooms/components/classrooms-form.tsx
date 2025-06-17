@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { classroomFormSchema } from '@/features/classrooms/data/schema';
 import { type User } from '@/features/users/data/types';
-import { useUsersContext } from '@/features/users/hooks/use-user';
 import { handleServerErrors } from '@/lib/form-utils';
 import { debounce } from '@tanstack/pacer';
 import { useRouter } from '@tanstack/react-router';
@@ -26,6 +25,7 @@ import { toast } from 'sonner';
 import type { Classroom, ClassroomForm } from '../data/types';
 import { useCreateClassroom, useUpdateClassroom } from '../hooks/use-classroom';
 import { createStudentColumns } from './student-columns';
+import { useUsersList } from '@/features/users/hooks/use-user';
 
 interface ClassroomFormProps {
     initialData?: Classroom;
@@ -71,7 +71,7 @@ export function ClassroomForm({
         return baseFilter;
     };
 
-    const { data: usersData, isLoading: isLoadingUsers } = useUsersContext({
+    const { data: usersData, isLoading: isLoadingUsers } = useUsersList({
         page: 0,
         size: 1000,
         filter: buildFilter(searchFilter)

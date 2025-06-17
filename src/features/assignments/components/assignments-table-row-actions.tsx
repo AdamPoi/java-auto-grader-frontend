@@ -10,7 +10,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { type Row } from '@tanstack/react-table'
 import { useAssignmentsContext } from '../context/assignments-context'
 import { type Assignment } from '../data/types'
@@ -20,7 +20,6 @@ interface AssignmentsTableRowActionsProps {
 }
 
 export function AssignmentsTableRowActions({ row }: AssignmentsTableRowActionsProps) {
-  const { courseId } = useParams({ from: '/_authenticated/courses/$courseId/assignments/' });
   const navigate = useNavigate()
   const { setOpen, setCurrentRow } = useAssignmentsContext()
   const { auth } = useAuthStore();
@@ -42,8 +41,8 @@ export function AssignmentsTableRowActions({ row }: AssignmentsTableRowActionsPr
             <DropdownMenuItem
               onClick={() => {
                 navigate({
-                  to: '/courses/$courseId/assignments/$assignmentId/edit',
-                  params: { courseId: courseId, assignmentId: row.original.id },
+                  to: '/assignments/$assignmentId/edit',
+                  params: { assignmentId: row.original.id },
                 })
               }}
             >
