@@ -22,14 +22,16 @@ export interface Rubric {
 export interface RubricGrade {
     id: string;
     name: string;
+    functionName: string;
     description?: string;
     points: number;
     displayOrder?: number;
-    code?: string;
     arguments?: Record<string, any>;
     gradeType: GradeType;
     rubricId: string;
     rubric?: Rubric;
+    assignment?: Assignment;
+    assignmentId: string;
     gradeExecutions?: GradeExecution[];
     createdAt?: string;
     updatedAt?: string;
@@ -52,11 +54,11 @@ export interface GradeExecution {
 }
 
 
-export type RubricForm = Omit<Rubric, 'id' | 'assignment' | 'rubricGrades' | 'createdAt' | 'updatedAt'> & {
+export type RubricForm = Omit<Rubric, 'id' | 'assignment' | 'createdAt' | 'updatedAt'> & {
     assignmentId?: string;
 };
 
-export type RubricGradeForm = Omit<RubricGrade, 'id' | 'rubric' | 'gradeExecutions' | 'createdAt' | 'updatedAt'>;
+export type RubricGradeForm = Omit<RubricGrade, 'rubric' | 'gradeExecutions' | 'createdAt' | 'updatedAt'>;
 
 export type GradeExecutionForm = Omit<GradeExecution, 'id' | 'rubricGrade' | 'submission' | 'createdAt' | 'updatedAt'>;
 

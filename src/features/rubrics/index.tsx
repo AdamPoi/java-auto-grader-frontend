@@ -20,7 +20,7 @@ const Rubrics: React.FC<RubricPageProps> = ({ assignmentId }) => {
     const searchParams: SearchRequestParams = {
         page: 0,
         size: 1000,
-        filter: '',
+        filter: `assignment=eq:${assignmentId}`,
     };
 
     const { data, isLoading } = useRubrics(searchParams);

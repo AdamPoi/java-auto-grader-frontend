@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
-import type { AnalyzeFunctionBlock, AnyBlock, AppActions, AppState, Block, FunctionBlock, HistoricalState, RubricItem, TestSuite } from '../data/types';
+import type { AnalyzeFunctionBlock, AnyBlock, AppActions, AppState, Block, FunctionBlock, HistoricalState, OmittedBlock, RubricItem, TestSuite } from '../data/types';
 
 type Store = AppState & AppActions;
 
@@ -18,6 +18,7 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
     switch (action.type) {
         case 'ADD_BLOCK': {
             const { suiteId, block, parentId, overId } = action.payload;
+
             const newBlock = { ...block, id: uuidv4(), parentId } as Block;
             return {
                 ...state,
@@ -25,8 +26,13 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
                     if (suite.id !== suiteId) return suite;
                     const newBlocks = [...suite.blocks];
                     const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
-                    if (overIndex !== -1) newBlocks.splice(overIndex, 0, newBlock);
-                    else newBlocks.push(newBlock);
+
+
+                    if (overIndex !== -1) {
+                        newBlocks.splice(overIndex, 0, newBlock);
+                    } else {
+                        newBlocks.push(newBlock);
+                    }
                     return { ...suite, blocks: newBlocks };
                 })
             };
@@ -40,6 +46,7 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
                 ...state, testSuites: state.testSuites.map(suite => {
                     if (suite.id !== suiteId) return suite;
                     let newBlocks = [...suite.blocks];
+
                     const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
                     if (overIndex !== -1) newBlocks.splice(overIndex, 0, newFuncBlock);
                     else newBlocks.push(newFuncBlock);
@@ -81,10 +88,12 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
                 ...state, testSuites: state.testSuites.map(suite => {
                     if (suite.id !== suiteId) return suite;
                     const idsToRemove = new Set<string>([id]);
+
                     const findChildren = (parentId: string) => {
                         suite.blocks.forEach(b => { if (b.parentId === parentId) { idsToRemove.add(b.id); findChildren(b.id); } });
                     };
                     findChildren(id);
+
                     let newBlocks = suite.blocks.filter(b => !idsToRemove.has(b.id));
                     newBlocks = newBlocks.map(b => {
                         if ((b.type === 'FUNCTION' || b.type === 'ANALYZE_FUNCTION') && (b as FunctionBlock | AnalyzeFunctionBlock).rubricId && idsToRemove.has((b as FunctionBlock | AnalyzeFunctionBlock).rubricId!)) {
@@ -106,10 +115,30 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
                 })
             };
         }
+
+        case 'SET_SUITE_BLOCKS': {
+            const { suiteId, blocks } = action.payload;
+
+            const blocksWithGeneratedIds = blocks.map((block: Block | OmittedBlock) => ({
+                ...block,
+                id: block?.id || uuidv4(), // TODO: fix type error
+            }));
+
+            return {
+                ...state,
+                testSuites: state.testSuites.map(suite => {
+                    if (suite.id !== suiteId) {
+                        return suite;
+                    }
+
+                    return { ...suite, blocks: blocksWithGeneratedIds };
+                })
+            };
+        }
         case 'ADD_RUBRIC_ITEM': {
             const { id, name, points } = action.payload || {};
             const newItem: RubricItem = {
-                id: id,
+                id: id || uuidv4(),
                 name: name || 'New Rubric Item',
                 points: points || 10
             };
@@ -179,7 +208,7 @@ export const useTestBuilderStore = create<Store>((set, get) => {
         if (commitTimeout) {
             clearTimeout(commitTimeout);
         }
-        commitTimeout = setTimeout(commit, 300); // 300ms
+        commitTimeout = setTimeout(commit, 300); // 300ms debounce
     };
 
     const dispatch = (action: any, shouldCommit = true) => {
@@ -209,6 +238,8 @@ export const useTestBuilderStore = create<Store>((set, get) => {
         moveBlock: (payload) => { dispatch({ type: 'MOVE_BLOCK', payload }); },
         removeBlock: (payload) => { dispatch({ type: 'REMOVE_BLOCK', payload }); },
         updateBlockData: (payload) => { dispatch({ type: 'UPDATE_BLOCK_DATA', payload }, false); },
+        // Add the new setSuiteBlocks action
+        setSuiteBlocks: (payload) => { dispatch({ type: 'SET_SUITE_BLOCKS', payload }); },
         addRubricItem: (payload) => { dispatch({ type: 'ADD_RUBRIC_ITEM', payload }); },
         updateRubricItem: (payload) => { dispatch({ type: 'UPDATE_RUBRIC_ITEM', payload }); },
         removeRubricItem: (payload) => { dispatch({ type: 'REMOVE_RUBRIC_ITEM', payload }); },

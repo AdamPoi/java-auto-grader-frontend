@@ -1,10 +1,10 @@
 import { closestCenter, DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Check, Copy, FileCode, PlusCircle, Puzzle, Redo, Search, Undo } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { INITIAL_PALETTE_BLOCKS } from '@/features/test-builder/data/palette-blocks';
-import type { AnyBlock, AssertThatBlock, Block, FunctionBlock, TemplateFunction, VariableBlock } from '@/features/test-builder/data/types';
+import type { AnalyzeFunctionBlock, AnyBlock, AssertThatBlock, Block, FunctionBlock, TemplateFunction, VariableBlock } from '@/features/test-builder/data/types';
 import { useTestBuilderStore } from '@/features/test-builder/hooks/use-test-builder-store';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,12 @@ import { DroppableCanvas } from '@/features/test-builder/components/droppable-ca
 import { DroppableTrash } from '@/features/test-builder/components/droppable-trash';
 import { RubricPanel } from '@/features/test-builder/components/rubric-panel';
 import { SortableBlock } from '@/features/test-builder/components/sortable-block';
-import { SourceFilePanel } from '@/features/test-builder/components/source-file-panel';
+import { useParams } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { useAssignmentById, useUpdateAssignment } from '../assignments/hooks/use-assignment';
+import type { RubricGrade, RubricGradeForm } from '../rubrics/data/types';
+import { useCreateRubricGrade, useRubricGrades, useUpdateRubricGrade } from '../rubrics/hooks/use-rubric-grade';
+import { parseJavaCodeToBlocks } from './lib/code-to-blocks';
 
 
 export function TestBuilder() {
@@ -25,6 +30,7 @@ export function TestBuilder() {
         history, historyIndex,
         addBlock, addTemplate, removeBlock, moveBlock, updateBlockData,
         setActiveSuite, addTestSuite, undo, redo,
+        setSuiteBlocks,
     } = store;
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -59,33 +65,59 @@ export function TestBuilder() {
                 parentId = over.data.current.parentId;
             } else if (over.data.current?.type === 'canvas-block') {
                 const overBlock = over.data.current.block as Block;
+
                 if (['FUNCTION', 'ANALYZE_FUNCTION', 'ASSERT_THAT', 'EXTRACTING'].includes(overBlock.type)) {
                     parentId = overBlock.id;
                 } else {
+
                     parentId = overBlock.parentId;
                     overId = overBlock.id;
                 }
             } else if (over.id === 'canvas-drop-zone') {
-                parentId = null;
+                parentId = null; // Top-level block
             }
+
 
             addBlock({ suiteId: activeSuite.id, block: blockData, parentId, overId });
         } else if (active.data.current?.type === 'canvas-block' && active.id !== over.id) {
+
             const activeBlock = activeSuite.blocks.find(b => b.id === active.id) as Block;
+
+
             let newParentId: string | null = activeBlock.parentId;
+            let newOverId: string | null = null;
 
             if (over.data.current?.type?.endsWith('-drop-zone')) {
+
                 newParentId = over.data.current.parentId;
-                updateBlockData({ suiteId: activeSuite.id, id: active.id as string, field: 'parentId', value: newParentId });
+
             } else if (over.data.current?.type === 'canvas-block') {
                 const overBlock = over.data.current.block as Block;
                 if (activeBlock.parentId === overBlock.parentId) {
+
                     moveBlock({ suiteId: activeSuite.id, activeId: active.id as string, overId: over.id as string });
+                    return;
+                } else if (['FUNCTION', 'ANALYZE_FUNCTION', 'ASSERT_THAT', 'EXTRACTING'].includes(overBlock.type)) {
+
+                    newParentId = overBlock.id;
                 } else {
-                    updateBlockData({ suiteId: activeSuite.id, id: active.id as string, field: 'parentId', value: overBlock.parentId });
+
+                    newParentId = overBlock.parentId;
+                    newOverId = overBlock.id;
                 }
             } else if (over.id === 'canvas-drop-zone') {
-                updateBlockData({ suiteId: activeSuite.id, id: active.id as string, field: 'parentId', value: null });
+
+                newParentId = null;
+            }
+
+
+            if (activeBlock.parentId !== newParentId || newOverId) {
+
+                updateBlockData({ suiteId: activeSuite.id, id: active.id as string, field: 'parentId', value: newParentId });
+
+                if (newOverId) {
+                    moveBlock({ suiteId: activeSuite.id, activeId: active.id as string, overId: newOverId });
+                }
             }
         }
     }, [activeSuite, addBlock, addTemplate, removeBlock, moveBlock, updateBlockData]);
@@ -103,6 +135,7 @@ export function TestBuilder() {
             switch (block.type) {
                 case 'FUNCTION':
                     const funcBlock = block as FunctionBlock;
+
                     const children = activeSuite.blocks.filter(b => b.parentId === funcBlock.id);
                     blockCode += `${indent}@Test\n`;
                     blockCode += `${indent}void ${funcBlock.funcName}() {\n`;
@@ -115,9 +148,25 @@ export function TestBuilder() {
                     break;
                 case 'ASSERT_THAT':
                     const assertBlock = block as AssertThatBlock;
+
                     const matchers = activeSuite.blocks.filter(b => b.parentId === assertBlock.id);
-                    let chain = matchers.map(m => `.${m.type.toLowerCase()}()`).join('');
+                    let chain = matchers.map(m => `.${m.type.toLowerCase()}${m.value ? `(${m.value})` : '()'}`).join(''); // Add value to matchers
                     blockCode += `${indent}assertThat(${assertBlock.target})${chain};\n`;
+                    break;
+                case 'COMMENT':
+                    blockCode += `${indent}// ${block.value}\n`;
+                    break;
+
+                case 'EXCEPTION_ASSERT':
+                    blockCode += `${indent}org.junit.jupiter.api.Assertions.assertThrows(${block.exceptionType}, ${block.code});\n`;
+                    break;
+                case 'STATIC_ASSERT':
+
+                    blockCode += `${indent}// TODO: Implement static assert for ${block.checkType} with value ${block.value}\n`;
+                    break;
+                case 'STRUCTURE_CHECK':
+
+                    blockCode += `${indent}// TODO: Implement structure check for ${block.checkType}\n`;
                     break;
             }
             return blockCode;
@@ -129,13 +178,101 @@ export function TestBuilder() {
         return code;
     }, [activeSuite, testSuites]);
 
-
     const handleCopy = () => {
         navigator.clipboard.writeText(generatedCode).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
     };
+
+    const [isSaving, setIsSaving] = useState(false);
+
+
+    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
+
+    const {
+        data: existingRubricGrades,
+        isLoading: isLoadingRubricGrades,
+        refetch: refetchRubricGrades
+    } = useRubricGrades({
+        page: 0,
+        size: 1000,
+        filter: `assignment=eq:${assignmentId}`,
+    });
+    const createRubricGrade = useCreateRubricGrade(
+        () => {
+            setIsSaving(false);
+            refetchRubricGrades();
+            toast.success('Rubric grades saved successfully.');
+        },
+        (error) => {
+            setIsSaving(false);
+            console.error('Failed to save rubric grades:', error);
+            toast.error('Failed to save rubric grades.' + error.message);
+        }
+    );
+    const existingGradesByFunction = useMemo(() => {
+        if (!existingRubricGrades || existingRubricGrades.content.length === 0 || !activeSuite) return new Map();
+        const gradeMap = new Map();
+        existingRubricGrades?.content.forEach(grade => {
+            const functionName = grade.arguments?.functionName || grade.functionName;
+            if (functionName) {
+                gradeMap.set(functionName, grade);
+            }
+        });
+        return gradeMap;
+    }, [existingRubricGrades, activeSuite]);
+
+
+
+    useEffect(() => {
+        if (!assignment?.testCode || !activeSuite) {
+            console.log("Effect skipped: No assignment testCode or activeSuite.");
+            return;
+        }
+
+
+
+        const newBlocks = parseJavaCodeToBlocks(assignment.testCode);
+        const newBlocksWithRubrics = newBlocks.map(block => {
+            if (block.type === 'FUNCTION' || block.type === 'ANALYZE_FUNCTION') {
+                const existingGrade: RubricGrade = existingGradesByFunction.get((block as FunctionBlock | AnalyzeFunctionBlock).funcName);
+                console.log(existingGrade)
+                return { ...block, rubricId: existingGrade?.rubricId || undefined };
+            }
+            return block;
+        });
+
+
+        const currentBlocksRelevantData = activeSuite.blocks.map(b => ({
+            type: b.type,
+            funcName: (b as FunctionBlock).funcName || undefined,
+            varName: (b as VariableBlock).varName || undefined,
+            target: (b as AssertThatBlock).target || undefined,
+            value: (b as VariableBlock).value || (b as AssertThatBlock).value || undefined,
+            parentId: b.parentId,
+            rubricId: (b as FunctionBlock).rubricId || undefined
+        }));
+        const newBlocksRelevantData = newBlocksWithRubrics.map(b => ({
+            type: b.type,
+            funcName: (b as FunctionBlock).funcName || undefined,
+            varName: (b as VariableBlock).varName || undefined,
+            target: (b as AssertThatBlock).target || undefined,
+            value: (b as VariableBlock).value || (b as AssertThatBlock).value || undefined,
+            parentId: b.parentId,
+            rubricId: (b as FunctionBlock).rubricId || undefined
+        }));
+
+        if (JSON.stringify(currentBlocksRelevantData) === JSON.stringify(newBlocksRelevantData) && activeSuite.blocks.length > 0) {
+            console.log("Blocks already match generated code. Skipping update.");
+            return;
+        }
+
+        console.log("Updating active suite blocks with new parsed blocks using setSuiteBlocks.");
+        setSuiteBlocks({ suiteId: activeSuite.id, blocks: newBlocksWithRubrics });
+
+    }, [assignment?.testCode, activeSuite?.id, setSuiteBlocks, rubrics]);
 
     const filteredPalette = useMemo(() => {
         if (!searchQuery) return INITIAL_PALETTE_BLOCKS;
@@ -155,6 +292,7 @@ export function TestBuilder() {
                 if (block.type === 'TEMPLATE_FUNCTION') {
                     return (block as TemplateFunction).templateName.toLowerCase().includes(lowerCaseQuery);
                 }
+
                 return JSON.stringify(block).toLowerCase().includes(lowerCaseQuery);
             });
             (filtered[category] as any) = filteredBlocks;
@@ -164,6 +302,105 @@ export function TestBuilder() {
 
     const canUndo = historyIndex > 0;
     const canRedo = historyIndex < history.length - 1;
+
+
+    const hasRubricAssignments = useMemo(() => {
+        if (!activeSuite) return false;
+        return activeSuite.blocks.some(block =>
+            block.type === 'FUNCTION' &&
+            'rubricId' in block &&
+            block.rubricId
+        );
+    }, [activeSuite]);
+
+
+    const updateAssignment = useUpdateAssignment();
+    const updateGrade = useUpdateRubricGrade();
+
+    const handleSaveRubricGrades = useCallback(async () => {
+        if (!activeSuite) return;
+
+        setIsSaving(true);
+
+        try {
+            const functionBlocksWithRubrics = activeSuite.blocks.filter(block =>
+                block.type === 'FUNCTION' &&
+                'rubricId' in block &&
+                block.rubricId
+            ) as Array<FunctionBlock & { rubricId: string }>;
+
+            const uniqueFunctions = new Map<string, FunctionBlock & { rubricId: string }>();
+            functionBlocksWithRubrics.forEach(block => {
+                const functionName = block.funcName || 'Test';
+                if (!uniqueFunctions.has(functionName)) {
+                    uniqueFunctions.set(functionName, block);
+                }
+            });
+
+            const savePromises = Array.from(uniqueFunctions.values()).map(async (functionBlock) => {
+                const functionName = functionBlock.funcName || 'Test';
+                const existingGrade = existingGradesByFunction.get(functionName);
+
+                try {
+                    if (existingGrade) {
+
+                        const gradeUpdateData = {
+                            arguments: {
+                                testSuiteId: activeSuite.id,
+                                functionBlockId: functionBlock.id,
+                                functionName: functionName
+                            }
+                        };
+
+                        await updateGrade.mutateAsync({
+                            rubricGradeId: existingGrade.id,
+                            rubricGradeData: gradeUpdateData
+                        });
+                    } else {
+                        console.log('rubric Id', functionBlock.rubricId)
+                        const rubricGradeForm: RubricGradeForm = {
+                            id: functionBlock.id,
+                            name: `${functionName}`,
+                            functionName: functionName,
+                            description: `Auto-generated rubric grade for test function: ${functionName}`,
+                            points: 10,
+                            displayOrder: 0,
+                            arguments: {
+                                testSuiteId: activeSuite.id,
+                                functionBlockId: functionBlock.id,
+                                functionName: functionName
+                            },
+                            gradeType: 'AUTOMATIC' as const,
+                            assignmentId: assignmentId,
+                            rubricId: functionBlock.rubricId
+                        };
+
+                        await createRubricGrade.mutateAsync(rubricGradeForm);
+                    }
+                } catch (error: any) {
+                    console.error(`Error processing rubric grade for ${functionName}:`, error);
+                    throw error;
+                }
+            });
+
+            await Promise.all(savePromises);
+
+
+            if (assignmentId && generatedCode) {
+                await updateAssignment.mutateAsync({
+                    assignmentId: assignmentId,
+                    assignmentData: {
+                        testCode: generatedCode
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('Error saving rubric grades:', error);
+        } finally {
+            setIsSaving(false);
+        }
+    }, [activeSuite, generatedCode, createRubricGrade, updateGrade, updateAssignment, assignmentId, existingGradesByFunction]);
 
     return (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
@@ -222,15 +459,58 @@ export function TestBuilder() {
                 {/* Right Panel */}
                 <aside className="w-96 p-6 bg-white border-l border-gray-200 flex flex-col">
                     <RubricPanel />
-                    <SourceFilePanel />
+
                     <div className="flex-grow pt-4 border-t mt-4 flex flex-col min-h-0">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold flex items-center text-gray-700"><FileCode className="mr-2" />Generated Test File</h2>
-                            <Button variant="secondary" size="sm" onClick={handleCopy} disabled={!generatedCode}>
-                                {copied ? <Check className="mr-2 h-4 w-4 text-green-40_0" /> : <Copy className="mr-2 h-4 w-4" />}
-                                {copied ? 'Copied!' : 'Copy'}
-                            </Button>
+                            <div className="flex items-center space-x-2">
+                                <Button variant="secondary" size="sm" onClick={handleCopy}>
+                                    {copied ? <Check className="mr-2 h-4 w-4 text-green-400" /> : <Copy className="mr-2 h-4 w-4" />}
+                                    {copied ? 'Copied!' : 'Copy'}
+                                </Button>
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={handleSaveRubricGrades}
+                                    disabled={!hasRubricAssignments || isSaving || isLoadingRubricGrades}
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        'Save Rubric Grades'
+                                    )}
+                                </Button>
+                            </div>
                         </div>
+
+                        {/* Show info about rubric assignments */}
+                        {hasRubricAssignments && (
+                            <div className="mb-4 space-y-2">
+                                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p className="text-sm text-blue-700">
+                                        {activeSuite?.blocks.filter(b => b.type === 'FUNCTION' && 'rubricId' in b && b.rubricId).length} function(s) have rubrics assigned.
+                                    </p>
+                                </div>
+
+                                {/* Show existing vs new grades */}
+                                {existingRubricGrades?.content && existingRubricGrades?.content?.length > 0 && (
+                                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                        <p className="text-sm text-green-700">
+                                            {existingRubricGrades?.content.length} existing rubric grade(s) found. Updates will be applied to existing grades, new ones will be created.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {isLoadingRubricGrades && (
+                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <p className="text-sm text-gray-600">Loading existing rubric grades...</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="relative flex-grow">
                             <pre className="absolute inset-0 bg-gray-800 text-gray-200 rounded-lg p-4 text-sm whitespace-pre-wrap overflow-auto font-mono">
                                 <code>{generatedCode || '// Add blocks to the canvas to generate code...'}</code>

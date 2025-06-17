@@ -49,7 +49,6 @@ export function MultiSelect({
     };
 
     const handleSelect = (currentValue: string) => {
-        // Find the item by label (since CommandItem uses label as value)
         const item = items.find(item => item.label.toLowerCase() === currentValue.toLowerCase());
         if (!item) return;
 

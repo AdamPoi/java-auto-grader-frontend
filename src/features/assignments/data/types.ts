@@ -1,3 +1,4 @@
+import type { Rubric, RubricGrade } from "@/features/rubrics/data/types";
 import type { User } from "@/features/users/data/types";
 import type { Course } from './../../courses/data/types';
 
@@ -11,6 +12,7 @@ export interface Assignment {
     isPublished?: boolean;
     starterCode?: string;
     solutionCode?: string;
+    testCode?: string;
     maxAttempts?: number;
     timeLimit?: number; // in seconds
     totalPoints: number;
@@ -18,7 +20,9 @@ export interface Assignment {
 
     createdByTeacher?: User;
 
-    // rubrics: Rubric[]; 
+    rubrics?: Rubric[];
+    rubricGrades?: RubricGrade[];
+
     // assignmentSubmissions?: Submission[]; 
 
     createdAt?: string;

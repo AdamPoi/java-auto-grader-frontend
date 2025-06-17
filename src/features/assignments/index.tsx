@@ -5,6 +5,7 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import type { SearchRequestParams } from '@/types/api.types'
+import { useRouter } from '@tanstack/react-router'
 import { type SortingState } from '@tanstack/react-table'
 import { useEffect, useState } from 'react'
 import { columns } from './components/assignments-columns'
@@ -13,7 +14,6 @@ import { AssignmentsPrimaryButtons } from './components/assignments-primary-butt
 import { AssignmentsTable } from './components/assignments-table'
 import AssignmentsProvider from './context/assignments-context'
 import { useAssignment } from './hooks/use-assignment'
-import { useRouter } from '@tanstack/react-router'
 
 
 export default function Assignments() {
@@ -28,6 +28,7 @@ export default function Assignments() {
 
     const [searchValue, setSearchValue] = useState('');
     const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         if (searchValue === '') {
@@ -42,17 +43,64 @@ export default function Assignments() {
             };
         }
     }, [searchValue]);
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const existingFilter = urlParams.get('filter');
+        if (existingFilter) {
+            setFilter(existingFilter);
+
+            const searchMatch = existingFilter.match(/search=like:([^&]+)/);
+            if (searchMatch) {
+                const searchTerm = searchMatch[1];
+                setSearchValue(searchTerm);
+                setDebouncedSearchValue(searchTerm);
+            }
+        }
+        setIsInitialized(true);
+    }, []);
 
     useEffect(() => {
+        if (!isInitialized) return;
+
+        if (searchValue === '') {
+            setDebouncedSearchValue('');
+        } else {
+            const handler = setTimeout(() => {
+                setDebouncedSearchValue(searchValue);
+            }, 500);
+
+            return () => {
+                clearTimeout(handler);
+            };
+        }
+    }, [searchValue, isInitialized]);
+
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const existingFilter = urlParams.get('filter');
+
         const filters: string[] = [];
+
+        // Preserve non-search filters from URL (like courseId)
+        if (existingFilter) {
+            const existingFilters = existingFilter.split('&').filter(f => !f.startsWith('search='));
+            filters.push(...existingFilters);
+        }
+
+        // Add search filter if exists
         if (debouncedSearchValue) {
             filters.push(`search=like:${debouncedSearchValue}`);
         }
+
+        // Add sorting if exists
         if (sorting.length > 0) {
             const sort = sorting[0];
             const sortString = `sort=${sort.desc ? '-' : '+'}${sort.id}`;
             filters.push(sortString);
         }
+
         setFilter(filters.length > 0 ? filters.join('&') : undefined);
 
         const url = new URL(window.location.href);
@@ -63,7 +111,7 @@ export default function Assignments() {
         }
         window.history.replaceState({}, '', url.toString());
 
-    }, [debouncedSearchValue, sorting]);
+    }, [debouncedSearchValue, sorting, isInitialized]);
 
 
     const searchParams: SearchRequestParams = {

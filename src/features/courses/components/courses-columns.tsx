@@ -46,6 +46,7 @@ export const columns: ColumnDef<Course>[] = [
                     navigate({
                         to: '/courses/$courseId/assignments',
                         params: { courseId: row.original.id },
+                        search: { filter: `course=eq:${row.original.id}` },
                     });
                 }}>
                 {row.original.assignments?.length || 0} Assignments <ExternalLinkIcon className='ml-2 h-4 w-4' />

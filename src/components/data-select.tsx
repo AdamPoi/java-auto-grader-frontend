@@ -36,7 +36,7 @@ export function DataSelect<T extends BaseData>({
 
     const searchParams = useMemo(() => ({
         page: 0,
-        size: 50, // Fetch more for a good scrollable list
+        size: 50,
         filter: debouncedSearchTerm ? `search=like:${debouncedSearchTerm}` : undefined,
     }), [debouncedSearchTerm]);
 

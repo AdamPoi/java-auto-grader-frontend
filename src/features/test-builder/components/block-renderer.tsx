@@ -56,21 +56,36 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
 
     const renderInput = (field: string, value: string, placeholder: string) => <Input type="text" value={value} placeholder={placeholder} onChange={(e) => onDataChange(field, e.target.value)} className="w-36 h-8 mx-1.5 bg-white" disabled={isPalette} onMouseDown={(e) => e.stopPropagation()} />;
 
-    const renderRubricSelect = (value: string | null | undefined) => (
-        <Select
-            value={value || 'unassigned'}
-            onValueChange={(val) => onDataChange('rubricId', val === 'unassigned' ? null : val)}
-            disabled={isPalette}
-        >
-            <SelectTrigger className="w-40 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                <SelectValue placeholder="-- Unassigned --" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                {rubrics.map(r => <SelectItem key={r.id} value={r.id}>{r.name} ({r.points} pts)</SelectItem>)}
-            </SelectContent>
-        </Select>
-    );
+    const renderRubricSelect = (value: string | null | undefined) => {
+        // console.log(value)
+        // console.log(rubrics)
+        console.log(value)
+        const selectedRubric = value && value !== 'unassigned'
+            ? rubrics.find(r => r.id == value)
+            : null;
+        const displayValue = selectedRubric
+            ? `${selectedRubric.name} (${selectedRubric.points} pts)`
+            : "-- Unassigned --";
+
+        return (
+            <Select
+                value={value || 'unassigned'}
+                onValueChange={(val) => {
+                    console.log('onValueChange', val)
+                    onDataChange('rubricId', val === 'unassigned' ? null : val)
+                }}
+                disabled={isPalette}
+            >
+                <SelectTrigger className="w-40 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
+                    <SelectValue placeholder="-- Unassigned --">{displayValue}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="unassigned">-- Unassigned --</SelectItem>
+                    {rubrics.map(r => <SelectItem key={r.id} value={r.id.toString()}>{r.name} ({r.points} pts)</SelectItem>)}
+                </SelectContent>
+            </Select>
+        );
+    };
 
     const renderVariableSelect = (field: string, value: string) => {
         const activeSuite = testSuites.find(s => s.id === activeSuiteId);

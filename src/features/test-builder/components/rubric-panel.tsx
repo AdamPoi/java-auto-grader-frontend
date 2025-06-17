@@ -4,13 +4,15 @@ import type { SearchRequestParams } from '@/types/api.types';
 import { Award } from 'lucide-react';
 import React, { useEffect, useMemo } from 'react';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
+import { useParams } from '@tanstack/react-router';
 
 export const RubricPanel: React.FC = () => {
+    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
     const { rubrics, setRubrics, addRubricItem, updateRubricItem, removeRubricItem } = useTestBuilderStore();
     const searchParams: SearchRequestParams = {
         page: 0,
         size: 1000,
-        filter: '',
+        filter: `assignment=eq:${assignmentId}`,
     };
 
     const { data, isLoading } = useRubrics(searchParams);
