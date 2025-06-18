@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite --port 3000",
     "start": "vite --port 3000",
-    "build": "vite build && tsc",
+    "build": "vite build",
+    "build:tsc": "vite build && tsc",
     "serve": "vite preview",
     "test": "vitest run"
   },
@@ -52,6 +53,7 @@
     "cmdk": "^1.1.1",
     "i18next": "^25.2.1",
     "js-cookie": "^3.0.5",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.511.0",
     "monaco-editor": "npm:@codingame/monaco-vscode-editor-api",
     "monaco-languageclient": "^9.7.0",
