@@ -2,6 +2,9 @@ import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/rea
 
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { ProfileDropdown } from '@/components/profile-dropdown';
+import { Search } from '@/components/search';
+import { ThemeSwitch } from '@/components/theme-switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssignmentsForm as AssignmentFormComponent } from '@/features/assignments/components/assignments-form';
@@ -10,11 +13,9 @@ import CodeEditor from '@/features/code-editor';
 import Rubrics from '@/features/rubrics';
 import RubricsProvider from '@/features/rubrics/context/rubrics-context';
 import { TestBuilder } from '@/features/test-builder';
+import TryOutTab from '@/features/try-out/components/try-out-tab';
 import { useAuthStore } from '@/stores/auth.store';
-import { EditIcon } from 'lucide-react';
-import { Search } from '@/components/search';
-import { ThemeSwitch } from '@/components/theme-switch';
-import { ProfileDropdown } from '@/components/profile-dropdown';
+import { Suspense, useState } from 'react';
 
 export const Route = createFileRoute('/_authenticated/assignments/$assignmentId/')({
   component: AssignmentManagePage,
@@ -30,13 +31,32 @@ export const Route = createFileRoute('/_authenticated/assignments/$assignmentId/
   }
 });
 
+
+
+
 function AssignmentManagePage() {
   const navigate = useNavigate();
   const router = useRouter()
   const { assignmentId } = Route.useParams();
+  const [activeTab, setActiveTab] = useState("details");
+  const [loadedTabs, setLoadedTabs] = useState(new Set(["details"]));
 
   const createAssignmentMutation = useCreateAssignment()
   const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setLoadedTabs(prev => new Set([...prev, value]));
+  };
+
+
+  const TabLoadingSpinner = () => (
+    <div className="flex items-center justify-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
+
+
 
   return (
     <RubricsProvider>
@@ -48,6 +68,7 @@ function AssignmentManagePage() {
         </div>
       </Header>
       <Main>
+
         <div className="flex justify-between items-center">
           <div className='mb-4'>
             <h2 className='text-2xl font-bold tracking-tight'>Assignment Details</h2>
@@ -55,7 +76,7 @@ function AssignmentManagePage() {
               Manage your assignment details, rubrics, tests, and code compilation.
             </p>
           </div>
-          <div className='ml-auto flex items-center space-x-4'>
+          {/* <div className='ml-auto flex items-center space-x-4'>
             <Button
               type='button'
               variant='default'
@@ -67,11 +88,12 @@ function AssignmentManagePage() {
               }}>
               Edit <EditIcon className='ml-2 h-4 w-4' />
             </Button>
-          </div>
+          </div> */}
         </div>
 
-        <Tabs defaultValue="details" className="w-full-sm">
-          <TabsList className="grid w-full grid-cols-4">
+
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full-sm">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details" >
               Details
             </TabsTrigger>
@@ -80,6 +102,9 @@ function AssignmentManagePage() {
             </TabsTrigger>
             <TabsTrigger value="test-builder">
               Test Builder
+            </TabsTrigger>
+            <TabsTrigger value="try-out">
+              Try Out
             </TabsTrigger>
             <TabsTrigger value="compiler">
               Compiler
@@ -97,16 +122,40 @@ function AssignmentManagePage() {
 
           <TabsContent value="rubrics" className="mt-6" data-testid="rubrics-tab">
             <div className="p-6 border rounded-lg" data-testid="rubrics-tab-content">
-              <Rubrics assignmentId={assignmentId} />
+              {loadedTabs.has("rubrics") ? (
+                <Suspense fallback={<TabLoadingSpinner />}>
+                  <Rubrics assignmentId={assignmentId} />
+                </Suspense>
+              ) : null}
             </div>
           </TabsContent>
+
           <TabsContent value="test-builder" className="mt-6" data-testid="test-builder-tab">
-            <TestBuilder />
+            {loadedTabs.has("test-builder") ? (
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <TestBuilder />
+              </Suspense>
+            ) : null}
           </TabsContent>
+
+          <TabsContent value="try-out" className="mt-6" data-testid="test-builder-tab">
+            {loadedTabs.has("try-out") ? (
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <TryOutTab />
+              </Suspense>
+            ) : null}
+          </TabsContent>
+
           <TabsContent value="compiler" className="mt-6" data-testid="compiler-tab">
-            <CodeEditor />
+            {loadedTabs.has("compiler") ? (
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <CodeEditor />
+              </Suspense>
+            ) : null}
           </TabsContent>
+
         </Tabs>
+
         <div className="flex justify-start mt-8">
           <Button type='button' variant='outline' onClick={() => router.history.back()}>
             Back

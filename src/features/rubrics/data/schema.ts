@@ -11,9 +11,7 @@ export const baseRubricSchema = z.object({
     id: z.string(),
     name: z.string().min(3).max(255),
     description: z.string().optional(),
-    maxPoints: z.coerce.number().positive(),
-    displayOrder: z.coerce.number().int().optional(),
-    isActive: z.boolean().optional().default(true),
+    points: z.coerce.number().positive(),
     assignmentId: z.string(),
     createdAt: z.string().datetime({ offset: true }).optional(),
     updatedAt: z.string().datetime({ offset: true }).optional(),
@@ -28,6 +26,7 @@ export const baseRubricGradeSchema = z.object({
     code: z.string().optional(),
     arguments: z.record(z.any()).optional(),
     gradeType: gradeTypeSchema,
+    assignmentId: z.string(),
     rubricId: z.string(),
     createdAt: z.string().datetime({ offset: true }).optional(),
     updatedAt: z.string().datetime({ offset: true }).optional(),
@@ -49,6 +48,7 @@ export const baseGradeExecutionSchema = z.object({
 
 export const rubricGradeSchema: z.ZodType<RubricGrade> = baseRubricGradeSchema.extend({
     rubric: z.lazy(() => rubricSchema).optional(),
+    assignment: z.lazy(() => assignmentSchema).optional(),
     gradeExecutions: z.lazy(() => z.array(gradeExecutionSchema)).optional(),
 });
 
@@ -72,7 +72,6 @@ export const rubricFormSchema = baseRubricSchema.omit({
 }) satisfies z.ZodType<RubricForm>;
 
 export const rubricGradeFormSchema = baseRubricGradeSchema.omit({
-    id: true,
     createdAt: true,
     updatedAt: true,
 }) satisfies z.ZodType<RubricGradeForm>;

@@ -11,8 +11,6 @@ export const getAuth = async (): Promise<{
 }> => {
     const { auth } = useAuthStore.getState()
     const { setIsLoading } = useLoaderStore.getState()
-    console.log(auth.accessToken)
-    console.log(auth.isTokenExpired())
     if (auth.isTokenExpired() && auth.refreshToken) {
         auth.reset()
 
@@ -24,8 +22,6 @@ export const getAuth = async (): Promise<{
                 const { auth: updatedAuth } = useAuthStore.getState();
                 const hasPermissionFunc = (permissions: string[]) => updatedAuth.hasPermission(permissions);
                 const hasRoleFunc = (roles: string[]) => updatedAuth.hasRole(roles);
-                console.log(updatedAuth.accessToken)
-                console.log(updatedAuth.isTokenExpired())
                 return {
                     isAuthenticated: updatedAuth.accessToken != null && !updatedAuth.isTokenExpired(),
                     user: updatedAuth.user,

@@ -30,7 +30,7 @@ const FileTabTrigger: React.FC<FileTabTriggerProps> = ({ children, className, va
             {...props}
         >
             <span className="mr-2">{children}</span>
-            <div className="hidden group-hover:flex items-center space-x-1">
+            <div className="flex items-center space-x-1">
                 <span
                     onClick={handleRenameClick}
                     className="p-0.5 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600"

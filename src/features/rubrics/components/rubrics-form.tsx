@@ -11,7 +11,6 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { handleServerErrors } from '@/lib/form-utils';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { useParams, useRouter } from '@tanstack/react-router';
@@ -43,16 +42,12 @@ export function RubricForm({
         defaultValues: initialData ? {
             name: initialData.name,
             description: initialData.description,
-            maxPoints: initialData.maxPoints,
-            displayOrder: initialData.displayOrder,
-            isActive: initialData.isActive,
+            points: initialData.points,
             assignmentId: initialData.assignmentId || assignmentId,
         } : {
             name: '',
             description: '',
-            maxPoints: 0,
-            displayOrder: 0,
-            isActive: true,
+            points: 0,
             assignmentId: assignmentId || '',
         }
     });
@@ -62,9 +57,7 @@ export function RubricForm({
             form.reset({
                 name: initialData.name,
                 description: initialData.description,
-                maxPoints: initialData.maxPoints,
-                displayOrder: initialData.displayOrder,
-                isActive: initialData.isActive,
+                points: initialData.points,
                 assignmentId: initialData.assignmentId || assignmentId,
             });
         }
@@ -153,7 +146,7 @@ export function RubricForm({
 
                 <FormField
                     control={form.control}
-                    name='maxPoints'
+                    name='points'
                     render={({ field }) => (
                         <FormItem className='max-w-xs'>
                             <FormLabel>Max Points</FormLabel>
@@ -165,20 +158,8 @@ export function RubricForm({
                     )}
                 />
 
-                <FormField
-                    control={form.control}
-                    name='displayOrder'
-                    render={({ field }) => (
-                        <FormItem className='max-w-xs'>
-                            <FormLabel>Display Order</FormLabel>
-                            <FormControl>
-                                <Input type="number" placeholder='Enter display order' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
+                {/* 
                 <FormField
                     control={form.control}
                     name='isActive'
@@ -196,7 +177,7 @@ export function RubricForm({
                             <FormMessage />
                         </FormItem>
                     )}
-                />
+                /> */}
 
                 <div className="flex justify-between items-center">
                     <div className="flex justify-start">

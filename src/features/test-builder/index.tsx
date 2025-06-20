@@ -15,11 +15,13 @@ import { DroppableCanvas } from '@/features/test-builder/components/droppable-ca
 import { DroppableTrash } from '@/features/test-builder/components/droppable-trash';
 import { RubricPanel } from '@/features/test-builder/components/rubric-panel';
 import { SortableBlock } from '@/features/test-builder/components/sortable-block';
+import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useAssignmentById, useUpdateAssignment } from '../assignments/hooks/use-assignment';
 import type { RubricGrade, RubricGradeForm } from '../rubrics/data/types';
 import { useCreateRubricGrade, useRubricGrades, useUpdateRubricGrade } from '../rubrics/hooks/use-rubric-grade';
+import { generateBlockCode, generateLibraryImportCode, generateSetupCode } from './lib/block-code-generator';
 import { parseJavaCodeToBlocks } from './lib/code-to-blocks';
 
 
@@ -122,59 +124,19 @@ export function TestBuilder() {
         }
     }, [activeSuite, addBlock, addTemplate, removeBlock, moveBlock, updateBlockData]);
 
+
     const generatedCode = useMemo(() => {
         if (!activeSuite) return "// No active test suite selected.";
-        let code = `import static org.assertj.core.api.Assertions.assertThat;\n`;
-        code += `import org.junit.jupiter.api.Test;\n\n`;
-        code += `class ${activeSuite.name} {\n\n`;
+        let code = ''
+        code += generateLibraryImportCode();
+        code += `public class ${activeSuite.name} {\n\n`;
+        code += generateSetupCode();
 
         const topLevelBlocks = activeSuite.blocks.filter(b => !b.parentId);
 
-        const generateBlockCode = (block: Block, indent: string): string => {
-            let blockCode = "";
-            switch (block.type) {
-                case 'FUNCTION':
-                    const funcBlock = block as FunctionBlock;
+        topLevelBlocks.forEach(block => code += generateBlockCode(block, '    ', activeSuite));
 
-                    const children = activeSuite.blocks.filter(b => b.parentId === funcBlock.id);
-                    blockCode += `${indent}@Test\n`;
-                    blockCode += `${indent}void ${funcBlock.funcName}() {\n`;
-                    children.forEach(child => blockCode += generateBlockCode(child, indent + '    '));
-                    blockCode += `${indent}}\n\n`;
-                    break;
-                case 'VARIABLE':
-                    const varBlock = block as VariableBlock;
-                    blockCode += `${indent}${varBlock.varType} ${varBlock.varName} = ${varBlock.value};\n`;
-                    break;
-                case 'ASSERT_THAT':
-                    const assertBlock = block as AssertThatBlock;
-
-                    const matchers = activeSuite.blocks.filter(b => b.parentId === assertBlock.id);
-                    let chain = matchers.map(m => `.${m.type.toLowerCase()}${m.value ? `(${m.value})` : '()'}`).join(''); // Add value to matchers
-                    blockCode += `${indent}assertThat(${assertBlock.target})${chain};\n`;
-                    break;
-                case 'COMMENT':
-                    blockCode += `${indent}// ${block.value}\n`;
-                    break;
-
-                case 'EXCEPTION_ASSERT':
-                    blockCode += `${indent}org.junit.jupiter.api.Assertions.assertThrows(${block.exceptionType}, ${block.code});\n`;
-                    break;
-                case 'STATIC_ASSERT':
-
-                    blockCode += `${indent}// TODO: Implement static assert for ${block.checkType} with value ${block.value}\n`;
-                    break;
-                case 'STRUCTURE_CHECK':
-
-                    blockCode += `${indent}// TODO: Implement structure check for ${block.checkType}\n`;
-                    break;
-            }
-            return blockCode;
-        }
-
-        topLevelBlocks.forEach(block => code += generateBlockCode(block, '    '));
-
-        code += '}';
+        code += '}'; // end
         return code;
     }, [activeSuite, testSuites]);
 
@@ -216,7 +178,7 @@ export function TestBuilder() {
         if (!existingRubricGrades || existingRubricGrades.content.length === 0 || !activeSuite) return new Map();
         const gradeMap = new Map();
         existingRubricGrades?.content.forEach(grade => {
-            const functionName = grade.arguments?.functionName || grade.functionName;
+            const functionName = grade.arguments?.functionName || grade.name;
             if (functionName) {
                 gradeMap.set(functionName, grade);
             }
@@ -238,7 +200,6 @@ export function TestBuilder() {
         const newBlocksWithRubrics = newBlocks.map(block => {
             if (block.type === 'FUNCTION' || block.type === 'ANALYZE_FUNCTION') {
                 const existingGrade: RubricGrade = existingGradesByFunction.get((block as FunctionBlock | AnalyzeFunctionBlock).funcName);
-                console.log(existingGrade)
                 return { ...block, rubricId: existingGrade?.rubricId || undefined };
             }
             return block;
@@ -250,18 +211,18 @@ export function TestBuilder() {
             funcName: (b as FunctionBlock).funcName || undefined,
             varName: (b as VariableBlock).varName || undefined,
             target: (b as AssertThatBlock).target || undefined,
-            value: (b as VariableBlock).value || (b as AssertThatBlock).value || undefined,
+            value: (b as VariableBlock).value || undefined,
             parentId: b.parentId,
-            rubricId: (b as FunctionBlock).rubricId || undefined
+            rubricId: (b as FunctionBlock).rubricId?.toString() || undefined
         }));
         const newBlocksRelevantData = newBlocksWithRubrics.map(b => ({
             type: b.type,
             funcName: (b as FunctionBlock).funcName || undefined,
             varName: (b as VariableBlock).varName || undefined,
             target: (b as AssertThatBlock).target || undefined,
-            value: (b as VariableBlock).value || (b as AssertThatBlock).value || undefined,
+            value: (b as VariableBlock).value || undefined,
             parentId: b.parentId,
-            rubricId: (b as FunctionBlock).rubricId || undefined
+            rubricId: (b as FunctionBlock).rubricId?.toString() || undefined
         }));
 
         if (JSON.stringify(currentBlocksRelevantData) === JSON.stringify(newBlocksRelevantData) && activeSuite.blocks.length > 0) {
@@ -309,7 +270,7 @@ export function TestBuilder() {
         return activeSuite.blocks.some(block =>
             block.type === 'FUNCTION' &&
             'rubricId' in block &&
-            block.rubricId
+            block.rubricId?.toString()
         );
     }, [activeSuite]);
 
@@ -331,6 +292,7 @@ export function TestBuilder() {
 
             const uniqueFunctions = new Map<string, FunctionBlock & { rubricId: string }>();
             functionBlocksWithRubrics.forEach(block => {
+                if (!block.rubricId) return; // Skip if rubricId is undefined
                 const functionName = block.funcName || 'Test';
                 if (!uniqueFunctions.has(functionName)) {
                     uniqueFunctions.set(functionName, block);
@@ -357,13 +319,10 @@ export function TestBuilder() {
                             rubricGradeData: gradeUpdateData
                         });
                     } else {
-                        console.log('rubric Id', functionBlock.rubricId)
                         const rubricGradeForm: RubricGradeForm = {
                             id: functionBlock.id,
                             name: `${functionName}`,
-                            functionName: functionName,
                             description: `Auto-generated rubric grade for test function: ${functionName}`,
-                            points: 10,
                             displayOrder: 0,
                             arguments: {
                                 testSuiteId: activeSuite.id,
@@ -372,7 +331,7 @@ export function TestBuilder() {
                             },
                             gradeType: 'AUTOMATIC' as const,
                             assignmentId: assignmentId,
-                            rubricId: functionBlock.rubricId
+                            rubricId: functionBlock.rubricId?.toString()
                         };
 
                         await createRubricGrade.mutateAsync(rubricGradeForm);
@@ -480,7 +439,10 @@ export function TestBuilder() {
                                             Saving...
                                         </>
                                     ) : (
-                                        'Save Rubric Grades'
+                                        <>
+                                            <IconDeviceFloppy className="mr-2 h-4 w-4" />
+                                            Save
+                                        </>
                                     )}
                                 </Button>
                             </div>
@@ -491,7 +453,7 @@ export function TestBuilder() {
                             <div className="mb-4 space-y-2">
                                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <p className="text-sm text-blue-700">
-                                        {activeSuite?.blocks.filter(b => b.type === 'FUNCTION' && 'rubricId' in b && b.rubricId).length} function(s) have rubrics assigned.
+                                        {activeSuite?.blocks.filter(b => b.type === 'FUNCTION' && 'rubricId' in b && b.rubricId?.toString()).length} function(s) have rubrics assigned.
                                     </p>
                                 </div>
 

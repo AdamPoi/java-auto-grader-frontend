@@ -1,23 +1,57 @@
 import { type LucideProps } from 'lucide-react';
 import { type FC } from 'react';
 
-export type BlockType =
-    | 'FUNCTION' | 'ANALYZE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
+export type BlockType = 'FUNCTION' | 'ANALYZE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
     | 'EXCEPTION_ASSERT' | 'STATIC_ASSERT' | 'STRUCTURE_CHECK'
     | 'COMMENT' | 'IS_EQUAL_TO' | 'IS_NOT_NULL' | 'HAS_LENGTH'
     | 'IS_INSTANCE_OF' | 'CONTAINS' | 'DOES_NOT_CONTAIN'
     | 'EXTRACTING' | 'MATCHES' | 'STARTS_WITH' | 'ENDS_WITH'
     | 'TEMPLATE_FUNCTION';
 
-export interface BaseBlock { id: string; parentId: string | null; type: BlockType; }
-export interface FunctionBlock extends BaseBlock { type: 'FUNCTION'; funcName: string; rubricId?: string | null; }
-export interface AnalyzeFunctionBlock extends BaseBlock { type: 'ANALYZE_FUNCTION'; funcName: string; rubricId?: string | null; }
-export interface VariableBlock extends BaseBlock { type: 'VARIABLE'; varType: string; varName: string; value: string; }
-export interface AssertThatBlock extends BaseBlock { type: 'ASSERT_THAT'; target: string; }
-export interface ExceptionAssertBlock extends BaseBlock { type: 'EXCEPTION_ASSERT'; exceptionType: string; code: string; }
-export interface StaticAssertBlock extends BaseBlock { type: 'STATIC_ASSERT'; checkType: 'CLASS_EXISTS' | 'FUNCTION_EXISTS' | 'VARIABLE_EXISTS'; value: string; }
-export interface StructureCheckBlock extends BaseBlock { type: 'STRUCTURE_CHECK'; checkType: 'HAS_FOR_LOOP' | 'HAS_VARIABLE' | 'HAS_PARAMETER' | 'RETURNS_TYPE' | 'CALLS_METHOD' | 'USES_CONCATENATION'; varType?: string; varName?: string; value?: string }
-export interface CommentBlock extends BaseBlock { type: 'COMMENT'; value: string; }
+export type StaticAssertType = 'CLASS_EXISTS' | 'FUNCTION_EXISTS' | 'VARIABLE_EXISTS' |
+    'FUNCTION_EXISTS_IN_CLASS' | 'VARIABLE_EXISTS_IN_CLASS' | 'VARIABLE_EXISTS_IN_FUNCTION'
+    | 'VARIABLE_CALLED_IN_FUNCTION' | 'VARIABLE_CALLED_IN_CLASS';
+
+export type StructureType = 'HAS_LOOP' | 'HAS_CONDITIONAL' | 'HAS_VARIABLE' |
+    'HAS_PARAMETER' | 'HAS_RETURN';
+
+export interface BaseBlock {
+    id: string;
+    parentId: string | null;
+    type: BlockType;
+}
+export interface FunctionBlock extends BaseBlock {
+    type: 'FUNCTION';
+    funcName: string;
+    rubricId?: string | null;
+}
+export interface AnalyzeFunctionBlock extends BaseBlock {
+    type: 'ANALYZE_FUNCTION'; funcName: string; rubricId?: string | null;
+}
+export interface VariableBlock extends BaseBlock {
+    type: 'VARIABLE'; varType: string; varName: string; value: string;
+}
+export interface AssertThatBlock extends BaseBlock {
+    type: 'ASSERT_THAT'; target: string;
+}
+export interface ExceptionAssertBlock extends BaseBlock {
+    type: 'EXCEPTION_ASSERT'; exceptionType: string; code: string;
+}
+export interface StaticAssertBlock extends BaseBlock {
+    type: 'STATIC_ASSERT'; checkType: StaticAssertType; varName: string; className?: string; methodName?: string;
+}
+export interface StructureCheckBlock extends BaseBlock {
+    type: 'STRUCTURE_CHECK'; checkType: StructureType;
+    varType?: string;
+    varName?: string;
+    value?: string;
+    className?: string;
+    methodName?: string;
+}
+export interface CommentBlock extends BaseBlock {
+    type: 'COMMENT';
+    value: string;
+}
 export interface MatcherBlock extends BaseBlock { value?: string; }
 
 export type Block = FunctionBlock | AnalyzeFunctionBlock | VariableBlock | AssertThatBlock | ExceptionAssertBlock | StaticAssertBlock | StructureCheckBlock | CommentBlock | MatcherBlock;

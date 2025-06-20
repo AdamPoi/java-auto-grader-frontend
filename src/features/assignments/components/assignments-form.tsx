@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { User } from '@/features/users/data/types';
+import { useUsersList } from '@/features/users/hooks/use-user';
 import { handleServerErrors } from '@/lib/form-utils';
 import { debounce } from '@tanstack/pacer';
 import type { UseMutationResult } from '@tanstack/react-query';
@@ -24,7 +25,6 @@ import { toast } from 'sonner';
 import { assignmentFormSchema } from '../data/schema';
 import type { Assignment, AssignmentForm } from '../data/types';
 import { useCreateAssignment, useUpdateAssignment } from '../hooks/use-assignment';
-import { useUsersList } from '@/features/users/hooks/use-user';
 
 interface AssignmentsFormProps {
     initialData?: Assignment;
@@ -60,12 +60,11 @@ export function AssignmentsForm({
             id: initialData.id,
             title: initialData.title,
             description: initialData.description,
-            instructions: initialData.instructions,
+            resource: initialData.resource,
             dueDate: initialData.dueDate || '',
             isPublished: initialData.isPublished || false,
             starterCode: initialData.starterCode,
             solutionCode: initialData.solutionCode,
-            maxAttempts: initialData.maxAttempts,
             timeLimit: initialData.timeLimit,
             totalPoints: initialData.totalPoints,
             courseId: initialData.course?.id,
@@ -74,12 +73,11 @@ export function AssignmentsForm({
             id: '',
             title: '',
             description: '',
-            instructions: '',
+            resource: '',
             dueDate: '',
             isPublished: false,
             starterCode: '',
             solutionCode: '',
-            maxAttempts: undefined,
             timeLimit: undefined,
             totalPoints: 0,
             courseId: courseId ?? undefined,
@@ -152,12 +150,10 @@ export function AssignmentsForm({
                 id: initialData.id,
                 title: initialData.title,
                 description: initialData.description,
-                instructions: initialData.instructions,
                 dueDate: initialData.dueDate || '',
                 isPublished: initialData.isPublished || false,
                 starterCode: initialData.starterCode,
                 solutionCode: initialData.solutionCode,
-                maxAttempts: initialData.maxAttempts,
                 timeLimit: initialData.timeLimit,
                 totalPoints: initialData.totalPoints,
                 courseId: initialData.course?.id,
@@ -279,17 +275,7 @@ export function AssignmentsForm({
                         </FormItem>
                     )} />
 
-                    <FormField control={form.control} name='maxAttempts' render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Max Attempts</FormLabel>
-                            <FormControl>
-                                <Input type='number' placeholder='Enter maximum attempts' {...field}
-                                    onChange={e => field.onChange(parseInt(e.target.value))}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
+
 
                     <FormField control={form.control} name='timeLimit' render={({ field }) => (
                         <FormItem>
@@ -315,11 +301,11 @@ export function AssignmentsForm({
                         </FormItem>
                     )} />
 
-                    <FormField control={form.control} name='instructions' render={({ field }) => (
+                    <FormField control={form.control} name='resource' render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Instructions</FormLabel>
+                            <FormLabel>Resource</FormLabel>
                             <FormControl>
-                                <Textarea placeholder='Enter assignment instructions' {...field} />
+                                <Textarea placeholder='Enter assignment resource' {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

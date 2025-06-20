@@ -5,7 +5,7 @@ import type { AnalyzeFunctionBlock, AnyBlock, AppActions, AppState, Block, Funct
 type Store = AppState & AppActions;
 
 const initialState: AppState = {
-    testSuites: [{ id: 'initial-suite', name: 'TestClass1', blocks: [] }],
+    testSuites: [{ id: 'initial-suite', name: 'Class1Test', blocks: [] }],
     activeSuiteId: 'initial-suite',
     rubrics: [],
     sourceFiles: [],
@@ -168,7 +168,7 @@ const appReducer = (state: HistoricalState, action: any): HistoricalState => {
         }
         case 'ADD_TEST_SUITE': {
             const newSuiteId = uuidv4();
-            const newSuite: TestSuite = { id: newSuiteId, name: `TestClass${state.testSuites.length + 1}`, blocks: [] };
+            const newSuite: TestSuite = { id: newSuiteId, name: `${state.testSuites.length + 1}Test`, blocks: [] };
             return { ...state, testSuites: [...state.testSuites, newSuite], activeSuiteId: newSuiteId };
         }
         case 'SET_ACTIVE_SUITE': {
@@ -238,7 +238,6 @@ export const useTestBuilderStore = create<Store>((set, get) => {
         moveBlock: (payload) => { dispatch({ type: 'MOVE_BLOCK', payload }); },
         removeBlock: (payload) => { dispatch({ type: 'REMOVE_BLOCK', payload }); },
         updateBlockData: (payload) => { dispatch({ type: 'UPDATE_BLOCK_DATA', payload }, false); },
-        // Add the new setSuiteBlocks action
         setSuiteBlocks: (payload) => { dispatch({ type: 'SET_SUITE_BLOCKS', payload }); },
         addRubricItem: (payload) => { dispatch({ type: 'ADD_RUBRIC_ITEM', payload }); },
         updateRubricItem: (payload) => { dispatch({ type: 'UPDATE_RUBRIC_ITEM', payload }); },

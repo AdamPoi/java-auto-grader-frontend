@@ -9,9 +9,7 @@ export interface Rubric {
     id: string;
     name: string;
     description?: string;
-    maxPoints: number;
-    displayOrder?: number;
-    isActive?: boolean;
+    points: number;
     assignmentId: string;
     assignment?: Assignment;
     rubricGrades?: RubricGrade[];
@@ -22,9 +20,7 @@ export interface Rubric {
 export interface RubricGrade {
     id: string;
     name: string;
-    functionName: string;
     description?: string;
-    points: number;
     displayOrder?: number;
     arguments?: Record<string, any>;
     gradeType: GradeType;
@@ -58,7 +54,7 @@ export type RubricForm = Omit<Rubric, 'id' | 'assignment' | 'createdAt' | 'updat
     assignmentId?: string;
 };
 
-export type RubricGradeForm = Omit<RubricGrade, 'rubric' | 'gradeExecutions' | 'createdAt' | 'updatedAt'>;
+export type RubricGradeForm = Omit<RubricGrade, 'rubric' | 'gradeExecutions' | 'assignment' | 'createdAt' | 'updatedAt'>;
 
 export type GradeExecutionForm = Omit<GradeExecution, 'id' | 'rubricGrade' | 'submission' | 'createdAt' | 'updatedAt'>;
 

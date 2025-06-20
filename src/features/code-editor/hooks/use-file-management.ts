@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface FileData {
     fileName: string;
@@ -10,14 +10,22 @@ interface UseFileManagementReturn {
     activeFileName: string | null;
     setActiveFileName: (fileName: string | null) => void;
     handleCreateFile: (newFileName: string) => void;
+    handleAddMultipleFiles: (newFiles: FileData[]) => void;
     handleRenameFile: (oldName: string, newName: string) => void;
     handleDeleteFile: (fileNameToDelete: string) => void;
     handleEditorChange: (value: string) => void;
 }
 
-function useFileManagement(initialFiles: FileData[]): UseFileManagementReturn {
+function useFileManagement(initialFiles: FileData[], readOnly?: boolean): UseFileManagementReturn {
     const [files, setFiles] = useState<FileData[]>(initialFiles);
     const [activeFileName, setActiveFileName] = useState<string | null>(initialFiles[0]?.fileName || null);
+
+    // If readOnly is true, ensure no file is active to prevent editing
+    useEffect(() => {
+        if (readOnly) {
+            setActiveFileName(null);
+        }
+    }, [readOnly]);
 
     const handleCreateFile = useCallback((newFileName: string) => {
         const className = newFileName.split('.')[0] || 'NewClass';
@@ -26,12 +34,24 @@ function useFileManagement(initialFiles: FileData[]): UseFileManagementReturn {
         setActiveFileName(newFileName);
     }, []);
 
+    const handleAddMultipleFiles = useCallback((newFiles: FileData[]) => {
+        if (readOnly) return;
+
+        setFiles(prevFiles => {
+            const existingNames = new Set(prevFiles.map(f => f.fileName));
+            const uniqueFiles = newFiles.filter(file => !existingNames.has(file.fileName));
+            return [...prevFiles, ...uniqueFiles];
+        });
+    }, [readOnly]);
+
     const handleRenameFile = useCallback((oldName: string, newName: string) => {
+        if (readOnly) return;
         setFiles(fs => fs.map(f => f.fileName === oldName ? { ...f, fileName: newName } : f));
         if (activeFileName === oldName) setActiveFileName(newName);
-    }, [activeFileName]);
+    }, [activeFileName, readOnly]);
 
     const handleDeleteFile = useCallback((fileNameToDelete: string) => {
+        if (readOnly) return;
         setFiles(currentFiles => {
             const newFiles = currentFiles.filter(f => f.fileName !== fileNameToDelete);
             if (activeFileName === fileNameToDelete) {
@@ -41,15 +61,16 @@ function useFileManagement(initialFiles: FileData[]): UseFileManagementReturn {
             }
             return newFiles;
         });
-    }, [activeFileName]);
+    }, [activeFileName, readOnly]);
 
     const handleEditorChange = useCallback((value: string) => {
+        if (readOnly) return;
         if (activeFileName) {
             setFiles(currentFiles => currentFiles.map(f => f.fileName === activeFileName ? { ...f, content: value } : f));
         }
-    }, [activeFileName]);
+    }, [activeFileName, readOnly]);
 
-    return { files, activeFileName, setActiveFileName, handleCreateFile, handleRenameFile, handleDeleteFile, handleEditorChange };
+    return { files, activeFileName, setActiveFileName, handleCreateFile, handleAddMultipleFiles, handleRenameFile, handleDeleteFile, handleEditorChange };
 }
 
 export default useFileManagement;

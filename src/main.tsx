@@ -1,16 +1,16 @@
+import { QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { QueryClientProvider } from '@tanstack/react-query'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
 import './App.css'
-import reportWebVitals from './reportWebVitals.ts'
-import { ThemeProvider } from './contexts/theme-context.tsx'
 import { FontProvider } from './contexts/font-context.tsx'
+import { ThemeProvider } from './contexts/theme-context.tsx'
 import { queryClient } from './lib/query-client.ts'
+import reportWebVitals from './reportWebVitals.ts'
 
 
 
@@ -43,6 +43,7 @@ if (rootElement && !rootElement.innerHTML) {
         <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
           <FontProvider>
             <RouterProvider router={router} />
+
           </FontProvider>
         </ThemeProvider>
       </QueryClientProvider>

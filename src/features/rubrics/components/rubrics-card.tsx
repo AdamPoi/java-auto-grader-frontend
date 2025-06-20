@@ -17,8 +17,8 @@ const RubricCard: React.FC<RubricCardProps> = ({ rubric, className }) => {
             </CardHeader>
             <CardContent>
                 <div className="flex justify-between mb-4">
-                    <span>Max Points: {rubric.maxPoints}</span>
-                    <span>Status: {rubric.isActive ? 'Active' : 'Inactive'}</span>
+                    <span>Points: {rubric.points}</span>
+                    {/* <span>Status: {rubric.isActive ? 'Active' : 'Inactive'}</span> */}
                 </div>
                 {rubric.rubricGrades && rubric.rubricGrades.length > 0 && (
                     <div>
@@ -27,7 +27,7 @@ const RubricCard: React.FC<RubricCardProps> = ({ rubric, className }) => {
                             {rubric.rubricGrades.map((grade) => (
                                 <li key={grade.id} className="flex justify-between">
                                     <span>{grade.name}</span>
-                                    <span>{grade.points} points</span>
+                                    {/* <span>{grade.points} points</span> */}
                                 </li>
                             ))}
                         </ul>

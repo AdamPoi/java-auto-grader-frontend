@@ -30,6 +30,7 @@ export const useRubrics = (params: SearchRequestParams) => {
             const response = await rubricApi.getRubrics(params);
             return response;
         },
+        enabled: !!params,
     });
 
 

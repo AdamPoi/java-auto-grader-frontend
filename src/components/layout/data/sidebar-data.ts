@@ -1,20 +1,13 @@
 import {
-  IconAdjustmentsCheck,
-  IconBarrierBlock,
   IconBook,
-  IconBug,
   IconChalkboard,
   IconChalkboardTeacher,
+  IconClipboardCheck,
   IconCode,
-  IconError404,
   IconFileCode,
   IconLayoutDashboard,
-  IconLock,
-  IconLockAccess,
   IconSchool,
-  IconServerOff,
   IconShield,
-  IconUserOff,
   IconUsers
 } from '@tabler/icons-react'
 import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
@@ -87,6 +80,11 @@ export const sidebarData: SidebarData = {
           title: 'Courses',
           url: '/courses',
           icon: IconBook,
+        },
+        {
+          title: 'Submissions',
+          url: '/submissions',
+          icon: IconClipboardCheck,
         },
       ],
     },

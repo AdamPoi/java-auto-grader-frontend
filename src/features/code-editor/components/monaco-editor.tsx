@@ -9,9 +9,10 @@ interface MonacoEditorProps {
     onChange: (value: string) => void;
     codeIntel: CodeIntelData | null;
     errors: MonacoEditorError[];
+    readOnly?: boolean;
 }
 
-const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, codeIntel, errors }) => {
+const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, codeIntel, errors, readOnly }) => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const completionProviderRef = useRef<monaco.IDisposable | null>(null);
@@ -29,7 +30,8 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
                 theme: 'vs-dark',
                 automaticLayout: true,
                 wordWrap: 'on',
-                fontSize: 14
+                fontSize: 14,
+                readOnly: readOnly,
             });
 
             editorRef.current.onDidChangeModelContent(() => {
