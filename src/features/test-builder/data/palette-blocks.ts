@@ -1,11 +1,10 @@
 import {
     Baseline,
-    Binary,
-    Construction,
     Fingerprint,
+    List,
     Pilcrow,
+    Play,
     Regex,
-    TestTube,
     Type
 } from 'lucide-react';
 import type { OmittedBlock, TemplateFunction } from './types';
@@ -19,6 +18,25 @@ export const INITIAL_PALETTE_BLOCKS: {
     matchers: OmittedBlock[];
 } = {
     templates: [
+        {
+            type: 'TEMPLATE_FUNCTION',
+            templateName: 'Function Test',
+            icon: Play,
+            func: { type: 'FUNCTION', funcName: 'functionTest' },
+            children: [
+                {
+                    id: 'fn-test-1',
+                    type: 'FUNCTION_TEST',
+                    className: 'Main',
+                    methodName: 'add',
+                    parameters: [
+                        { name: 'a', varType: 'int', value: '1' },
+                        { name: 'b', varType: 'int', value: '2' }
+                    ],
+                    expected: { name: 'expectedSum', varType: 'int', value: '3' }
+                }
+            ]
+        } as TemplateFunction,
         {
             type: 'TEMPLATE_FUNCTION',
             templateName: 'I/O Test',
@@ -75,7 +93,28 @@ export const INITIAL_PALETTE_BLOCKS: {
                 }
             ]
         } as TemplateFunction,
-
+        {
+            type: 'TEMPLATE_FUNCTION',
+            templateName: 'Array Test',
+            icon: List,
+            func: { type: 'FUNCTION', funcName: 'testArray' },
+            children: [
+                { type: 'VARIABLE', varType: 'int[]', varName: 'numbers', value: '1, 2, 3, 4, 5' },
+                { type: 'VARIABLE', varType: 'String[]', varName: 'words', value: '"hello", "world"' },
+                {
+                    type: 'ASSERT_THAT', target: 'numbers', children: [
+                        { type: 'HAS_LENGTH', value: '5' },
+                        { type: 'CONTAINS_EXACTLY', value: '1, 2, 3, 4, 5' }
+                    ]
+                },
+                {
+                    type: 'ASSERT_THAT', target: 'words', children: [
+                        { type: 'CONTAINS_ONLY', value: '"hello", "world"' },
+                        { type: 'DOES_NOT_CONTAIN', value: '"test"' }
+                    ]
+                }
+            ]
+        } as TemplateFunction,
         // {
         //     type: 'TEMPLATE_FUNCTION',
         //     templateName: 'Exception Test',
@@ -109,98 +148,49 @@ export const INITIAL_PALETTE_BLOCKS: {
                 { type: 'STATIC_ASSERT', checkType: 'VARIABLE_EXISTS', value: 'int myVariable' }
             ]
         } as TemplateFunction,
-        {
-            type: 'TEMPLATE_FUNCTION',
-            templateName: 'Analyze Function',
-            icon: Construction,
-            func: { type: 'ANALYZE_FUNCTION', funcName: 'myFunctionToAnalyze' },
-            children: [
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_LOOP' },
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_CONDITIONAL' },
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_VARIABLE', varType: 'int', varName: 'i' },
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'param' },
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'boolean', value: 'true' }
-            ]
-        } as TemplateFunction,
-        {
-            type: 'TEMPLATE_FUNCTION',
-            templateName: 'Analyze String Function',
-            icon: Binary,
-            func: { type: 'ANALYZE_FUNCTION', funcName: 'processString' },
-            children: [
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'inputStr' },
-                // { type: 'STRUCTURE_CHECK', checkType: 'CALLS_METHOD', value: '.length()' },
-                // { type: 'STRUCTURE_CHECK', checkType: 'USES_CONCATENATION' },
-                { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'String' }
-            ]
-        } as TemplateFunction,
-        {
-            type: "TEMPLATE_FUNCTION",
-            templateName: "Test Case Function",
-            icon: TestTube,
-            func: { type: 'TEST_CASE_FUNCTION', funcName: 'testString' },
-            children: [
-                { type: 'VARIABLE', varType: 'String', varName: 'message', value: 'Hello World' },
-                { type: 'CSV_CASE', input: '[2,7]', expected: '2' },
-                { type: 'CSV_CASE', input: '9', expected: '2' },
-            ]
-            // props: {
-            //     methodName: "",
-            //     inputs: [],
-            //     expectedOutput: "",
-            //     expectedSysOut: "",
-            // },
-            // Optionally, you could use an icon here
-            // shadcn/lucide
-            // documentation: "Tests a single function with a set of input values and expected output. Typically used for parameterized/unit tests."
-        } as TemplateFunction,
-        {
-            type: 'TEMPLATE_FUNCTION',
-            templateName: 'Multiple Cases',
-            icon: Pilcrow,
-            func: { type: 'FUNCTION', funcName: 'testMultipleCases' },
-            children: [
-                // 1) Define parallel arrays of raw inputs & expected results
-                { type: 'VARIABLE', varType: 'String[]', varName: 'inputs', value: 'new String[]{\"5 3 8 1 4 7 9 null 2\",\"2 1 3\"}' },
-                { type: 'VARIABLE', varType: 'String[]', varName: 'expected', value: 'new String[]{\"3\",\"1\"}' },
 
-                // 2) Loop over each case
-                { type: 'COMMENT', value: 'for (int i = 0; i < inputs.length; i++) {' },
-                { type: 'COMMENT', value: '    // parse tree and targets from inputs[i]' },
-                { type: 'VARIABLE', varType: 'TreeNode', varName: 'root', value: 'buildTree(inputs[i])' },
-                { type: 'VARIABLE', varType: 'int', varName: 'p', value: 'Integer.parseInt(inputs[i].split(\" \")[0])' },
-                { type: 'VARIABLE', varType: 'int', varName: 'q', value: 'Integer.parseInt(inputs[i].split(\" \")[1])' },
+        // {
+        //     type: 'TEMPLATE_FUNCTION',
+        //     templateName: 'Multiple Cases',
+        //     icon: Pilcrow,
+        //     func: { type: 'FUNCTION', funcName: 'testMultipleCases' },
+        //     children: [
+        //         { type: 'VARIABLE', varType: 'String[]', varName: 'inputs', value: 'new String[]{\"5 3 8 1 4 7 9 null 2\",\"2 1 3\"}' },
+        //         { type: 'VARIABLE', varType: 'String[]', varName: 'expected', value: 'new String[]{\"3\",\"1\"}' },
 
-                // 3) Invoke and assert per iteration
-                { type: 'VARIABLE', varType: 'TreeNode', varName: 'result', value: 'lowestCommonAncestor(root, p, q)' },
-                {
-                    type: 'ASSERT_THAT',
-                    target: 'result',
-                    children: [
-                        { type: 'IS_EQUAL_TO', value: 'Integer.valueOf(expected[i])' }
-                    ]
-                },
-                { type: 'COMMENT', value: '}' }
-            ]
-        } as TemplateFunction,
+        //         { type: 'COMMENT', value: 'for (int i = 0; i < inputs.length; i++) {' },
+        //         { type: 'COMMENT', value: '    // parse tree and targets from inputs[i]' },
+        //         { type: 'VARIABLE', varType: 'TreeNode', varName: 'root', value: 'buildTree(inputs[i])' },
+        //         { type: 'VARIABLE', varType: 'int', varName: 'p', value: 'Integer.parseInt(inputs[i].split(\" \")[0])' },
+        //         { type: 'VARIABLE', varType: 'int', varName: 'q', value: 'Integer.parseInt(inputs[i].split(\" \")[1])' },
+
+        //         { type: 'VARIABLE', varType: 'TreeNode', varName: 'result', value: 'lowestCommonAncestor(root, p, q)' },
+        //         {
+        //             type: 'ASSERT_THAT',
+        //             target: 'result',
+        //             children: [
+        //                 { type: 'IS_EQUAL_TO', value: 'Integer.valueOf(expected[i])' }
+        //             ]
+        //         },
+        //         { type: 'COMMENT', value: '}' }
+        //     ]
+        // } as TemplateFunction,
     ],
     functions: [
         { type: 'FUNCTION', funcName: 'newTest' },
-        { type: 'ANALYZE_FUNCTION', funcName: 'analyzeMyFunction' },
-        { type: 'TEST_CASE_FUNCTION', funcName: 'testCaseFunction' }
-
     ],
     setup: [
         { type: 'VARIABLE', varType: 'String', varName: 'myString', value: 'hello' },
-        // { type: 'VARIABLE', varType: 'int', varName: 'myInt', value: '10' },
-        // { type: 'VARIABLE', varType: 'long', varName: 'myLong', value: '10' },
-        // { type: 'VARIABLE', varType: 'float', varName: 'myFloat', value: '10' },
-        // { type: 'VARIABLE', varType: 'double', varName: 'myDouble', value: '10' },
-        // { type: 'VARIABLE', varType: 'short', varName: 'myShort', value: '10' },
-        // { type: 'VARIABLE', varType: 'boolean', varName: 'myBoolean', value: '10' },
-        // { type: 'VARIABLE', varType: 'char', varName: 'myChar', value: '10' },
-        // { type: 'VARIABLE', varType: 'byte', varName: 'myByte', value: '10' },
-
+        {
+            type: 'FUNCTION_TEST',
+            className: 'Main',
+            methodName: 'add',
+            parameters: [
+                { name: 'a', varType: 'int', value: '1' },
+                { name: 'b', varType: 'int', value: '2' }
+            ],
+            expected: { name: 'expectedSum', varType: 'int', value: '3' }
+        }
     ],
     assertions: [
         { type: 'ASSERT_THAT', target: 'myString' },
@@ -219,13 +209,19 @@ export const INITIAL_PALETTE_BLOCKS: {
     matchers: [
         { type: 'IS_EQUAL_TO', value: 'hello' },
         { type: 'IS_NOT_NULL' },
-        { type: 'HAS_LENGTH', value: '5' },
+        { type: 'HAS_SIZE', value: '5' },
         { type: 'IS_INSTANCE_OF', value: 'String.class' },
-        { type: 'CONTAINS', value: 'item' },
-        { type: 'DOES_NOT_CONTAIN', value: 'item' },
-        // { type: 'EXTRACTING', value: 'fieldName' },
+        { type: 'EXTRACTING', value: 'fieldName' },
         { type: 'MATCHES', value: 'regex' },
         { type: 'STARTS_WITH', value: 'prefix' },
-        { type: 'ENDS_WITH', value: 'suffix' }
+        { type: 'ENDS_WITH', value: 'suffix' },
+        { type: 'CONTAINS_ONLY', value: 'item' },
+        { type: 'CONTAINS_EXACTLY', value: 'item' },
+        { type: 'CONTAINS_EXACTLY_IN_ANY_ORDER', value: 'item' },
+        { type: 'CONTAINS_SEQUENCE', value: 'item' },
+        { type: 'CONTAINS_SUBSEQUENCE', value: 'item' },
+        { type: 'CONTAINS_ONLY_ONCE', value: 'item' },
+        { type: 'CONTAINS_ANY_OF', value: 'item' },
+        { type: 'DOES_NOT_CONTAIN', value: 'item' },
     ],
 };

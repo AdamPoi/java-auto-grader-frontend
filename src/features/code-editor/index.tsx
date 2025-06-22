@@ -17,10 +17,10 @@ import { useParams } from '@tanstack/react-router';
 import { useAssignmentById } from '../assignments/hooks/use-assignment';
 import { useRubrics } from '../rubrics/hooks/use-rubric';
 import { TestRunner } from '../try-out/components/test-runner';
+import Terminal from './components/code-terminal';
 import MonacoEditor from './components/monaco-editor';
 import { TestButton } from './components/test-button';
 import { useTestRunner } from './hooks/use-test-runner';
-import Terminal from './components/code-terminal';
 
 const initialFilesData: FileData[] = [
     { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
@@ -427,6 +427,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                         isRunning={isRunning}
                         onClear={clearTerminal}
                     />
+
 
                 </div>
             </div>

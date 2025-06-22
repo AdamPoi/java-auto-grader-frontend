@@ -1,12 +1,14 @@
 import { type LucideProps } from 'lucide-react';
 import { type FC } from 'react';
 
-export type BlockType = 'FUNCTION' | 'ANALYZE_FUNCTION' | 'TEST_CASE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
+export type BlockType = 'FUNCTION' | 'TEST_CASE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
     | 'EXCEPTION_ASSERT' | 'STATIC_ASSERT' | 'STRUCTURE_CHECK'
-    | 'COMMENT' | 'IS_EQUAL_TO' | 'IS_NOT_NULL' | 'HAS_LENGTH'
-    | 'IS_INSTANCE_OF' | 'CONTAINS' | 'DOES_NOT_CONTAIN'
-    | 'EXTRACTING' | 'MATCHES' | 'STARTS_WITH' | 'ENDS_WITH'
-    | 'TEMPLATE_FUNCTION' | 'CSV_CASE';
+    | 'COMMENT' | 'TEMPLATE_FUNCTION' | 'CASE_SOURCE' | 'FUNCTION_TEST' | & MatcherBlockType;
+
+export type MatcherBlockType = 'IS_EQUAL_TO' | 'IS_NOT_NULL' | 'HAS_SIZE'
+    | 'IS_INSTANCE_OF' | 'CONTAINS' | 'CONTAINS_ONLY' | 'CONTAINS_EXACTLY' | 'CONTAINS_EXACTLY_IN_ANY_ORDER'
+    | 'CONTAINS_SEQUENCE' | 'CONTAINS_SUBSEQUENCE' | 'CONTAINS_ONLY_ONCE' | 'CONTAINS_ANY_OF'
+    | 'DOES_NOT_CONTAIN' | 'EXTRACTING' | 'MATCHES' | 'STARTS_WITH' | 'ENDS_WITH';
 
 export type StaticAssertType = 'CLASS_EXISTS' | 'FUNCTION_EXISTS' | 'VARIABLE_EXISTS' |
     'FUNCTION_EXISTS_IN_CLASS' | 'VARIABLE_EXISTS_IN_CLASS' | 'VARIABLE_EXISTS_IN_FUNCTION'
@@ -25,9 +27,17 @@ export interface FunctionBlock extends BaseBlock {
     funcName: string;
     rubricId?: string | null;
 }
-export interface AnalyzeFunctionBlock extends BaseBlock {
-    type: 'ANALYZE_FUNCTION'; funcName: string; rubricId?: string | null;
+
+export interface FunctionTestBlock extends BaseBlock {
+    id: string;
+    type: 'FUNCTION_TEST';
+    className: string;
+    methodName: string;
+    parameters: Array<{ name: string; varType: string, value: string }>;
+    expected: { name: string; varType: string, value: string };
 }
+
+
 
 export type CaseData = {
     inputs: string;
@@ -39,8 +49,6 @@ export interface TestCaseFunctionBlock extends BaseBlock {
     methodName?: string;
     inputs?: string;
     expected?: string;
-    // cases?: CaseData[];
-    // parameters?: { name: string; type: string }[];
 }
 export interface VariableBlock extends BaseBlock {
     type: 'VARIABLE'; varType: string; varName: string; value: string;
@@ -68,21 +76,22 @@ export interface CommentBlock extends BaseBlock {
 }
 export interface MatcherBlock extends BaseBlock { value?: string; }
 
-export interface CsvCaseBlock extends BaseBlock {
-    type: 'CSV_CASE';
-    varType?: string;
-    input?: string;
-    expected?: string;
+
+export interface CaseSourceBlock extends BaseBlock {
+    type: 'CASE_SOURCE'
+    name: string
+    parameters: { name: string }[]
+    cases: string[][]
 }
 
 
 export type Block =
-    FunctionBlock | AnalyzeFunctionBlock | VariableBlock
+    FunctionBlock | VariableBlock
     | AssertThatBlock | ExceptionAssertBlock | StaticAssertBlock
-    | StructureCheckBlock | CommentBlock | MatcherBlock | CsvCaseBlock;
+    | StructureCheckBlock | CommentBlock | MatcherBlock
+    | CaseSourceBlock | FunctionTestBlock;
 
 export type OmittedBlock = Omit<FunctionBlock, 'id' | 'parentId'>
-    | Omit<AnalyzeFunctionBlock, 'id' | 'parentId'>
     | Omit<TestCaseFunctionBlock, 'id' | 'parentId'>
     | Omit<VariableBlock, 'id' | 'parentId'>
     | Omit<AssertThatBlock, 'id' | 'parentId'>
@@ -91,11 +100,11 @@ export type OmittedBlock = Omit<FunctionBlock, 'id' | 'parentId'>
     | Omit<StructureCheckBlock, 'id' | 'parentId'>
     | Omit<CommentBlock, 'id' | 'parentId'>
     | Omit<MatcherBlock, 'id' | 'parentId'>
-    | Omit<CsvCaseBlock, 'id' | 'parentId'>;
+    | Omit<CaseSourceBlock, 'id' | 'parentId'>
+    | Omit<FunctionTestBlock, 'id' | 'parentId'>
+    ;
 
 export type OmittedFunctionBlock = Omit<FunctionBlock, 'id' | 'parentId' | 'rubricId'>
-    | Omit<AnalyzeFunctionBlock, 'id' | 'parentId' | 'rubricId'>
-    | Omit<TestCaseFunctionBlock, 'id' | 'parentId' | 'rubricId'>;
 
 export type AnyBlock = Block | TemplateFunction;
 

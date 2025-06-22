@@ -1,4 +1,4 @@
-import type { AssertThatBlock, Block, ExceptionAssertBlock, FunctionBlock, StaticAssertBlock, StaticAssertType, StructureCheckBlock, VariableBlock } from '../data/types';
+import type { AssertThatBlock, Block, CaseSourceBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, StaticAssertBlock, StaticAssertType, StructureCheckBlock, VariableBlock } from '../data/types';
 
 
 export const generateSetupCode = () => {
@@ -18,7 +18,7 @@ public static void setup() throws IOException {
             .map(result -> result.getResult().get())
             .toList();
 
-    assertThat(allCompilationUnits).isNotEmpty();
+    Assertions.assertThat(allCompilationUnits).isNotEmpty();
     System.out.printf("Successfully parsed %d Java files for testing.%n", allCompilationUnits.size());
 
     combinedTypeSolver = new CombinedTypeSolver();
@@ -31,7 +31,7 @@ public static void setup() throws IOException {
 export const generateLibraryImportCode = () => {
 
     const imports = [
-        'org.assertj.core.api.Assertions.assertThat',
+        'org.assertj.core.api.Assertions',
         'java.io.ByteArrayInputStream',
         'java.io.ByteArrayOutputStream',
         'java.io.IOException',
@@ -58,13 +58,9 @@ export const generateLibraryImportCode = () => {
         'com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver',
         'com.github.javaparser.utils.SourceRoot'
     ];
-    return imports.toString().replaceAll(',', '\n');
+    return imports.map(imp => `import ${imp};`).join('\n');
 }
 
-const generateTestAnnotation = (children: Block[]): string => {
-    let annotation = '@Test\n';
-    return annotation
-}
 
 export const generateBlockCode = (block: Block, indent: string, activeSuite: any): string => {
     let blockCode = "";
@@ -72,21 +68,23 @@ export const generateBlockCode = (block: Block, indent: string, activeSuite: any
         case 'FUNCTION':
             const funcBlock = block as FunctionBlock;
             const children = activeSuite.blocks.filter((b: Block) => b.parentId === funcBlock.id);
-            blockCode += generateTestAnnotation(children);
-            blockCode += `${indent} void ${funcBlock.funcName} () {\n`;
+            blockCode += "@Test\n";
+            blockCode += `${indent}void ${funcBlock.funcName} () {\n`;
             children.forEach((child: Block) => blockCode += generateBlockCode(child, indent + '    ', activeSuite));
             blockCode += `${indent}}\n\n`;
             break;
         case 'VARIABLE':
             const varBlock = block as VariableBlock;
-            blockCode += `${indent}${varBlock.varType} ${varBlock.varName} = ${varBlock.value}; \n`;
+            blockCode += `${indent}${varBlock.varType} ${varBlock.varName} = ${formatValueByType(varBlock.value, varBlock.varType)}; \n`;
             break;
         case 'ASSERT_THAT':
             const assertBlock = block as AssertThatBlock;
-
             const matchers = activeSuite.blocks.filter((b: Block) => b.parentId === assertBlock.id);
-            let chain = matchers.map((m: any) => `.${m.type.toLowerCase()}${m.value ? `(${m.value})` : '()'} `).join(''); // Add value to matchers
-            blockCode += `${indent} assertThat(${assertBlock.target})${chain}; \n`;
+            let chain = matchers.map((m: MatcherBlock) => {
+                const methodName = m.type.toLowerCase().replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
+                return `.${methodName}${m.value ? `(${m.value})` : '()'}`;
+            }).join('');
+            blockCode += `${indent} Assertions.assertThat(${assertBlock.target})${chain}; \n`;
             break;
         case 'COMMENT':
             blockCode += `${indent}// ${block.value}\n`;
@@ -115,11 +113,117 @@ export const generateBlockCode = (block: Block, indent: string, activeSuite: any
             const structureBlock = block as StructureCheckBlock;
             blockCode += generateStructureCheck(structureBlock);
             break;
+        case 'CASE_SOURCE': {
+            const cb = block as CaseSourceBlock
+            const out: string[] = []
+            out.push(`static Stream<Arguments> ${cb.name}() {`)
+            out.push('    return Stream.of(')
+            cb.cases.forEach((row, idx) => {
+                const comma = idx < cb.cases.length - 1 ? ',' : ''
+                out.push(`        Arguments.of(${row.join(', ')})${comma}`)
+            })
+            out.push('    );')
+            out.push('}')
+            blockCode += out.join('\n') + '\n'
+            break;
+        }
+        case 'FUNCTION_TEST': {
+            const fb = block as FunctionTestBlock;
+            const params = fb.parameters.map(p => `${p.varType} ${p.name} = ${formatValueByType(p.value, p.varType)}`).join('; ');
+            const args = fb.parameters.map(p => p.name).join(', ');
+            // blockCode += '@Test\n';
+            // blockCode += `void test${fb.methodName}() {\n`;
+            blockCode += `    ${fb.className} obj = new ${fb.className}();\n`;
+            blockCode += `    ${params};\n`;
+            blockCode += `   ${fb.expected.varType} ${fb.expected.name} = ${fb.expected.value};\n`;
+            blockCode += `    var actual = obj.${fb.methodName}(${args});\n`;
+            blockCode += `    Assertions.assertThat(actual)\n`;
+            blockCode += `        .as("Expect ${fb.methodName}(${args}) → " + ${fb.expected.name})\n`;
+            blockCode += `        .isEqualTo(${fb.expected.name});\n`;
+            // blockCode += `}\n\n`;
 
+            break;
+        }
     }
     return blockCode;
 };
+function formatValueByType(value: string, varType: string): string {
+    switch (varType) {
+        case "String":
+        case "CharSequence":
+            return `"${value}"`;
 
+        case "char":
+        case "Character":
+            return `'${value}'`;
+
+        case "byte":
+        case "Byte":
+            return `(byte) ${value}`;
+
+        case "short":
+        case "Short":
+            return `(short) ${value}`;
+
+        case "int":
+        case "Integer":
+            return value;
+
+        case "long":
+        case "Long":
+            return `${value}L`;
+
+        case "float":
+        case "Float":
+            return `${value}f`;
+
+        case "double":
+        case "Double":
+            return `${value}d`;
+
+        case "BigDecimal":
+            return `new BigDecimal("${value}")`;
+
+        case "BigInteger":
+            return `new BigInteger("${value}")`;
+
+        case "Object[]":
+            return `new Object[]{${value}}`;
+        case "byte[]":
+            return `new byte[]{${value}}`;
+        case "Byte[]":
+            return `new Byte[]{${value}}`;
+        case "short[]":
+            return `new short[]{${value}}`;
+        case "Short[]":
+            return `new Short[]{${value}}`;
+        case "int[]":
+            return `new int[]{${value}}`;
+        case "Integer[]":
+            return `new Integer[]{${value}}`;
+        case "long[]":
+            return `new long[]{${value}}`;
+        case "Long[]":
+            return `new Long[]{${value}}`;
+        case "float[]":
+            return `new float[]{${value}}`;
+        case "Float[]":
+            return `new Float[]{${value}}`;
+        case "double[]":
+            return `new double[]{${value}}`;
+        case "Double[]":
+            return `new Double[]{${value}}`;
+        case "char[]":
+            return `new char[]{${value}}`;
+        case "Character[]":
+            return `new Character[]{${value}}`;
+        case "String[]":
+            return `new String[]{${value}}`;
+
+        default:
+            return value;
+    }
+}
 const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
     // CLASS existence
     if (staticBlock.checkType === 'CLASS_EXISTS' as StaticAssertType) {
@@ -134,7 +238,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                         .findFirst()
                         .orElse(null);
 
-                assertThat(fileName).as("Expect class named '${staticBlock.varName}' to exist in some file").isNotNull();
+                Assertions.assertThat(fileName).as("Expect class named '${staticBlock.varName}' to exist in some file").isNotNull();
                 System.out.println("Found '${staticBlock.varName}' class in file: " + fileName);
         `;
     }
@@ -144,7 +248,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                 boolean functionExists = allCompilationUnits.stream()
                         .flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                         .anyMatch(md -> md.getNameAsString().equals("${staticBlock.varName}"));
-                assertThat(functionExists).as("Expect method named '${staticBlock.varName}' to exist in some file").isTrue();
+                Assertions.assertThat(functionExists).as("Expect method named '${staticBlock.varName}' to exist in some file").isTrue();
         `;
     }
     // VARIABLE existence (field, any class)
@@ -155,7 +259,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                         .flatMap(cu -> cu.findAll(FieldDeclaration.class).stream())
                         .flatMap(fd -> fd.getVariables().stream())
                         .anyMatch(vd -> vd.getNameAsString().equals("${staticBlock.varName}"));
-                assertThat(variableNameExists).as("Expect field named '${staticBlock.varName}' to exist").isTrue();
+                Assertions.assertThat(variableNameExists).as("Expect field named '${staticBlock.varName}' to exist").isTrue();
         `;
     }
     // FUNCTION in specific class
@@ -167,7 +271,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                         .filter(c -> c.getNameAsString().equals("${staticBlock.className}"))
                         .flatMap(c -> c.getMethods().stream())
                         .anyMatch(m -> m.getNameAsString().equals("${staticBlock.varName}"));
-                assertThat(functionExistsInClass).as("Expect method '${staticBlock.varName}' to exist in class '${staticBlock.className}'")
+                Assertions.assertThat(functionExistsInClass).as("Expect method '${staticBlock.varName}' to exist in class '${staticBlock.className}'")
                         .isTrue();
         `;
     }
@@ -180,7 +284,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                         .flatMap(c -> c.getFields().stream())
                         .flatMap(fd -> fd.getVariables().stream())
                         .anyMatch(vd -> vd.getNameAsString().equals("${staticBlock.varName}"));
-                assertThat(fieldExistsInClass).as("Expect field '${staticBlock.varName}' to exist in class '${staticBlock.className}'")
+                Assertions.assertThat(fieldExistsInClass).as("Expect field '${staticBlock.varName}' to exist in class '${staticBlock.className}'")
                         .isTrue();
             `;
     }
@@ -193,7 +297,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                         .filter(m -> m.getNameAsString().equals("${staticBlock.methodName}"))
                         .flatMap(m -> m.findAll(VariableDeclarator.class).stream())
                         .anyMatch(vd -> vd.getNameAsString().equals("${staticBlock.varName}"));
-                assertThat(variableExistsInFunction)
+                Assertions.assertThat(variableExistsInFunction)
                         .as("Expect variable '${staticBlock.varName}' to exist in method '${staticBlock.methodName}'").isTrue();
         `;
     }
@@ -205,7 +309,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                             .flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
                             .filter(m -> m.getNameAsString().equals("${staticBlock.methodName}"))
                             .anyMatch(md -> md.toString().contains("${staticBlock.varName}"));
-                    assertThat(isVariableCalled)
+                    Assertions.assertThat(isVariableCalled)
                             .as("Expect static field '${staticBlock.varName}' to be called within method '${staticBlock.methodName}'")
                             .isTrue();
                 }
@@ -220,7 +324,7 @@ const generateStaticAssert = (staticBlock: StaticAssertBlock) => {
                             .flatMap(cu -> cu.findAll(ClassOrInterfaceDeclaration.class).stream())
                             .filter(c -> c.getNameAsString().equals("${staticBlock.className}"))
                             .anyMatch(md -> md.toString().contains("${staticBlock.varName}"));
-                    assertThat(isVariableCalled)
+                    Assertions.assertThat(isVariableCalled)
                             .as("Expect static field '${staticBlock.varName}' to be called within method '${staticBlock.className}'")
                             .isTrue();
                 }
@@ -261,7 +365,7 @@ const generateStructureCheck = (block: StructureCheckBlock) => {
                     }
                 });
 
-        assertThat(hasLoop)
+        Assertions.assertThat(hasLoop)
                 .as("Expect method '" + methodName + "' to implement a loop of type '" + loopType + "'")
                 .isTrue();
 `;
@@ -278,7 +382,7 @@ const generateStructureCheck = (block: StructureCheckBlock) => {
                                         conditionalType.equalsIgnoreCase("any") && (md.getBody().get().findAll(com.github.javaparser.ast.stmt.IfStmt.class).size() > 0 ||
                                                 md.getBody().get().findAll(com.github.javaparser.ast.stmt.SwitchStmt.class).size() > 0)));
 
-                assertThat(hasConditional)
+                Assertions.assertThat(hasConditional)
                         .as("Expect method '" + methodName + "' to implement a conditional statement (" + conditionalType + ")")
                         .isTrue();
             `
@@ -301,7 +405,7 @@ const generateStructureCheck = (block: StructureCheckBlock) => {
                 return false;
             });
 
-    assertThat(hasCorrectReturnType)
+    Assertions.assertThat(hasCorrectReturnType)
             .as("Expect method '" + methodName + "' to have return type '" + expectedReturnType + "'")
             .isTrue();
 `;
@@ -326,7 +430,7 @@ const generateStructureCheck = (block: StructureCheckBlock) => {
                         return false;
                     }));
 
-    assertThat(hasCorrectParameterType)
+    Assertions.assertThat(hasCorrectParameterType)
             .as("Expect method '" + methodName + "' to have a parameter '" + parameterName + "' of type '" + expectedType + "'")
             .isTrue();
 `;

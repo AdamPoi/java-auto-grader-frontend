@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
-import type { AnalyzeFunctionBlock, AnyBlock, AppActions, AppState, Block, FunctionBlock, HistoricalState, OmittedBlock, RubricItem, TestSuite } from '../data/types';
+import { subscribeWithSelector } from 'zustand/middleware';
+import type { AnyBlock, AppActions, AppState, Block, FunctionBlock, HistoricalState, OmittedBlock, RubricItem, TestSuite } from '../data/types';
 
 type Store = AppState & AppActions;
 
@@ -13,184 +14,12 @@ const initialState: AppState = {
     historyIndex: -1,
 };
 
+export const useTestBuilderStore = create<Store>()(
+    subscribeWithSelector((set, get) => {
+        let commitTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const appReducer = (state: HistoricalState, action: any): HistoricalState => {
-    switch (action.type) {
-        case 'ADD_BLOCK': {
-            const { suiteId, block, parentId, overId } = action.payload;
-
-            const newBlock = { ...block, id: uuidv4(), parentId } as Block;
-            return {
-                ...state,
-                testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) return suite;
-                    const newBlocks = [...suite.blocks];
-                    const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
-
-
-                    if (overIndex !== -1) {
-                        newBlocks.splice(overIndex, 0, newBlock);
-                    } else {
-                        newBlocks.push(newBlock);
-                    }
-                    return { ...suite, blocks: newBlocks };
-                })
-            };
-        }
-        case 'ADD_TEMPLATE': {
-            const { suiteId, template, overId } = action.payload;
-            const funcId = uuidv4();
-            const newFuncBlock = { ...template.func, id: funcId, parentId: null } as Block;
-
-            return {
-                ...state, testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) return suite;
-                    let newBlocks = [...suite.blocks];
-
-                    const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
-                    if (overIndex !== -1) newBlocks.splice(overIndex, 0, newFuncBlock);
-                    else newBlocks.push(newFuncBlock);
-
-                    const childrenWithIds: Block[] = [];
-                    template.children.forEach((childTmpl: Omit<AnyBlock, 'id' | 'parentId'> & { children?: Array<Omit<AnyBlock, 'id' | 'parentId'>> }) => {
-                        const childId = uuidv4();
-                        childrenWithIds.push({ ...(childTmpl as Block), id: childId, parentId: funcId });
-                        if (childTmpl.children) {
-                            childTmpl.children.forEach((grandChildTmpl: Omit<AnyBlock, 'id' | 'parentId'>) => {
-                                childrenWithIds.push({ ...(grandChildTmpl as Block), id: uuidv4(), parentId: childId });
-                            });
-                        }
-                    });
-                    newBlocks.push(...childrenWithIds);
-                    return { ...suite, blocks: newBlocks };
-                })
-            };
-        }
-        case 'MOVE_BLOCK': {
-            const { suiteId, activeId, overId } = action.payload;
-            return {
-                ...state, testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) return suite;
-                    const activeIndex = suite.blocks.findIndex(b => b.id === activeId);
-                    const overIndex = suite.blocks.findIndex(b => b.id === overId);
-                    if (activeIndex === -1 || overIndex === -1) return suite;
-                    const newBlocks = Array.from(suite.blocks);
-                    const [movedBlock] = newBlocks.splice(activeIndex, 1);
-                    const finalOverIndex = newBlocks.findIndex(b => b.id === overId);
-                    newBlocks.splice(finalOverIndex, 0, movedBlock);
-                    return { ...suite, blocks: newBlocks };
-                })
-            };
-        }
-        case 'REMOVE_BLOCK': {
-            const { suiteId, id } = action.payload;
-            return {
-                ...state, testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) return suite;
-                    const idsToRemove = new Set<string>([id]);
-
-                    const findChildren = (parentId: string) => {
-                        suite.blocks.forEach(b => { if (b.parentId === parentId) { idsToRemove.add(b.id); findChildren(b.id); } });
-                    };
-                    findChildren(id);
-
-                    let newBlocks = suite.blocks.filter(b => !idsToRemove.has(b.id));
-                    newBlocks = newBlocks.map(b => {
-                        if ((b.type === 'FUNCTION' || b.type === 'ANALYZE_FUNCTION') && (b as FunctionBlock | AnalyzeFunctionBlock).rubricId && idsToRemove.has((b as FunctionBlock | AnalyzeFunctionBlock).rubricId!)) {
-                            return { ...b, rubricId: null };
-                        }
-                        return b;
-                    });
-                    return { ...suite, blocks: newBlocks };
-                })
-            };
-        }
-        case 'UPDATE_BLOCK_DATA': {
-            const { suiteId, id, field, value } = action.payload;
-            return {
-                ...state, testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) return suite;
-                    const newBlocks = suite.blocks.map(b => b.id === id ? { ...b, [field]: value } : b);
-                    return { ...suite, blocks: newBlocks };
-                })
-            };
-        }
-
-        case 'SET_SUITE_BLOCKS': {
-            const { suiteId, blocks } = action.payload;
-
-            const blocksWithGeneratedIds = blocks.map((block: Block | OmittedBlock) => ({
-                ...block,
-                id: block?.id || uuidv4(), // TODO: fix type error
-            }));
-
-            return {
-                ...state,
-                testSuites: state.testSuites.map(suite => {
-                    if (suite.id !== suiteId) {
-                        return suite;
-                    }
-
-                    return { ...suite, blocks: blocksWithGeneratedIds };
-                })
-            };
-        }
-        case 'ADD_RUBRIC_ITEM': {
-            const { id, name, points } = action.payload || {};
-            const newItem: RubricItem = {
-                id: id || uuidv4(),
-                name: name || 'New Rubric Item',
-                points: points || 10
-            };
-            return { ...state, rubrics: [...state.rubrics, newItem] };
-        }
-        case 'UPDATE_RUBRIC_ITEM': {
-            const { id, name, points } = action.payload;
-            const newRubrics = state.rubrics.map(r => r.id === id ? { ...r, name, points } : r);
-            return { ...state, rubrics: newRubrics };
-        }
-        case 'REMOVE_RUBRIC_ITEM': {
-            const { id } = action.payload;
-            const newRubrics = state.rubrics.filter(r => r.id !== id);
-            const newTestSuites = state.testSuites.map(suite => ({
-                ...suite,
-                blocks: suite.blocks.map(b => {
-                    if ((b.type === 'FUNCTION' || b.type === 'ANALYZE_FUNCTION') && (b as FunctionBlock | AnalyzeFunctionBlock).rubricId === id) {
-                        return { ...b, rubricId: null };
-                    }
-                    return b;
-                })
-            }));
-            return { ...state, testSuites: newTestSuites, rubrics: newRubrics };
-        }
-        case 'SET_SOURCE_FILES': {
-            return { ...state, sourceFiles: action.payload };
-        }
-        case 'ADD_TEST_SUITE': {
-            const newSuiteId = uuidv4();
-            const newSuite: TestSuite = { id: newSuiteId, name: `${state.testSuites.length + 1}Test`, blocks: [] };
-            return { ...state, testSuites: [...state.testSuites, newSuite], activeSuiteId: newSuiteId };
-        }
-        case 'SET_ACTIVE_SUITE': {
-            return { ...state, activeSuiteId: action.payload };
-        }
-        case 'UPDATE_SUITE_NAME': {
-            const { id, name } = action.payload;
-            return { ...state, testSuites: state.testSuites.map(s => s.id === id ? { ...s, name } : s) };
-        }
-        case 'SET_RUBRICS': {
-            return { ...state, rubrics: action.payload };
-        }
-
-        default: return state;
-    }
-}
-
-export const useTestBuilderStore = create<Store>((set, get) => {
-    let commitTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    const commit = () => {
-        set(state => {
+        const commit = () => {
+            const state = get();
             const { testSuites, activeSuiteId, rubrics, sourceFiles, history, historyIndex } = state;
             const newHistory = history.slice(0, historyIndex + 1);
             const currentStateSnapshot: HistoricalState = {
@@ -200,72 +29,287 @@ export const useTestBuilderStore = create<Store>((set, get) => {
                 sourceFiles,
             };
             newHistory.push(currentStateSnapshot);
-            return { history: newHistory, historyIndex: newHistory.length - 1 };
-        });
-    };
 
-    const debouncedCommit = () => {
-        if (commitTimeout) {
-            clearTimeout(commitTimeout);
-        }
-        commitTimeout = setTimeout(commit, 300); // 300ms debounce
-    };
+            set({ history: newHistory, historyIndex: newHistory.length - 1 });
+        };
+        let isDragging = false;
+        const debouncedCommit = () => {
+            if (isDragging) return;
+            if (commitTimeout) {
+                clearTimeout(commitTimeout);
+            }
+            commitTimeout = setTimeout(commit, 300);
+        };
 
-    const dispatch = (action: any, shouldCommit = true) => {
-        set(state => {
-            const currentStateForReducer: HistoricalState = {
-                testSuites: state.testSuites,
-                activeSuiteId: state.activeSuiteId,
-                rubrics: state.rubrics,
-                sourceFiles: state.sourceFiles,
-            };
-            const newHistoricalState = appReducer(currentStateForReducer, action);
-            return {
-                ...state,
-                ...newHistoricalState
-            };
-        });
-        if (shouldCommit) {
-            debouncedCommit();
-        }
-    };
+        return {
+            ...initialState,
 
-    return {
-        ...initialState,
-        _commit: commit,
-        addBlock: (payload) => { dispatch({ type: 'ADD_BLOCK', payload }); },
-        addTemplate: (payload) => { dispatch({ type: 'ADD_TEMPLATE', payload }); },
-        moveBlock: (payload) => { dispatch({ type: 'MOVE_BLOCK', payload }); },
-        removeBlock: (payload) => { dispatch({ type: 'REMOVE_BLOCK', payload }); },
-        updateBlockData: (payload) => { dispatch({ type: 'UPDATE_BLOCK_DATA', payload }, false); },
-        setSuiteBlocks: (payload) => { dispatch({ type: 'SET_SUITE_BLOCKS', payload }); },
-        addRubricItem: (payload) => { dispatch({ type: 'ADD_RUBRIC_ITEM', payload }); },
-        updateRubricItem: (payload) => { dispatch({ type: 'UPDATE_RUBRIC_ITEM', payload }); },
-        removeRubricItem: (payload) => { dispatch({ type: 'REMOVE_RUBRIC_ITEM', payload }); },
-        setSourceFiles: (payload) => { dispatch({ type: 'SET_SOURCE_FILES', payload }); },
-        addTestSuite: () => { dispatch({ type: 'ADD_TEST_SUITE' }); },
-        setActiveSuite: (payload) => { dispatch({ type: 'SET_ACTIVE_SUITE', payload }); },
-        updateSuiteName: (payload) => { dispatch({ type: 'UPDATE_SUITE_NAME', payload }); },
-        setRubrics: (payload) => { dispatch({ type: 'SET_RUBRICS', payload }); },
-        undo: () => {
-            set(state => {
-                if (state.historyIndex <= 0) return {};
+            _commit: commit,
+
+            addBlock: (payload) => {
+                const { suiteId, block, parentId, overId } = payload;
+                const newBlock = { ...block, id: uuidv4(), parentId } as Block;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        const newBlocks = [...suite.blocks];
+                        const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
+
+                        if (overIndex !== -1) {
+                            newBlocks.splice(overIndex, 0, newBlock);
+                        } else {
+                            newBlocks.push(newBlock);
+                        }
+                        return { ...suite, blocks: newBlocks };
+                    })
+                }));
+                debouncedCommit();
+            },
+
+            addTemplate: (payload) => {
+                const { suiteId, template, overId } = payload;
+                const funcId = uuidv4();
+                const newFuncBlock = { ...template.func, id: funcId, parentId: null } as Block;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        let newBlocks = [...suite.blocks];
+
+                        const overIndex = overId ? newBlocks.findIndex(b => b.id === overId) : -1;
+                        if (overIndex !== -1) newBlocks.splice(overIndex, 0, newFuncBlock);
+                        else newBlocks.push(newFuncBlock);
+
+                        const childrenWithIds: Block[] = [];
+                        template.children.forEach((childTmpl: Omit<AnyBlock, 'id' | 'parentId'> & { children?: Array<Omit<AnyBlock, 'id' | 'parentId'>> }) => {
+                            const childId = uuidv4();
+                            childrenWithIds.push({ ...(childTmpl as Block), id: childId, parentId: funcId });
+                            if (childTmpl.children) {
+                                childTmpl.children.forEach((grandChildTmpl: Omit<AnyBlock, 'id' | 'parentId'>) => {
+                                    childrenWithIds.push({ ...(grandChildTmpl as Block), id: uuidv4(), parentId: childId });
+                                });
+                            }
+                        });
+                        newBlocks.push(...childrenWithIds);
+                        return { ...suite, blocks: newBlocks };
+                    })
+                }));
+                debouncedCommit();
+            },
+
+            moveBlock: (payload) => {
+                const { suiteId, activeId, overId } = payload;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        const blocks = [...suite.blocks]; // Shallow copy
+                        const activeIndex = blocks.findIndex(b => b.id === activeId);
+                        const overIndex = blocks.findIndex(b => b.id === overId);
+
+                        if (activeIndex === -1 || overIndex === -1) return suite;
+
+                        // Use more efficient array manipulation
+                        const [movedBlock] = blocks.splice(activeIndex, 1);
+                        blocks.splice(overIndex, 0, movedBlock);
+
+                        return { ...suite, blocks };
+                    })
+                }));
+
+                // Don't commit during drag for better performance
+                if (!isDragging) {
+                    debouncedCommit();
+                }
+            },
+
+            removeBlock: (payload) => {
+                const { suiteId, id } = payload;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        const idsToRemove = new Set<string>([id]);
+
+                        const findChildren = (parentId: string) => {
+                            suite.blocks.forEach(b => {
+                                if (b.parentId === parentId) {
+                                    idsToRemove.add(b.id);
+                                    findChildren(b.id);
+                                }
+                            });
+                        };
+                        findChildren(id);
+
+                        let newBlocks = suite.blocks.filter(b => !idsToRemove.has(b.id));
+                        newBlocks = newBlocks.map(b => {
+                            if ((b.type === 'FUNCTION') && (b as FunctionBlock).rubricId && idsToRemove.has((b as FunctionBlock).rubricId!)) {
+                                return { ...b, rubricId: null };
+                            }
+                            return b;
+                        });
+                        return { ...suite, blocks: newBlocks };
+                    })
+                }));
+                debouncedCommit();
+            },
+
+            updateBlockData: (payload) => {
+                const { suiteId, id, field, value } = payload;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        const newBlocks = suite.blocks.map(b =>
+                            b.id === id ? { ...b, [field]: value } : b
+                        );
+                        return { ...suite, blocks: newBlocks };
+                    })
+                }));
+            },
+
+            setSuiteBlocks: (payload) => {
+                const { suiteId, blocks } = payload;
+                const blocksWithGeneratedIds = blocks.map((block: Block | OmittedBlock) => {
+                    const hasId = 'id' in block && block.id;
+                    const hasParentId = 'parentId' in block;
+
+                    return {
+                        ...block,
+                        id: hasId ? block.id : uuidv4(),
+                        parentId: hasParentId ? (block as Block).parentId : null,
+                    } as Block;
+                });
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(suite => {
+                        if (suite.id !== suiteId) return suite;
+                        return { ...suite, blocks: blocksWithGeneratedIds };
+                    })
+                }));
+                debouncedCommit();
+            },
+
+            addRubricItem: (payload) => {
+                const { id, name, points } = payload || {};
+                const newItem: RubricItem = {
+                    id: id || uuidv4(),
+                    name: name || 'New Rubric Item',
+                    points: points || 10
+                };
+
+                set((state) => ({
+                    rubrics: [...state.rubrics, newItem]
+                }));
+                debouncedCommit();
+            },
+
+            updateRubricItem: (payload) => {
+                const { id, name, points } = payload;
+
+                set((state) => ({
+                    rubrics: state.rubrics.map(r =>
+                        r.id === id ? { ...r, name, points } : r
+                    )
+                }));
+                debouncedCommit();
+            },
+
+            removeRubricItem: (payload) => {
+                const { id } = payload;
+
+                set((state) => ({
+                    rubrics: state.rubrics.filter(r => r.id !== id),
+                    testSuites: state.testSuites.map(suite => ({
+                        ...suite,
+                        blocks: suite.blocks.map(b => {
+                            if ((b.type === 'FUNCTION') && (b as FunctionBlock).rubricId === id) {
+                                return { ...b, rubricId: null };
+                            }
+                            return b;
+                        })
+                    }))
+                }));
+                debouncedCommit();
+            },
+
+            setSourceFiles: (payload) => {
+                set({ sourceFiles: payload });
+                debouncedCommit();
+            },
+
+            addTestSuite: () => {
+                const state = get();
+                const newSuiteId = uuidv4();
+                const newSuite: TestSuite = {
+                    id: newSuiteId,
+                    name: `${state.testSuites.length + 1}Test`,
+                    blocks: []
+                };
+
+                set({
+                    testSuites: [...state.testSuites, newSuite],
+                    activeSuiteId: newSuiteId
+                });
+                debouncedCommit();
+            },
+
+            setActiveSuite: (payload) => {
+                set({ activeSuiteId: payload });
+                debouncedCommit();
+            },
+
+            updateSuiteName: (payload) => {
+                const { id, name } = payload;
+
+                set((state) => ({
+                    testSuites: state.testSuites.map(s =>
+                        s.id === id ? { ...s, name } : s
+                    )
+                }));
+                debouncedCommit();
+            },
+
+            setRubrics: (payload) => {
+                set({ rubrics: payload });
+                debouncedCommit();
+            },
+
+            undo: () => {
+                const state = get();
+                if (state.historyIndex <= 0) return;
+
                 const newIndex = state.historyIndex - 1;
                 const previousHistoricalState = state.history[newIndex];
-                return { ...state, ...previousHistoricalState, historyIndex: newIndex };
-            });
-            if (commitTimeout) clearTimeout(commitTimeout);
-        },
-        redo: () => {
-            set(state => {
-                if (state.historyIndex >= state.history.length - 1) return {};
+
+                set({
+                    ...previousHistoricalState,
+                    historyIndex: newIndex,
+                    history: state.history // Preserve history array
+                });
+
+                if (commitTimeout) clearTimeout(commitTimeout);
+            },
+
+            redo: () => {
+                const state = get();
+                if (state.historyIndex >= state.history.length - 1) return;
+
                 const newIndex = state.historyIndex + 1;
                 const nextHistoricalState = state.history[newIndex];
-                return { ...state, ...nextHistoricalState, historyIndex: newIndex };
-            });
-            if (commitTimeout) clearTimeout(commitTimeout);
-        }
-    };
-});
+
+                set({
+                    ...nextHistoricalState,
+                    historyIndex: newIndex,
+                    history: state.history // Preserve history array
+                });
+
+                if (commitTimeout) clearTimeout(commitTimeout);
+            }
+        };
+    })
+);
+
 // Initialize history
 useTestBuilderStore.getState()._commit();

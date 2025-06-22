@@ -8,7 +8,7 @@ import { useParams } from '@tanstack/react-router';
 
 export const RubricPanel: React.FC = () => {
     const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
-    const { rubrics, setRubrics, addRubricItem, updateRubricItem, removeRubricItem } = useTestBuilderStore();
+    const { rubrics, setRubrics } = useTestBuilderStore();
     const searchParams: SearchRequestParams = {
         page: 0,
         size: 1000,
@@ -22,13 +22,13 @@ export const RubricPanel: React.FC = () => {
             const newRubrics = data.content.map(rubric => ({
                 id: rubric.id,
                 name: rubric.name,
-                points: rubric.maxPoints
+                points: rubric.points
             }));
             setRubrics(newRubrics);
         }
     }, [data, setRubrics]);
 
-    const totalPoints = useMemo(() => data?.content?.reduce((sum, item) => sum + (item.maxPoints || 0), 0) || 0, [data?.content]);
+    const totalPoints = useMemo(() => data?.content?.reduce((sum, item) => sum + (item.points || 0), 0) || 0, [data?.content]);
 
     if (isLoading) {
         return (
