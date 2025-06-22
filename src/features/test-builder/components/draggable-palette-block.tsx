@@ -32,7 +32,7 @@ export const DraggablePaletteBlock: React.FC<PaletteBlockProps> = ({ blockData }
     }
 
     return (
-        <div ref={setNodeRef} {...attributes} {...listeners} style={style} className="mb-2 transition-opacity cursor-grab">
+        <div ref={setNodeRef} {...attributes} {...listeners} style={style} className="mb-2 transition-opacity cursor-grab overflow-hidden">
             <BlockRenderer block={blockData} isPalette />
         </div>
     );

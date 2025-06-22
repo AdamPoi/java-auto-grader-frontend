@@ -3,7 +3,7 @@ import type { AssertThatBlock, Block, ExceptionAssertBlock, FunctionBlock, Stati
 
 export const generateSetupCode = () => {
     let code = ''
-    // Junit setup code
+    // Junit, Assertj, Java Parser setup code
     code += `
 private static final String SOURCE_PATH = "src/main/java";
 private static List<CompilationUnit> allCompilationUnits;
@@ -87,9 +87,6 @@ export const generateBlockCode = (block: Block, indent: string, activeSuite: any
             const matchers = activeSuite.blocks.filter((b: Block) => b.parentId === assertBlock.id);
             let chain = matchers.map((m: any) => `.${m.type.toLowerCase()}${m.value ? `(${m.value})` : '()'} `).join(''); // Add value to matchers
             blockCode += `${indent} assertThat(${assertBlock.target})${chain}; \n`;
-            break;
-        case 'COMMENT':
-            blockCode += `${indent}// ${block.value}\n`;
             break;
         case 'COMMENT':
             blockCode += `${indent}// ${block.value}\n`;

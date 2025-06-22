@@ -187,15 +187,10 @@ export function TestBuilder() {
     }, [existingRubricGrades, activeSuite]);
 
 
-
     useEffect(() => {
         if (!assignment?.testCode || !activeSuite) {
-            console.log("Effect skipped: No assignment testCode or activeSuite.");
             return;
         }
-
-
-
         const newBlocks = parseJavaCodeToBlocks(assignment.testCode);
         const newBlocksWithRubrics = newBlocks.map(block => {
             if (block.type === 'FUNCTION' || block.type === 'ANALYZE_FUNCTION') {
@@ -226,11 +221,9 @@ export function TestBuilder() {
         }));
 
         if (JSON.stringify(currentBlocksRelevantData) === JSON.stringify(newBlocksRelevantData) && activeSuite.blocks.length > 0) {
-            console.log("Blocks already match generated code. Skipping update.");
             return;
         }
 
-        console.log("Updating active suite blocks with new parsed blocks using setSuiteBlocks.");
         setSuiteBlocks({ suiteId: activeSuite.id, blocks: newBlocksWithRubrics });
 
     }, [assignment?.testCode, activeSuite?.id, setSuiteBlocks, rubrics]);
@@ -375,7 +368,9 @@ export function TestBuilder() {
                         {Object.entries(filteredPalette).map(([category, blocks]) => (
                             <div key={category}>
                                 <h3 className="font-semibold mb-3 mt-4 text-gray-500 text-sm uppercase tracking-wider">{category}</h3>
-                                {blocks.map((block, index) => <DraggablePaletteBlock key={`${category}-${index}`} blockData={block} />)}
+                                {blocks.map((block, index) =>
+                                    <DraggablePaletteBlock key={`${category}-${index}`} blockData={block} />
+                                )}
                             </div>
                         ))}
                     </div>

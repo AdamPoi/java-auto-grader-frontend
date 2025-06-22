@@ -11,14 +11,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { SearchRequestParams } from '@/types/api.types';
+import { areFilesEqual } from '@/utils/component-util';
 import { IconEdit, IconPlus, IconUpload, IconX } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { useAssignmentById } from '../assignments/hooks/use-assignment';
+import { useRubrics } from '../rubrics/hooks/use-rubric';
 import { TestRunner } from '../try-out/components/test-runner';
 import MonacoEditor from './components/monaco-editor';
 import { TestButton } from './components/test-button';
 import { useTestRunner } from './hooks/use-test-runner';
-import { areFilesEqual } from '@/utils/component-util';
+import Terminal from './components/code-terminal';
 
 const initialFilesData: FileData[] = [
     { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
@@ -209,55 +211,56 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         filter: `assignment=eq:${assignmentId}`,
     };
 
-    // const { data: rubrics, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
-    const rubrics = [
-        {
-            id: '1',
-            name: 'Unit Tests',
-            description: 'Basic functionality tests',
-            points: 100,
-            assignmentId: 'assignment-1',
-            rubricGrades: [
-                {
-                    id: '1',
-                    name: 'Test Constructor',
-                    description: 'Tests if constructor properly initializes the object',
-                    gradeType: 'AUTOMATIC',
-                    rubricId: '1',
-                    assignmentId: 'assignment-1',
-                    displayOrder: 1
-                },
+    const { data: rubrics, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
+    console.log(rubrics)
+    // const rubrics = [
+    //     {
+    //         id: '1',
+    //         name: 'Unit Tests',
+    //         description: 'Basic functionality tests',
+    //         points: 100,
+    //         assignmentId: 'assignment-1',
+    //         rubricGrades: [
+    //             {
+    //                 id: '1',
+    //                 name: 'Test Constructor',
+    //                 description: 'Tests if constructor properly initializes the object',
+    //                 gradeType: 'AUTOMATIC',
+    //                 rubricId: '1',
+    //                 assignmentId: 'assignment-1',
+    //                 displayOrder: 1
+    //             },
 
-            ]
-        },
-        {
-            id: '2',
-            name: 'Integration Tests',
-            description: 'Integration tests for the entire application',
-            points: 200,
-            assignmentId: 'assignment-1',
-            rubricGrades: [
-                {
-                    id: '2',
-                    name: 'Test Method Functionality',
-                    description: 'Tests if methods work as expected',
-                    gradeType: 'AUTOMATIC',
-                    rubricId: '2',
-                    assignmentId: 'assignment-1',
-                    displayOrder: 2
-                },
-                {
-                    id: '3',
-                    name: 'Test Edge Cases',
-                    description: 'Tests boundary conditions and edge cases',
-                    gradeType: 'AUTOMATIC',
-                    rubricId: '2',
-                    assignmentId: 'assignment-1',
-                    displayOrder: 3
-                }
-            ]
-        }
-    ]
+    //         ]
+    //     },
+    //     {
+    //         id: '2',
+    //         name: 'Integration Tests',
+    //         description: 'Integration tests for the entire application',
+    //         points: 200,
+    //         assignmentId: 'assignment-1',
+    //         rubricGrades: [
+    //             {
+    //                 id: '2',
+    //                 name: 'Test Method Functionality',
+    //                 description: 'Tests if methods work as expected',
+    //                 gradeType: 'AUTOMATIC',
+    //                 rubricId: '2',
+    //                 assignmentId: 'assignment-1',
+    //                 displayOrder: 2
+    //             },
+    //             {
+    //                 id: '3',
+    //                 name: 'Test Edge Cases',
+    //                 description: 'Tests boundary conditions and edge cases',
+    //                 gradeType: 'AUTOMATIC',
+    //                 rubricId: '2',
+    //                 assignmentId: 'assignment-1',
+    //                 displayOrder: 3
+    //             }
+    //         ]
+    //     }
+    // ]
 
 
     const toPascalCase = (str: string | undefined) => {
@@ -273,8 +276,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             {/* Sidebar - File Explorer */}
             <div
                 className="flex-shrink-0 bg-neutral-800 border-r border-neutral-700 flex flex-col"
-                style={{ width: `${sidebarWidth}px` }}
-            >
+                style={{ width: `${sidebarWidth}px` }}>
                 {/* Sidebar Header */}
                 <div className="p-3 border-b border-neutral-700 flex items-center justify-between">
                     <h3 className="text-sm font-medium text-neutral-200">Explorer</h3>
@@ -382,11 +384,11 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             </svg>
                             <span className="ml-2">Run</span>
                         </Button>
-                        <TestButton
-                            rubrics={rubrics}
+                        {rubrics?.content && rubrics.content.length > 0 && <TestButton
+                            rubrics={rubrics.content}
                             onSelectRubric={openTestRunner}
                             disabled={files.length === 0}
-                        />
+                        />}
                     </div>
 
                 </div>
@@ -419,7 +421,12 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                         onMouseDown={handleMouseDown}
                         className="flex-shrink-0 h-1 bg-neutral-700 hover:bg-blue-600 cursor-row-resize"
                     ></div>
-
+                    {/* Terminal */}
+                    <Terminal
+                        output={terminalOutput}
+                        isRunning={isRunning}
+                        onClear={clearTerminal}
+                    />
 
                 </div>
             </div>

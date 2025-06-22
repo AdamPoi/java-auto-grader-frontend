@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/auth.store';
-import { IconClipboardPlus } from '@tabler/icons-react';
+import { IconShieldPlus } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 
 export function SubmissionsPrimaryButtons() {
@@ -16,7 +16,7 @@ export function SubmissionsPrimaryButtons() {
 
       {auth.hasPermission(['SUBMISSION:CREATE']) &&
         <Button onClick={handleAddSubmissionClick}>Add Submission
-          <IconClipboardPlus size={18} /></Button>
+          <IconShieldPlus size={18} /></Button>
       }
     </div>
   );

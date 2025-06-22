@@ -19,23 +19,7 @@ export const sidebarData: SidebarData = {
     email: 'satnaingdev@gmail.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Shadcn Admin',
-      logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-  ],
+
   navGroups: [
 
     {
@@ -61,16 +45,16 @@ export const sidebarData: SidebarData = {
           url: '/roles',
           icon: IconShield,
         },
-        {
-          title: 'Students',
-          url: '/users',
-          icon: IconSchool,
-        },
-        {
-          title: 'Teachers',
-          url: '/users',
-          icon: IconChalkboardTeacher,
-        },
+        // {
+        //   title: 'Students',
+        //   url: '/students',
+        //   icon: IconSchool,
+        // },
+        // {
+        //   title: 'Teachers',
+        //   url: '/teachers',
+        //   icon: IconChalkboardTeacher,
+        // },
         {
           title: 'Classrooms',
           url: '/classrooms',

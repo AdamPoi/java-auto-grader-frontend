@@ -1,9 +1,11 @@
 import {
     Baseline,
+    Binary,
     Construction,
     Fingerprint,
     Pilcrow,
     Regex,
+    TestTube,
     Type
 } from 'lucide-react';
 import type { OmittedBlock, TemplateFunction } from './types';
@@ -73,6 +75,7 @@ export const INITIAL_PALETTE_BLOCKS: {
                 }
             ]
         } as TemplateFunction,
+
         // {
         //     type: 'TEMPLATE_FUNCTION',
         //     templateName: 'Exception Test',
@@ -116,25 +119,76 @@ export const INITIAL_PALETTE_BLOCKS: {
                 { type: 'STRUCTURE_CHECK', checkType: 'HAS_CONDITIONAL' },
                 { type: 'STRUCTURE_CHECK', checkType: 'HAS_VARIABLE', varType: 'int', varName: 'i' },
                 { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'param' },
-                { type: 'STRUCTURE_CHECK', checkType: 'RETURNS_TYPE', varType: 'boolean' }
+                { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'boolean', value: 'true' }
             ]
         } as TemplateFunction,
-        // {
-        //     type: 'TEMPLATE_FUNCTION',
-        //     templateName: 'Analyze String Function',
-        //     icon: Binary,
-        //     func: { type: 'ANALYZE_FUNCTION', funcName: 'processString' },
-        //     children: [
-        //         { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'inputStr' },
-        //         // { type: 'STRUCTURE_CHECK', checkType: 'CALLS_METHOD', value: '.length()' },
-        //         // { type: 'STRUCTURE_CHECK', checkType: 'USES_CONCATENATION' },
-        //         { type: 'STRUCTURE_CHECK', checkType: 'RETURNS_TYPE', varType: 'String' }
-        //     ]
-        // } as TemplateFunction,
+        {
+            type: 'TEMPLATE_FUNCTION',
+            templateName: 'Analyze String Function',
+            icon: Binary,
+            func: { type: 'ANALYZE_FUNCTION', funcName: 'processString' },
+            children: [
+                { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'inputStr' },
+                // { type: 'STRUCTURE_CHECK', checkType: 'CALLS_METHOD', value: '.length()' },
+                // { type: 'STRUCTURE_CHECK', checkType: 'USES_CONCATENATION' },
+                { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'String' }
+            ]
+        } as TemplateFunction,
+        {
+            type: "TEMPLATE_FUNCTION",
+            templateName: "Test Case Function",
+            icon: TestTube,
+            func: { type: 'TEST_CASE_FUNCTION', funcName: 'testString' },
+            children: [
+                { type: 'VARIABLE', varType: 'String', varName: 'message', value: 'Hello World' },
+                { type: 'CSV_CASE', input: '[2,7]', expected: '2' },
+                { type: 'CSV_CASE', input: '9', expected: '2' },
+            ]
+            // props: {
+            //     methodName: "",
+            //     inputs: [],
+            //     expectedOutput: "",
+            //     expectedSysOut: "",
+            // },
+            // Optionally, you could use an icon here
+            // shadcn/lucide
+            // documentation: "Tests a single function with a set of input values and expected output. Typically used for parameterized/unit tests."
+        } as TemplateFunction,
+        {
+            type: 'TEMPLATE_FUNCTION',
+            templateName: 'Multiple Cases',
+            icon: Pilcrow,
+            func: { type: 'FUNCTION', funcName: 'testMultipleCases' },
+            children: [
+                // 1) Define parallel arrays of raw inputs & expected results
+                { type: 'VARIABLE', varType: 'String[]', varName: 'inputs', value: 'new String[]{\"5 3 8 1 4 7 9 null 2\",\"2 1 3\"}' },
+                { type: 'VARIABLE', varType: 'String[]', varName: 'expected', value: 'new String[]{\"3\",\"1\"}' },
+
+                // 2) Loop over each case
+                { type: 'COMMENT', value: 'for (int i = 0; i < inputs.length; i++) {' },
+                { type: 'COMMENT', value: '    // parse tree and targets from inputs[i]' },
+                { type: 'VARIABLE', varType: 'TreeNode', varName: 'root', value: 'buildTree(inputs[i])' },
+                { type: 'VARIABLE', varType: 'int', varName: 'p', value: 'Integer.parseInt(inputs[i].split(\" \")[0])' },
+                { type: 'VARIABLE', varType: 'int', varName: 'q', value: 'Integer.parseInt(inputs[i].split(\" \")[1])' },
+
+                // 3) Invoke and assert per iteration
+                { type: 'VARIABLE', varType: 'TreeNode', varName: 'result', value: 'lowestCommonAncestor(root, p, q)' },
+                {
+                    type: 'ASSERT_THAT',
+                    target: 'result',
+                    children: [
+                        { type: 'IS_EQUAL_TO', value: 'Integer.valueOf(expected[i])' }
+                    ]
+                },
+                { type: 'COMMENT', value: '}' }
+            ]
+        } as TemplateFunction,
     ],
     functions: [
         { type: 'FUNCTION', funcName: 'newTest' },
-        { type: 'ANALYZE_FUNCTION', funcName: 'analyzeMyFunction' }
+        { type: 'ANALYZE_FUNCTION', funcName: 'analyzeMyFunction' },
+        { type: 'TEST_CASE_FUNCTION', funcName: 'testCaseFunction' }
+
     ],
     setup: [
         { type: 'VARIABLE', varType: 'String', varName: 'myString', value: 'hello' },

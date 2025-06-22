@@ -37,6 +37,91 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
             }
         }
         else if (currentFunctionId) {
+
+
+            if (line.includes('assertThat(fileName).as("Expect class named')) {
+                const varNameMatch = line.match(/class named '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'CLASS_EXISTS',
+                        varName: varNameMatch[1]
+                    });
+                }
+            } else if (line.includes('assertThat(functionExists).as("Expect method named')) {
+                const varNameMatch = line.match(/method named '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'FUNCTION_EXISTS',
+                        varName: varNameMatch[1]
+                    });
+                }
+            } else if (line.includes('assertThat(variableNameExists).as("Expect field named')) {
+                const varNameMatch = line.match(/field named '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'VARIABLE_EXISTS',
+                        varName: varNameMatch[1]
+                    });
+                }
+            } else if (line.includes('assertThat(functionExistsInClass).as("Expect method') && line.includes('to exist in class')) {
+                const varNameMatch = line.match(/method '(.*?)' to exist in class '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'FUNCTION_EXISTS_IN_CLASS',
+                        varName: varNameMatch[1],
+                        className: varNameMatch[2]
+                    });
+                }
+            } else if (line.includes('assertThat(fieldExistsInClass).as("Expect field') && line.includes('to exist in class')) {
+                const varNameMatch = line.match(/field '(.*?)' to exist in class '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'VARIABLE_EXISTS_IN_CLASS',
+                        varName: varNameMatch[1],
+                        className: varNameMatch[2]
+                    });
+                }
+            } else if (line.includes('assertThat(variableExistsInFunction).as("Expect variable')) {
+                const varNameMatch = line.match(/variable '(.*?)' to exist in method '(.*?)'/);
+                if (varNameMatch) {
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: 'VARIABLE_EXISTS_IN_FUNCTION',
+                        varName: varNameMatch[1],
+                        methodName: varNameMatch[2]
+                    });
+                }
+            } else if (line.includes('assertThat(isVariableCalled).as("Expect static field')) {
+                const varNameMatch = line.match(/field '(.*?)' to be called within method '(.*?)'/);
+                if (varNameMatch) {
+                    const checkType = line.includes('class') ? 'VARIABLE_CALLED_IN_CLASS' : 'VARIABLE_CALLED_IN_FUNCTION';
+                    blocks.push({
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'STATIC_ASSERT',
+                        checkType: checkType,
+                        varName: varNameMatch[1],
+                        ...(checkType === 'VARIABLE_CALLED_IN_CLASS' ? { className: varNameMatch[2] } : { methodName: varNameMatch[2] })
+                    });
+                }
+            }
             // Detect Variable declarations
             const varMatch = line.match(/(String|int|boolean|double|float|long)\s+(\w+)\s*=\s*(.*);/);
             if (varMatch) {
@@ -83,6 +168,7 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
                     });
                 }
             }
+
             // End of function block
             else if (line === '}') {
                 currentFunctionId = null; // Exit current function scope

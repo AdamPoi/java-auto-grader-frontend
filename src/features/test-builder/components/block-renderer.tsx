@@ -2,13 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { ExternalLink, HelpCircle, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { DOCUMENTATION } from '../data/documentation';
-import type { AnalyzeFunctionBlock, AnyBlock, AssertThatBlock, Block, BlockType, CommentBlock, ExceptionAssertBlock, FunctionBlock, MatcherBlock, OmittedBlock, StaticAssertBlock, StructureCheckBlock, VariableBlock } from '../data/types';
+import type { AnalyzeFunctionBlock, AnyBlock, AssertThatBlock, Block, BlockType, CommentBlock, ExceptionAssertBlock, FunctionBlock, MatcherBlock, OmittedBlock, StaticAssertBlock, StructureCheckBlock, TestCaseFunctionBlock, VariableBlock } from '../data/types';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
 import { SortableBlock } from './sortable-block';
 
@@ -35,6 +36,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
     const typeStyles: Record<string, string> = {
         FUNCTION: 'bg-indigo-100 border-indigo-300 text-indigo-800',
         ANALYZE_FUNCTION: 'bg-purple-100 border-purple-300 text-purple-800',
+        TEST_CASE_FUNCTION: 'bg-emerald-100 border-emerald-300 text-emerald-800',
         STRUCTURE_CHECK: 'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-800',
         STATIC_ASSERT: 'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-800',
         VARIABLE: 'bg-amber-100 border-amber-300 text-amber-800',
@@ -84,6 +86,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         );
     };
 
+
     const renderVariableSelect = (field: string, value: string) => {
         const activeSuite = testSuites.find(s => s.id === activeSuiteId);
         if (!activeSuite) return null;
@@ -124,25 +127,51 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         );
     }
 
-    const renderTypeSelect = (field: string, value: string) => (
-        <Select value={value} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
-            <SelectTrigger className="w-28 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="String">String</SelectItem>
-                <SelectItem value="int">int</SelectItem>
-                <SelectItem value="boolean">boolean</SelectItem>
-                <SelectItem value="long">long</SelectItem>
-                <SelectItem value="float">float</SelectItem>
-                <SelectItem value="double">double</SelectItem>
-                <SelectItem value="short">short</SelectItem>
-                <SelectItem value="boolean">boolean</SelectItem>
-                <SelectItem value="char">char</SelectItem>
-                <SelectItem value="byte">byte</SelectItem>
-            </SelectContent>
-        </Select>
-    );
+    const renderTypeSelect = (field: string, value: string) => {
+        const predefinedTypes = ["void", "String", "int", "boolean", "long", "float", "double", "short", "char", "byte"];
+        const isValuePredefined = predefinedTypes.includes(value);
+
+        const handleValueChange = (val: string) => {
+            onDataChange(field, val);
+        };
+
+        const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue = e.target.value;
+            onDataChange(field, newValue);
+        };
+
+        const selectDisplayValue = value || '';
+
+        return (
+            <Select value={selectDisplayValue} onValueChange={handleValueChange} disabled={isPalette}>
+                <SelectTrigger className="w-28 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
+                    <SelectValue placeholder="Select Type">{value || "Select Type"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                    {predefinedTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                    {/* If the current value is custom and not in predefined, show it as a selectable item */}
+                    {!isValuePredefined && value && (
+                        <SelectItem value={value}>{value} (Custom)</SelectItem>
+                    )}
+                    <div className="p-2">
+                        <input
+                            type="text"
+                            // The input's value should reflect the 'value' prop, so it stays in sync
+                            // with the selected/typed custom value.
+                            value={!isValuePredefined ? value : ''} // Show current custom value, otherwise empty for new input
+                            onChange={handleCustomInputChange}
+                            placeholder="Type custom type"
+                            className="w-full p-1 border"
+                            onMouseDown={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </SelectContent>
+            </Select>
+        );
+    };
+
 
     const renderStaticAssertTypeSelect = (field: string, value: string) => (
         <Select value={value} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
@@ -168,10 +197,10 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
                 <SelectValue />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="FOR">Has For Loop</SelectItem>
-                <SelectItem value="WHILE">Has While Loop</SelectItem>
-                <SelectItem value="DO_WHILE">Has Do-While Loop</SelectItem>
-                <SelectItem value="FOREACH">Has For-Each Loop</SelectItem>
+                <SelectItem value="FOR">For Loop</SelectItem>
+                <SelectItem value="WHILE">While Loop</SelectItem>
+                <SelectItem value="DO_WHILE">Do-While Loop</SelectItem>
+                <SelectItem value="FOREACH">For-Each Loop</SelectItem>
             </SelectContent>
         </Select>
     );
@@ -183,61 +212,159 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
                 <SelectValue />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="IF">Has If Statement</SelectItem>
-                <SelectItem value="SWITCH">Has Switch Statement</SelectItem>
+                <SelectItem value="IF">If Statement</SelectItem>
+                <SelectItem value="SWITCH">Switch Statement</SelectItem>
             </SelectContent>
         </Select>
     );
+
+
+
     const blockContent = () => {
         const b = block as AnyBlock;
         switch (b.type) {
             case 'FUNCTION':
                 const funcBlock = b as FunctionBlock;
-                return <span className="font-medium flex items-center">@Test void {renderInput('funcName', funcBlock.funcName, 'testName')}() {'{'} {renderRubricSelect(funcBlock.rubricId?.toString())}</span>;
+                return <span className="font-medium flex items-center">
+                    @Test void {renderInput('funcName', funcBlock.funcName, 'testName')}() {'{'}
+                    {renderRubricSelect(funcBlock.rubricId?.toString())}
+                </span>
+                    ;
             case 'ANALYZE_FUNCTION':
                 const analyzeFuncBlock = b as AnalyzeFunctionBlock;
-                return <span className="font-medium flex items-center">analyze function {renderInput('funcName', analyzeFuncBlock.funcName, 'functionName')}: {renderRubricSelect(analyzeFuncBlock.rubricId?.toString())}</span>;
+                return <span className="font-medium flex items-center">
+                    analyze function {renderInput('funcName', analyzeFuncBlock.funcName, 'functionName')}:
+                    {renderRubricSelect(analyzeFuncBlock.rubricId?.toString())}
+                </span>;
+            case 'TEST_CASE_FUNCTION':
+                const testCaseFunctionBlock = b as TestCaseFunctionBlock;
+                return <>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">@CsvSource</span>
+                        {!isPalette && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={onRemove}
+                                onMouseDown={e => e.stopPropagation()}
+                            >
+                                <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
+                            </Button>
+                        )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700">Inputs</label>
+                            <Textarea
+                                value={testCaseFunctionBlock.inputs}
+                                placeholder={`e.g. "[2,7], 9"`}
+                                onChange={e => onDataChange('inputs', e.target.value)}
+                                disabled={isPalette}
+                                rows={1}
+                                onMouseDown={e => e.stopPropagation()}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700">Expected</label>
+                            <Textarea
+                                value={testCaseFunctionBlock.expected}
+                                placeholder={`e.g. "[0,1]"`}
+                                onChange={e => onDataChange('expected', e.target.value)}
+                                disabled={isPalette}
+                                rows={1}
+                                onMouseDown={e => e.stopPropagation()}
+                            />
+                        </div>
+                    </div>
+                </>;
+
             case 'VARIABLE':
                 const varBlock = b as VariableBlock;
                 return <>
-                    add variable {renderInput('varName', varBlock.varName ?? '', 'varName')}
-                    that have type of {renderTypeSelect('varType', varBlock.varType ?? '')}
-                    with value {renderInput('value', varBlock.value ?? '', 'value')}
+                    <span className='flex items-center mx-1 my-1'>
+                        add variable {renderInput('varName', varBlock.varName ?? '', 'varName')}
+                    </span>
+                    <span className='flex items-center mx-1 my-1'>
+                        that have type of {renderTypeSelect('varType', varBlock.varType ?? '')}
+                    </span>
+                    <span className='flex items-center mx-1 my-1'>
+                        with value {renderInput('value', varBlock.value ?? '', 'value')}
+                    </span>
                 </>;
             case 'ASSERT_THAT':
                 const assertThatBlock = b as AssertThatBlock;
-                return <>assertThat({renderVariableSelect('target', assertThatBlock.target)})</>;
+                return <>
+                    <span className='flex items-center mx-1 my-1'>
+                        assertThat({renderVariableSelect('target', assertThatBlock.target)})
+                    </span>
+                </>;
             case 'EXCEPTION_ASSERT':
                 const exceptionAssertBlock = b as ExceptionAssertBlock;
                 return <>assertThatExceptionOfType({renderInput('exceptionType', exceptionAssertBlock.exceptionType, 'Exception.class')}).isThrownBy({renderInput('code', exceptionAssertBlock.code, '() -> code')})</>;
             case 'STATIC_ASSERT':
                 const staticAssertBlock = b as StaticAssertBlock;
                 const staticAssertIn = staticAssertBlock.checkType.includes('IN_CLASS') ? 'in class' : staticAssertBlock.checkType.includes('IN_FUNCTION') ? 'in function' : '';
-                return <>has
-                    {renderInput('varName', staticAssertBlock.varName ?? '', 'myVariable')}
-                    that is {renderStaticAssertTypeSelect('checkType', staticAssertBlock.checkType)}
-                    {staticAssertIn === 'in class' && renderInput('className', staticAssertBlock.className ?? '', 'ClassName')}
-                    {staticAssertIn === 'in function' && renderInput('methodName', staticAssertBlock.methodName ?? '', 'methodName')}</>;
+                return <>
+                    <span className='flex items-center mx-1 my-1'>
+                        that is {renderStaticAssertTypeSelect('checkType', staticAssertBlock.checkType)}
+                    </span>
+                    <span className='flex items-center mx-1 my-1'>
+                        {staticAssertIn === 'in class' && renderInput('className', staticAssertBlock.className ?? '', 'ClassName')}
+                    </span>
+                    <span className='flex items-center mx-1 my-1'>
+                        {staticAssertIn === 'in function' && renderInput('methodName', staticAssertBlock.methodName ?? '', 'methodName')}
+                    </span >
+                </>;
 
             case 'STRUCTURE_CHECK':
                 const sc = b as StructureCheckBlock;
                 switch (sc.checkType) {
                     case 'HAS_LOOP': return <>
-                        {renderInput('methodName', sc.methodName || '', 'methodName')}
-                        has a '{renderLoopTypeSelect('loopType', sc.varType || 'FOR')}' statement</>;
+                        <span className='flex items-center mx-1 my-1'>
+                            has {renderLoopTypeSelect('loopType', sc.varType || 'FOR')} statement
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            in method  {renderInput('methodName', sc.methodName || '', 'methodName')}
+                        </span>
+                    </>;
                     case 'HAS_CONDITIONAL': return <>
-                        {renderInput('methodName', sc.methodName || '', 'methodName')}
-                        has a '{renderConditionalTypeSelect('conditionalType', sc.varType || 'IF')}' statement</>;
+                        <span className='flex items-center mx-1 my-1'>
+                            has {renderConditionalTypeSelect('conditionalType', sc.varType || 'IF')} statement
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            in method {renderInput('methodName', sc.methodName || '', 'methodName')}
+                        </span>
+                    </>;
                     case 'HAS_VARIABLE': return <>
-                        has variable {renderInput('varName', sc.varName || '', 'varName')}
-                        with type of {renderTypeSelect('varType', sc.varType || 'String')}</>;
+                        <span className='flex items-center mx-1 my-1'>
+                            has variable {renderInput('varName', sc.varName || '', 'varName')}
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
+                        </span >
+                    </>;
                     case 'HAS_PARAMETER': return <>
-                        has method {renderInput('methodName', sc.methodName || '', 'methodName')}
-                        has parameter {renderInput('varName', sc.varName || '', 'paramName')}
-                        with type of {renderTypeSelect('varType', sc.varType || 'String')}</>;
+                        <span className='flex items-center mx-1 my-1'>
+                            has method {renderInput('methodName', sc.methodName || '', 'methodName')}
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            that has parameter of {renderInput('varName', sc.varName || '', 'paramName')}
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
+                        </span>
+                    </>;
                     case 'HAS_RETURN': return <>
-                        has method {renderInput('methodName', sc.methodName || '', 'methodName')}
-                        returns type of {renderTypeSelect('varType', sc.varType || 'String')}</>;
+                        <span className='flex items-center mx-1 my-1'>
+                            has method {renderInput('methodName', sc.methodName || '', 'methodName')}
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            that has return value {renderInput('value', sc.value || '', 'value')}
+                        </span>
+                        <span className='flex items-center mx-1 my-1'>
+                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
+                        </span>
+                    </>;
                 }
             case 'COMMENT':
                 const commentBlock = b as CommentBlock;
@@ -256,7 +383,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         }
     };
 
-    const functionChildren = ['FUNCTION', 'ANALYZE_FUNCTION'].includes(type) && id ? allBlocks.filter(b => b.parentId === id) : [];
+    const functionChildren = ['FUNCTION', 'ANALYZE_FUNCTION', 'TEST_CASE_FUNCTION'].includes(type) && id ? allBlocks.filter(b => b.parentId === id) : [];
     const assertChildren = ['ASSERT_THAT', 'EXTRACTING'].includes(type) && id ? allBlocks.filter(b => b.parentId === id) : [];
 
     const dropZoneStyle = (isOver: boolean) => `ml-8 mt-1 p-3 border-l-4 rounded-r-lg transition-all duration-200 ${isOver ? 'shadow-inner' : ''}`;
@@ -295,6 +422,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
             </div>
             {type === 'FUNCTION' && !isPalette && id && <div ref={droppableFunction.setNodeRef} className={cn(dropZoneStyle(droppableFunction.isOver), functionDropStyle)}><SortableContext items={functionChildren.map(c => c.id)} strategy={verticalListSortingStrategy}>{functionChildren.map(child => <SortableBlock key={child.id} id={child.id} block={child} />)}</SortableContext>{placeholder('Drop Setup or Assertion Blocks Here', 'bg-indigo-100', 'text-indigo-700', functionChildren.length > 0)}</div>}
             {type === 'ANALYZE_FUNCTION' && !isPalette && id && <div ref={droppableFunction.setNodeRef} className={cn(dropZoneStyle(droppableFunction.isOver), analyzeDropStyle)}><SortableContext items={functionChildren.map(c => c.id)} strategy={verticalListSortingStrategy}>{functionChildren.map(child => <SortableBlock key={child.id} id={child.id} block={child} />)}</SortableContext>{placeholder('Drop Structure Check Blocks Here', 'bg-purple-100', 'text-purple-700', functionChildren.length > 0)}</div>}
+            {type === 'TEST_CASE_FUNCTION' && !isPalette && id && <div ref={droppableFunction.setNodeRef} className={cn(dropZoneStyle(droppableFunction.isOver), analyzeDropStyle)}><SortableContext items={functionChildren.map(c => c.id)} strategy={verticalListSortingStrategy}>{functionChildren.map(child => <SortableBlock key={child.id} id={child.id} block={child} />)}</SortableContext>{placeholder('Drop Structure Check Blocks Here', 'bg-purple-100', 'text-purple-700', functionChildren.length > 0)}</div>}
             {['ASSERT_THAT', 'EXTRACTING'].includes(type) && !isPalette && id && <div ref={droppableAssert.setNodeRef} className={cn(dropZoneStyle(droppableAssert.isOver), assertDropStyle)}><SortableContext items={assertChildren.map(c => c.id)} strategy={verticalListSortingStrategy}>{assertChildren.map(child => <SortableBlock key={child.id} id={child.id} block={child} />)}</SortableContext>{placeholder('Drop Matcher Here', 'bg-teal-100', 'text-teal-700', assertChildren.length > 0)}</div>}
         </div>
     );
