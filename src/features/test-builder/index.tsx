@@ -99,9 +99,6 @@ export function TestBuilder() {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: { distance: 8 },
-            // throttle move events to 16ms (~60fps)
-            // @ts-ignore
-            sensorOptions: { interval: 16 },
         })
     );
 
@@ -337,34 +334,44 @@ export function TestBuilder() {
     const updateAssignment = useUpdateAssignment();
     const updateGrade = useUpdateRubricGrade();
 
+
     const handleSaveRubricGrades = useCallback(async () => {
         if (!activeSuite) return;
 
-        setIsSaving(true);
+        const allFunctionBlocks = activeSuite.blocks.filter(
+            block => block.type === 'FUNCTION'
+        ) as FunctionBlock[];
 
+        const functionNameCounts = new Map<string, number>();
+        allFunctionBlocks.forEach(block => {
+            const name = block.funcName || 'Test';
+            functionNameCounts.set(name, (functionNameCounts.get(name) || 0) + 1);
+        });
+
+        const duplicateNames = Array.from(functionNameCounts.entries())
+            .filter(([, count]) => count > 1)
+            .map(([name]) => name);
+
+        if (duplicateNames.length > 0) {
+            toast.error(`Duplicate function names found: ${duplicateNames.join(', ')}. Please ensure all function names are unique.`);
+            return;
+        }
+
+        setIsSaving(true);
         try {
-            const functionBlocksWithRubrics = activeSuite.blocks.filter(block =>
-                block.type === 'FUNCTION' &&
-                'rubricId' in block &&
-                block.rubricId
+            const functionBlocksWithRubrics = allFunctionBlocks.filter(block =>
+                'rubricId' in block && block.rubricId
             ) as Array<FunctionBlock & { rubricId: string }>;
 
-            const uniqueFunctions = new Map<string, FunctionBlock & { rubricId: string }>();
-            functionBlocksWithRubrics.forEach(block => {
-                if (!block.rubricId) return; // Skip if rubricId is undefined
-                const functionName = block.funcName || 'Test';
-                if (!uniqueFunctions.has(functionName)) {
-                    uniqueFunctions.set(functionName, block);
-                }
-            });
 
-            const savePromises = Array.from(uniqueFunctions.values()).map(async (functionBlock) => {
-                const functionName = functionBlock.funcName || 'Test';
-                const existingGrade = existingGradesByFunction.get(functionName);
+            const savePromises = functionBlocksWithRubrics.map(async (functionBlock) => {
+                const functionName = functionBlock.funcName;
+                const existingGrade = Array.from(existingGradesByFunction.values()).find(
+                    (grade) => grade.arguments?.functionBlockId === functionBlock.id
+                );
 
                 try {
                     if (existingGrade) {
-
                         const gradeUpdateData = {
                             arguments: {
                                 testSuiteId: activeSuite.id,
@@ -372,7 +379,6 @@ export function TestBuilder() {
                                 functionName: functionName
                             }
                         };
-
                         await updateGrade.mutateAsync({
                             rubricGradeId: existingGrade.id,
                             rubricGradeData: gradeUpdateData
@@ -380,7 +386,7 @@ export function TestBuilder() {
                     } else {
                         const rubricGradeForm: RubricGradeForm = {
                             id: functionBlock.id,
-                            name: `${functionName}`,
+                            name: functionName,
                             description: `Auto-generated rubric grade for test function: ${functionName}`,
                             displayOrder: 0,
                             arguments: {
@@ -392,29 +398,25 @@ export function TestBuilder() {
                             assignmentId: assignmentId,
                             rubricId: functionBlock.rubricId?.toString()
                         };
-
                         await createRubricGrade.mutateAsync(rubricGradeForm);
                     }
                 } catch (error: any) {
-                    console.error(`Error processing rubric grade for ${functionName}:`, error);
-                    throw error;
+                    console.error(`Error processing rubric grade for ${functionName} (Block ID: ${functionBlock.id}):`, error);
                 }
             });
 
             await Promise.all(savePromises);
 
+            await updateAssignment.mutateAsync({
+                assignmentId: assignmentId,
+                assignmentData: { testCode: generatedCode },
+            });
 
-            if (assignmentId && generatedCode) {
-                await updateAssignment.mutateAsync({
-                    assignmentId: assignmentId,
-                    assignmentData: {
-                        testCode: generatedCode
-                    }
-                });
-            }
+            toast.success('Successfully saved rubric grades and test code.');
 
         } catch (error) {
             console.error('Error saving rubric grades:', error);
+            toast.error('Failed to save rubric grades. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -454,7 +456,6 @@ export function TestBuilder() {
                                             {suite.name}
                                         </button>
                                     ))}
-                                    {/* <Button size="sm" variant="ghost" onClick={addTestSuite} className="px-3 rounded-l-none"> <PlusCircle className="h-4 w-4" /> </Button> */}
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <Button size="sm" variant="outline" onClick={undo} disabled={!canUndo}> <Undo className="h-4 w-4 mr-2" /> Undo </Button>
@@ -516,7 +517,6 @@ export function TestBuilder() {
                                 </div>
                             </div>
 
-                            {/* Show info about rubric assignments */}
                             {hasRubricAssignments && (
                                 <div className="mb-4 space-y-2">
                                     <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -525,7 +525,6 @@ export function TestBuilder() {
                                         </p>
                                     </div>
 
-                                    {/* Show existing vs new grades */}
                                     {existingRubricGrades?.content && existingRubricGrades?.content?.length > 0 && (
                                         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                                             <p className="text-sm text-green-700">
@@ -562,7 +561,6 @@ export function TestBuilder() {
                                 </div>
                             );
                         }
-                        // Ensure BlockRenderer is memoized if it's a functional component
                         const MemoizedBlockRenderer = React.memo(BlockRenderer);
                         return <MemoizedBlockRenderer block={activeBlock} />;
                     })() : null}

@@ -16,6 +16,7 @@ export const INITIAL_PALETTE_BLOCKS: {
     assertions: OmittedBlock[];
     structure: OmittedBlock[];
     matchers: OmittedBlock[];
+
 } = {
     templates: [
         {
@@ -200,11 +201,10 @@ export const INITIAL_PALETTE_BLOCKS: {
     ],
     structure: [
         { type: 'STATIC_ASSERT', checkType: 'CLASS_EXISTS', varName: 'myVariable', className: 'MyClass', methodName: 'myMethod' },
-        { type: 'STRUCTURE_CHECK', checkType: 'HAS_LOOP' },
-        { type: 'STRUCTURE_CHECK', checkType: 'HAS_CONDITIONAL' },
-        { type: 'STRUCTURE_CHECK', checkType: 'HAS_VARIABLE', varType: 'int', varName: 'i' },
+        { type: 'STRUCTURE_CHECK', checkType: 'HAS_LOOP', varType: 'FOR', methodName: 'myMethod' },
+        { type: 'STRUCTURE_CHECK', checkType: 'HAS_CONDITIONAL', varType: 'IF', methodName: 'myMethod' },
         { type: 'STRUCTURE_CHECK', checkType: 'HAS_PARAMETER', varType: 'String', varName: 'param' },
-        { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'boolean' },
+        { type: 'STRUCTURE_CHECK', checkType: 'HAS_RETURN', varType: 'boolean', value: 'true', methodName: 'myMethod' },
     ],
     matchers: [
         { type: 'IS_EQUAL_TO', value: 'hello' },
@@ -223,5 +223,11 @@ export const INITIAL_PALETTE_BLOCKS: {
         { type: 'CONTAINS_ONLY_ONCE', value: 'item' },
         { type: 'CONTAINS_ANY_OF', value: 'item' },
         { type: 'DOES_NOT_CONTAIN', value: 'item' },
+        { type: 'IS_TRUE', value: 'item' },
+        { type: 'IS_FALSE', value: 'item' },
+        { type: 'IS_NULL', value: 'item' },
+        { type: 'IS_NOT_NULL', value: 'item' },
+        { type: 'IS_EMPTY', value: 'item' },
+        { type: 'IS_NOT_EMPTY', value: 'item' },
     ],
 };

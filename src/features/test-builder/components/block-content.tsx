@@ -8,9 +8,164 @@ import { BlocksTreeContext } from '..';
 import type { AnyBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, OmittedBlock, StaticAssertBlock, StructureCheckBlock, TestCaseFunctionBlock, VariableBlock } from '../data/types';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
 
+
+// ## Refactored Component for Type Selection ##
+interface TypeSelectProps {
+    field: string;
+    value: string;
+    onDataChange: (field: string, value: any) => void;
+    isPalette: boolean;
+    onChange?: (val: string) => void;
+}
+
+const TypeSelect: React.FC<TypeSelectProps> = ({ field, value, onDataChange, isPalette, onChange }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const predefinedTypes = [
+        'byte', 'Byte', 'short', 'Short', 'int', 'Integer', 'long', 'Long',
+        'float', 'Float', 'double', 'Double', 'char', 'Character',
+        'String', 'CharSequence', 'BigDecimal', 'BigInteger',
+        'Object[]', 'byte[]', 'short[]', 'int[]', 'long[]', 'float[]', 'double[]', 'char[]',
+    ];
+    const filteredTypes = predefinedTypes.filter(type =>
+        type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const isValuePredefined = predefinedTypes.includes(value);
+
+    const handleValueChange = (val: string) => {
+        onDataChange(field, val);
+        onChange?.(val);
+        setSearchTerm('');
+    };
+
+    const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        onDataChange(field, newValue);
+    };
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const selectDisplayValue = value || '';
+
+    return (
+        <Select value={selectDisplayValue} onValueChange={handleValueChange} disabled={isPalette}>
+            <SelectTrigger className="w-28 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
+                <SelectValue placeholder="Select Type">{value || "Select Type"}</SelectValue>
+            </SelectTrigger>
+            <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
+                <div className="p-2 sticky top-0 bg-popover z-10">
+                    <Input
+                        type="text"
+                        placeholder="Search types..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="w-full p-1 border"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        onBlur={(e) => e.stopPropagation()}
+                        autoFocus={false}
+                    />
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                    {filteredTypes.length > 0 ? (
+                        filteredTypes.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))
+                    ) : (
+                        <div className="p-2 text-sm text-gray-500">No matching types found.</div>
+                    )}
+                    {!isValuePredefined && value && !filteredTypes.includes(value) && (
+                        <SelectItem value={value}>{value} (Custom)</SelectItem>
+                    )}
+                </div>
+                <div className="p-2 sticky bottom-0 bg-popover z-10 border-t">
+                    <Input
+                        type="text"
+                        value={!isValuePredefined ? value : ''}
+                        onChange={handleCustomInputChange}
+                        placeholder="Type custom type"
+                        className="w-full p-1 border"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        onBlur={(e) => e.stopPropagation()}
+                    />
+                </div>
+            </SelectContent>
+        </Select>
+    );
+};
+
+
+// ## Refactored Component for Variable Selection ##
+interface VariableSelectProps {
+    id: string;
+    field: string;
+    value: string;
+    onDataChange: (field: string, value: any) => void;
+    isPalette: boolean;
+    onChange?: (val: string) => void;
+}
+const VariableSelect: React.FC<VariableSelectProps> = ({ id, field, value, onDataChange, isPalette, onChange }) => {
+    const { blocksById, blocksByParentId } = useContext(BlocksTreeContext);
+    const [customVar, setCustomVar] = useState('');
+
+    const variables = useMemo(() => {
+        let parentFuncId: string | null = null;
+        let currentBlock = blocksById.get(id);
+
+        while (currentBlock) {
+            if (currentBlock.type === 'FUNCTION') {
+                parentFuncId = currentBlock.id;
+                break;
+            }
+            currentBlock = currentBlock.parentId ? blocksById.get(currentBlock.parentId) : undefined;
+        }
+
+        if (!parentFuncId) return [];
+
+        const functionChildren = blocksByParentId.get(parentFuncId) || [];
+        return functionChildren.filter(b => b.type === 'VARIABLE');
+    }, [id, blocksById, blocksByParentId]);
+
+    const options = [...variables, ...(customVar ? [{ id: 'custom', varName: customVar }] : [])];
+    const handleChange = (val: string) => {
+        onDataChange(field, val);
+        onChange?.(val);
+    };
+
+    return (
+        <Select value={value} onValueChange={handleChange} disabled={isPalette}>
+            <SelectTrigger className="w-32 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
+                <SelectValue placeholder={options.length > 0 ? "Select var" : "no variables"} />
+            </SelectTrigger>
+            <SelectContent>
+                {options.map(v => <SelectItem key={v.id} value={(v as VariableBlock).varName}>{(v as VariableBlock).varName}</SelectItem>)}
+                <div className="p-2">
+                    <Input
+                        type="text"
+                        value={customVar}
+                        onChange={(e) => setCustomVar(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                onDataChange(field, customVar);
+                                setCustomVar('');
+                            }
+                        }}
+                        placeholder="Type custom variable"
+                        className="w-full p-1 border"
+                    />
+                </div>
+            </SelectContent>
+        </Select>
+    );
+};
+
+
 const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { block: AnyBlock | OmittedBlock, onDataChange: (field: string, value: any) => void, isPalette: boolean }) => {
     const { rubrics } = useTestBuilderStore();
-    const { blocksById, blocksByParentId } = useContext(BlocksTreeContext);
     const id = (block as Block).id;
 
     const renderInput = (field: string, value: string, varType: string = '', placeholder?: string, onChange?: (val: string) => void) => {
@@ -18,6 +173,9 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
             onDataChange(field, e.target.value);
             onChange?.(e.target.value);
         };
+
+        const inputClassName = `mx-1.5 bg-white ${value === '' && !isPalette ? 'border-red-500' : ''}`;
+
         if (['byte', 'Byte', 'short', 'Short', 'int', 'Integer', 'long', 'Long', 'float', 'Float', 'double', 'Double']
             .includes(varType)) {
             return (
@@ -27,7 +185,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                     value={value}
                     onChange={handleOnChange}
                     disabled={isPalette}
-                    className="w-32 mx-1.5 bg-white"
+                    className={`w-32 ${inputClassName}`}
                 />
             )
         }
@@ -38,7 +196,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                     value={value}
                     onChange={handleOnChange}
                     disabled={isPalette}
-                    className="w-40 mx-1.5  bg-white"
+                    className={`w-40 ${inputClassName}`}
                 />
             )
         }
@@ -50,7 +208,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                     value={value}
                     onChange={handleOnChange}
                     disabled={isPalette}
-                    className="w-64 mx-1.5  bg-white"
+                    className={`w-64 ${inputClassName}`}
                 />
             )
         }
@@ -61,7 +219,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                     value={value}
                     onChange={handleOnChange}
                     disabled={isPalette}
-                    className="w-64 h-20 mx-1.5  bg-white"
+                    className={`w-64 h-20 ${inputClassName}`}
                 />
             )
         }
@@ -71,7 +229,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                 value={value}
                 onChange={handleOnChange}
                 disabled={isPalette}
-                className="w-48 mx-1.5  bg-white"
+                className={`w-48 ${inputClassName}`}
             />
         )
     };
@@ -103,143 +261,8 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
         );
     };
 
-
-    const renderVariableSelect = (field: string, value: string, onChange?: (val: string) => void) => {
-        const variables = useMemo(() => {
-            let parentFuncId: string | null = null;
-            let currentBlock = blocksById.get(id);
-
-            while (currentBlock) {
-                if (currentBlock.type === 'FUNCTION') {
-                    parentFuncId = currentBlock.id;
-                    break;
-                }
-                currentBlock = currentBlock.parentId ? blocksById.get(currentBlock.parentId) : undefined;
-            }
-
-            if (!parentFuncId) return [];
-
-            const functionChildren = blocksByParentId.get(parentFuncId) || [];
-            return functionChildren.filter(b => b.type === 'VARIABLE');
-        }, [id, blocksById, blocksByParentId]);
-
-
-        const [customVar, setCustomVar] = useState('');
-
-        const options = [...variables, ...(customVar ? [{ id: 'custom', varName: customVar }] : [])];
-        const handleChange = (val: string) => {
-            onDataChange(field, val);
-            onChange && onChange(val);
-        };
-        return (
-            <Select value={value} onValueChange={handleChange} disabled={isPalette}>
-                <SelectTrigger className="w-32 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                    <SelectValue placeholder={options.length > 0 ? "Select var" : "no variables"} />
-                </SelectTrigger>
-                <SelectContent>
-                    {options.map(v => <SelectItem key={v.id} value={(v as VariableBlock).varName}>{(v as VariableBlock).varName}</SelectItem>)}
-                    <div className="p-2">
-                        <Input
-                            type="text"
-                            value={customVar}
-                            onChange={(e) => setCustomVar(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    onDataChange(field, customVar);
-                                    setCustomVar('');
-                                }
-                            }}
-                            placeholder="Type custom variable"
-                            className="w-full p-1 border"
-                        />
-                    </div>
-                </SelectContent>
-            </Select>
-        );
-    };
-
-    const renderTypeSelect = (field: string, value: string, onChange?: (val: string) => void) => {
-        const [searchTerm, setSearchTerm] = useState('');
-
-        const predefinedTypes = [
-            'byte', 'Byte', 'short', 'Short', 'int', 'Integer', 'long', 'Long',
-            'float', 'Float', 'double', 'Double', 'char', 'Character',
-            'String', 'CharSequence', 'BigDecimal', 'BigInteger',
-            'Object[]', 'byte[]', 'short[]', 'int[]', 'long[]', 'float[]', 'double[]', 'char[]',
-        ];
-        const filteredTypes = predefinedTypes.filter(type =>
-            type.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        const isValuePredefined = predefinedTypes.includes(value);
-
-        const handleValueChange = (val: string) => {
-            onDataChange(field, val);
-            onChange && onChange(val);
-            setSearchTerm('');
-        };
-
-        const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const newValue = e.target.value;
-            onDataChange(field, newValue);
-        };
-
-        const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            setSearchTerm(e.target.value);
-        };
-
-        const selectDisplayValue = value || '';
-
-        return (
-            <Select value={selectDisplayValue} onValueChange={handleValueChange} disabled={isPalette}>
-                <SelectTrigger className="w-28 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                    <SelectValue placeholder="Select Type">{value || "Select Type"}</SelectValue>
-                </SelectTrigger>
-                <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
-                    <div className="p-2 sticky top-0 bg-popover z-10">
-                        <Input
-                            type="text"
-                            placeholder="Search types..."
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            className="w-full p-1 border"
-                            onMouseDown={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => e.stopPropagation()}
-                            onFocus={(e) => e.stopPropagation()}
-                            onBlur={(e) => e.stopPropagation()}
-                            autoFocus={false}
-                        />
-                    </div>
-                    <div className="max-h-60 overflow-y-auto">
-                        {filteredTypes.length > 0 ? (
-                            filteredTypes.map(type => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))
-                        ) : (
-                            <div className="p-2 text-sm text-gray-500">No matching types found.</div>
-                        )}
-                        {!isValuePredefined && value && !filteredTypes.includes(value) && (
-                            <SelectItem value={value}>{value} (Custom)</SelectItem>
-                        )}
-                    </div>
-                    <div className="p-2 sticky bottom-0 bg-popover z-10 border-t">
-                        <Input
-                            type="text"
-                            value={!isValuePredefined ? value : ''}
-                            onChange={handleCustomInputChange}
-                            placeholder="Type custom type"
-                            className="w-full p-1 border"
-                            onMouseDown={(e) => e.stopPropagation()}
-                            onFocus={(e) => e.stopPropagation()}
-                            onBlur={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                </SelectContent>
-            </Select>
-        );
-    };
-
     const renderStaticAssertTypeSelect = (field: string, value: string) => (
-        <Select value={value} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
+        <Select value={value} onValueChange={(val) => { onDataChange(field, val) }} disabled={isPalette}>
             <SelectTrigger className="w-64 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
                 <SelectValue />
             </SelectTrigger>
@@ -257,9 +280,9 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
     );
 
     const renderLoopTypeSelect = (field: string, value: string) => (
-        <Select value={value} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
+        <Select value={value || "FOR"} onValueChange={(val) => { onDataChange(field, val) }} disabled={isPalette}>
             <SelectTrigger className="w-64 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                <SelectValue />
+                <SelectValue placeholder="Select loop type" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="FOR">For Loop</SelectItem>
@@ -271,9 +294,9 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
     );
 
     const renderConditionalTypeSelect = (field: string, value: string) => (
-        <Select value={value} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
+        <Select value={value || "IF"} onValueChange={(val) => onDataChange(field, val)} disabled={isPalette}>
             <SelectTrigger className="w-64 h-8 mx-1.5 bg-white" onMouseDown={(e) => e.stopPropagation()}>
-                <SelectValue />
+                <SelectValue placeholder="Select conditional type" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="IF">If Statement</SelectItem>
@@ -284,7 +307,6 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
 
     const blockContent = () => {
         const b = block as AnyBlock;
-        // This entire switch statement is the same as your original version
         switch (b.type) {
             case 'FUNCTION':
                 const funcBlock = b as FunctionBlock;
@@ -334,11 +356,12 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                                         (val) => onParamChange(i, 'name', val)
                                     )}
 
-                                    {renderTypeSelect(
-                                        `parameter-type-${i}`,
-                                        p.varType,
-                                        (val) => onParamChange(i, 'varType', val)
-                                    )}
+                                    <TypeSelect
+                                        field={`parameter-type-${i}`}
+                                        value={p.varType}
+                                        onDataChange={(_field, val) => onParamChange(i, 'varType', val)}
+                                        isPalette={isPalette}
+                                    />
 
                                     {renderInput(
                                         `parameter-value-${i}`,
@@ -369,11 +392,12 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                             )}
                         </span>
                         <span className='flex items-center mx-1 my-1'>
-                            with type {renderTypeSelect(
-                                'expected-type',
-                                fb.expected.varType,
-                                (val) => onChange('expected', { ...fb.expected, varType: val })
-                            )}
+                            with type <TypeSelect
+                                field='expected-type'
+                                value={fb.expected.varType}
+                                onDataChange={(_field, val) => onChange('expected', { ...fb.expected, varType: val })}
+                                isPalette={isPalette}
+                            />
                             and value of
                             {renderInput(
                                 'expected-value',
@@ -394,7 +418,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => onDataChange('remove', id)} // Assuming onRemove is handled by parent
+                                onClick={() => onDataChange('remove', id)}
                                 onMouseDown={e => e.stopPropagation()}
                             >
                                 <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
@@ -433,7 +457,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                         add variable {renderInput('varName', varBlock.varName ?? '', 'String', 'varName')}
                     </span>
                     <span className='flex items-center mx-1 my-1'>
-                        that have type of {renderTypeSelect('varType', varBlock.varType ?? '')}
+                        that have type of <TypeSelect field='varType' value={varBlock.varType ?? ''} onDataChange={onDataChange} isPalette={isPalette} />
                     </span>
                     <span className='flex items-center mx-1 my-1'>
                         with value {renderInput('value', varBlock.value ?? '', varBlock.varType ?? 'String')}
@@ -443,7 +467,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                 const assertThatBlock = b as AssertThatBlock;
                 return <>
                     <span className='flex items-center mx-1 my-1'>
-                        assertThat({renderVariableSelect('target', assertThatBlock.target)})
+                        assertThat(<VariableSelect id={id} field='target' value={assertThatBlock.target} onDataChange={onDataChange} isPalette={isPalette} />)
                     </span>
                 </>;
             case 'EXCEPTION_ASSERT':
@@ -455,42 +479,39 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                 const staticAssertIn = staticAssertBlock.checkType.includes('IN_CLASS') ? 'in class' : staticAssertBlock.checkType.includes('IN_FUNCTION') ? 'in function' : '';
                 return <>
                     <span className='flex items-center mx-1 my-1'>
-                        that is {renderStaticAssertTypeSelect('checkType', staticAssertBlock.checkType)}
+                        assert that {renderInput('varName', staticAssertBlock.varName ?? '', '', 'fieldName')}
+                        is {renderStaticAssertTypeSelect('checkType', staticAssertBlock.checkType)}
                     </span>
                     <span className='flex items-center mx-1 my-1'>
-                        {staticAssertIn === 'in class' && renderInput('className', staticAssertBlock.className ?? '', 'String', 'ClassName')}
+                        {staticAssertIn === 'in class' && <>
+                            in class {renderInput('className', staticAssertBlock.className ?? '', '', 'ClassName')}
+                        </>
+                        }
                     </span>
-                    <span className='flex items-center mx-1 my-1'>
-                        {staticAssertIn === 'in function' && renderInput('methodName', staticAssertBlock.methodName ?? '', 'String', 'methodName')}
-                    </span >
-                </>;
+                    <span className='flex items-center mx-1 my-1'>{staticAssertIn === 'in function' && <>
+                        in method {renderInput('methodName', staticAssertBlock.methodName ?? '', '', 'methodName')}
+                    </>}
+                    </span>
 
+                </>;
             case 'STRUCTURE_CHECK':
                 const sc = b as StructureCheckBlock;
                 switch (sc.checkType) {
                     case 'HAS_LOOP': return <>
                         <span className='flex items-center mx-1 my-1'>
-                            has {renderLoopTypeSelect('loopType', sc.varType || 'FOR')} statement
+                            has {renderLoopTypeSelect('varType', sc.varType || 'FOR')} statement
                         </span>
                         <span className='flex items-center mx-1 my-1'>
-                            in method  {renderInput('methodName', sc.methodName || '', 'String', 'methodName')}
+                            in method  {renderInput('methodName', sc.methodName || 'methodname', 'String', 'methodName')}
                         </span>
                     </>;
                     case 'HAS_CONDITIONAL': return <>
                         <span className='flex items-center mx-1 my-1'>
-                            has {renderConditionalTypeSelect('conditionalType', sc.varType || 'IF')} statement
+                            has {renderConditionalTypeSelect('varType', sc.varType || 'IF')} statement
                         </span>
                         <span className='flex items-center mx-1 my-1'>
                             in method {renderInput('methodName', sc.methodName || '', 'String', 'methodName')}
                         </span>
-                    </>;
-                    case 'HAS_VARIABLE': return <>
-                        <span className='flex items-center mx-1 my-1'>
-                            has variable {renderInput('varName', sc.varName || '', 'String', 'varName')}
-                        </span>
-                        <span className='flex items-center mx-1 my-1'>
-                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
-                        </span >
                     </>;
                     case 'HAS_PARAMETER': return <>
                         <span className='flex items-center mx-1 my-1'>
@@ -500,7 +521,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                             that has parameter of {renderInput('varName', sc.varName || '', 'String', 'paramName')}
                         </span>
                         <span className='flex items-center mx-1 my-1'>
-                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
+                            with type of <TypeSelect field='varType' value={sc.varType || 'String'} onDataChange={onDataChange} isPalette={isPalette} />
                         </span>
                     </>;
                     case 'HAS_RETURN': return <>
@@ -511,7 +532,7 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                             that has return value {renderInput('value', sc.value || '', 'String', 'value')}
                         </span>
                         <span className='flex items-center mx-1 my-1'>
-                            with type of {renderTypeSelect('varType', sc.varType || 'String')}
+                            with type of <TypeSelect field='varType' value={sc.varType || 'String'} onDataChange={onDataChange} isPalette={isPalette} />
                         </span>
                     </>;
                     default: return 'Unknown Structure Check';
