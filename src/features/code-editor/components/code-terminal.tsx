@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { TerminalOutputLine } from '../data/types';
+import { Button } from '@/components/ui/button';
 
 interface TerminalProps {
     output: TerminalOutputLine[];
@@ -20,13 +21,13 @@ const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning }) => {
         <div className="h-full flex flex-col bg-neutral-900">
             <div className="flex-shrink-0 bg-neutral-800 p-2 flex items-center justify-between border-b border-neutral-700">
                 <h3 className="text-sm font-semibold text-neutral-400">OUTPUT</h3>
-                <button
+                <Button
                     onClick={onClear}
                     disabled={isRunning}
                     className="text-xs px-2 py-1 rounded bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50"
                 >
                     Clear
-                </button>
+                </Button>
             </div>
             <div ref={terminalBodyRef} className="flex-grow p-2 overflow-y-auto font-mono text-sm">
                 {output.map((line, index) => (

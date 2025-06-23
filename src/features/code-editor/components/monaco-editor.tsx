@@ -1,7 +1,7 @@
+import Editor from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import React, { useEffect, useRef } from 'react';
 import { type CodeIntelData, type MonacoEditorError } from '../hooks/use-code-intel';
-
-import * as monaco from 'monaco-editor';
 
 interface MonacoEditorProps {
     language: string;
@@ -14,55 +14,16 @@ interface MonacoEditorProps {
 
 const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, codeIntel, errors, readOnly }) => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
     const completionProviderRef = useRef<monaco.IDisposable | null>(null);
-    const onchangeRef = useRef(onChange);
 
-    useEffect(() => {
-        onchangeRef.current = onChange;
-    }, [onChange]);
-
-    useEffect(() => {
-        if (containerRef.current && !editorRef.current) {
-            editorRef.current = monaco.editor.create(containerRef.current, {
-                value,
-                language,
-                theme: 'vs-dark',
-                automaticLayout: true,
-                wordWrap: 'on',
-                fontSize: 14,
-                readOnly: readOnly,
-            });
-
-            editorRef.current.onDidChangeModelContent(() => {
-                if (onchangeRef.current && editorRef.current) {
-                    onchangeRef.current(editorRef.current.getValue());
-                }
-            });
-        }
-
-        return () => {
-            editorRef.current?.dispose();
-            editorRef.current = null;
-        };
-    }, []);
-
-    useEffect(() => {
-        if (editorRef.current && editorRef.current.getValue() !== value) {
-            editorRef.current.setValue(value);
-        }
-    }, [value]);
-
-    // Update editor language when prop changes
-    useEffect(() => {
-        if (editorRef.current) {
-            monaco.editor.setModelLanguage(editorRef.current.getModel()!, language);
-        }
-    }, [language]);
+    // Handle editor did mount
+    const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
+        editorRef.current = editor;
+    };
 
     // Register completion provider for IntelliSense
     useEffect(() => {
-        if (codeIntel) {
+        if (codeIntel && editorRef.current) {
             completionProviderRef.current?.dispose();
 
             completionProviderRef.current = monaco.languages.registerCompletionItemProvider('java', {
@@ -161,6 +122,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
         };
     }, [codeIntel]);
 
+    // Update error markers
     useEffect(() => {
         if (editorRef.current) {
             const model = editorRef.current.getModel();
@@ -170,7 +132,22 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
         }
     }, [errors]);
 
-    return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
+    return (
+        <Editor
+            height="100%"
+            language={language}
+            value={value}
+            onChange={(value) => onChange(value || '')}
+            onMount={handleEditorDidMount}
+            theme="vs-dark"
+            options={{
+                automaticLayout: true,
+                wordWrap: 'on',
+                fontSize: 14,
+                readOnly: readOnly,
+            }}
+        />
+    );
 };
 
 export default MonacoEditor;

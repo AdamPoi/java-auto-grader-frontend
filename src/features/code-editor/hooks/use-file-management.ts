@@ -20,7 +20,6 @@ function useFileManagement(initialFiles: FileData[], readOnly?: boolean): UseFil
     const [files, setFiles] = useState<FileData[]>(initialFiles);
     const [activeFileName, setActiveFileName] = useState<string | null>(initialFiles[0]?.fileName || null);
 
-    // If readOnly is true, ensure no file is active to prevent editing
     useEffect(() => {
         if (readOnly) {
             setActiveFileName(null);

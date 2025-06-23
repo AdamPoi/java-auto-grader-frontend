@@ -10,17 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import type { SearchRequestParams } from '@/types/api.types';
 import { areFilesEqual } from '@/utils/component-util';
 import { IconEdit, IconPlus, IconUpload, IconX } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { useAssignmentById } from '../assignments/hooks/use-assignment';
+import type { Rubric } from '../rubrics/data/types';
 import { useRubrics } from '../rubrics/hooks/use-rubric';
-import { TestRunner } from '../try-out/components/test-runner';
+import type { Submission } from '../submissions/data/types';
 import Terminal from './components/code-terminal';
-import MonacoEditor from './components/monaco-editor';
-import { TestButton } from './components/test-button';
+import { TestPanel } from './components/test-panel';
 import { useTestRunner } from './hooks/use-test-runner';
+import MonacoEditor from './components/monaco-editor';
 
 const initialFilesData: FileData[] = [
     { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
@@ -77,14 +79,15 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     const [modal, setModal] = useState<{ type: 'create' | 'rename' | 'delete'; payload: string } | null>(null);
     const [fileNameInput, setFileNameInput] = useState('');
     const [modalError, setModalError] = useState('');
-    const [terminalHeight, setTerminalHeight] = useState(256);
+    const [terminalHeight, setTerminalHeight] = useState(360);
+    const [bottomPanelTab, setBottomPanelTab] = useState<'terminal' | 'tests'>('terminal');
     const [sidebarWidth, setSidebarWidth] = useState(320);
     const isResizingRef = useRef(false);
     const isSidebarResizingRef = useRef(false);
 
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const [lastTestResult, setLastTestResult] = useState<Submission | undefined>();
     const activeFile = useMemo(() => files.find(f => f.fileName === activeFileName), [files, activeFileName]);
 
     useEffect(() => {
@@ -195,12 +198,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         event.target.value = '';
     };
 
-    // const getFileIcon = (fileName: string) => {
-    //     if (fileName.endsWith('.java')) {
-    //         return '☕'; // Coffee emoji for Java files
-    //     }
-    //     return '📄'; // Default file icon
-    // };
+
 
     const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
@@ -212,68 +210,45 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     };
 
     const { data: rubrics, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
-    console.log(rubrics)
-    // const rubrics = [
-    //     {
-    //         id: '1',
-    //         name: 'Unit Tests',
-    //         description: 'Basic functionality tests',
-    //         points: 100,
-    //         assignmentId: 'assignment-1',
-    //         rubricGrades: [
-    //             {
-    //                 id: '1',
-    //                 name: 'Test Constructor',
-    //                 description: 'Tests if constructor properly initializes the object',
-    //                 gradeType: 'AUTOMATIC',
-    //                 rubricId: '1',
-    //                 assignmentId: 'assignment-1',
-    //                 displayOrder: 1
-    //             },
-
-    //         ]
-    //     },
-    //     {
-    //         id: '2',
-    //         name: 'Integration Tests',
-    //         description: 'Integration tests for the entire application',
-    //         points: 200,
-    //         assignmentId: 'assignment-1',
-    //         rubricGrades: [
-    //             {
-    //                 id: '2',
-    //                 name: 'Test Method Functionality',
-    //                 description: 'Tests if methods work as expected',
-    //                 gradeType: 'AUTOMATIC',
-    //                 rubricId: '2',
-    //                 assignmentId: 'assignment-1',
-    //                 displayOrder: 2
-    //             },
-    //             {
-    //                 id: '3',
-    //                 name: 'Test Edge Cases',
-    //                 description: 'Tests boundary conditions and edge cases',
-    //                 gradeType: 'AUTOMATIC',
-    //                 rubricId: '2',
-    //                 assignmentId: 'assignment-1',
-    //                 displayOrder: 3
-    //             }
-    //         ]
-    //     }
-    // ]
 
 
-    const toPascalCase = (str: string | undefined) => {
-        if (!str) return "";
-        return str
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join('');
+    const handleRunTestsForPanel = async (rubrics: Rubric[]) => {
+        const sourceFiles = files.filter(file =>
+            !file.fileName.toLowerCase().includes('test')
+        );
+
+        const testFiles = rubrics.map(rubric => ({
+            fileName: `${rubric.name.replace(/\s+/g, '')}Test.java`,
+            content: assignment?.testCode || `
+// Mock test code for ${rubric.name}
+public class ${rubric.name.replace(/\s+/g, '')}Test {
+    public static void main(String[] args) {
+        System.out.println("Running tests for: ${rubric.name}");
+        
+        ${rubric.rubricGrades?.map((grade, index) => `
+        // Test ${index + 1}: ${grade.name}
+        try {
+            System.out.println("✓ ${grade.name} - PASSED");
+        } catch (Exception e) {
+            System.out.println("✗ ${grade.name} - FAILED: " + e.getMessage());
+        }
+        `).join('\n        ')}
+        
+        System.out.println("Tests completed");
+    }
+}`
+        }));
+
+        await runTests(sourceFiles, testFiles);
     };
+
+    const terminalOutputString = terminalOutput
+        .map(line => `${line.type === 'error' ? '[ERROR] ' : ''}${line.text}`)
+        .join('');
+
 
     return (
         <div className="bg-neutral-900 text-white h-screen flex font-sans">
-            {/* Sidebar - File Explorer */}
             <div
                 className="flex-shrink-0 bg-neutral-800 border-r border-neutral-700 flex flex-col"
                 style={{ width: `${sidebarWidth}px` }}>
@@ -360,7 +335,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             ></div> */}
 
             {/* Main Content Area */}
-            <div className="flex-grow flex flex-col min-h-0">
+            <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar with Run Button */}
                 <div className="flex-shrink-0 p-3 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -384,19 +359,21 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             </svg>
                             <span className="ml-2">Run</span>
                         </Button>
-                        {rubrics?.content && rubrics.content.length > 0 && <TestButton
+                        {/* {rubrics?.content && rubrics.content.length > 0 && <TestButton
                             rubrics={rubrics.content}
                             onSelectRubric={openTestRunner}
                             disabled={files.length === 0}
-                        />}
+                        />} */}
                     </div>
 
                 </div>
 
-                {/* Editor and Terminal */}
-                <div className="flex-grow flex flex-col min-h-0">
-                    <div className="flex-grow" style={{ height: `calc(100% - ${terminalHeight}px)` }}>
+                {/* Editor and Terminal Container */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Code Editor Area */}
+                    <div className="flex-1 overflow-hidden" style={{ height: `calc(100vh - 120px - ${terminalHeight}px)` }}>
                         {activeFile ? (
+
                             <MonacoEditor
                                 key={activeFile.fileName}
                                 language={"java"}
@@ -407,31 +384,86 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                 readOnly={readOnly}
                             />
                         ) : (
-                            <div className="flex items-center justify-center h-full bg-neutral-900">
-                                <div className="text-center">
-                                    <p className="text-neutral-400 text-lg mb-2">No file selected</p>
-                                    <p className="text-neutral-500 text-sm">Select a file from the explorer to start coding</p>
-                                </div>
+                            <div className="flex items-center justify-center h-full text-neutral-500">
+                                Select a file to start editing
                             </div>
                         )}
                     </div>
 
-                    {/* Terminal Resize Handle */}
-                    <div
-                        onMouseDown={handleMouseDown}
-                        className="flex-shrink-0 h-1 bg-neutral-700 hover:bg-blue-600 cursor-row-resize"
-                    ></div>
-                    {/* Terminal */}
-                    <Terminal
-                        output={terminalOutput}
-                        isRunning={isRunning}
-                        onClear={clearTerminal}
-                    />
+                    {/* Terminal/Test Panel */}
+                    <div className="flex-shrink-0 border-t border-neutral-700" style={{ height: `${terminalHeight}px` }}>
+                        {/* Resize Handle */}
+                        <div
+                            className="h-1 bg-neutral-600 cursor-row-resize hover:bg-blue-500 w-full"
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                const startY = e.clientY;
+                                const startHeight = terminalHeight;
 
+                                const handleMouseMove = (e: MouseEvent) => {
+                                    const deltaY = startY - e.clientY;
+                                    const newHeight = Math.max(150, Math.min(600, startHeight + deltaY));
+                                    setTerminalHeight(newHeight);
+                                };
 
+                                const handleMouseUp = () => {
+                                    document.removeEventListener('mousemove', handleMouseMove);
+                                    document.removeEventListener('mouseup', handleMouseUp);
+                                };
+
+                                document.addEventListener('mousemove', handleMouseMove);
+                                document.addEventListener('mouseup', handleMouseUp);
+                            }}
+                        />
+
+                        {/* Tab Header */}
+                        <div className="flex bg-neutral-800">
+                            <button
+                                onClick={() => setBottomPanelTab('terminal')}
+                                className={cn(
+                                    "px-4 py-2 text-sm font-medium border-r border-neutral-700",
+                                    bottomPanelTab === 'terminal'
+                                        ? "bg-neutral-700 text-white"
+                                        : "text-neutral-400 hover:text-white hover:bg-neutral-750"
+                                )}
+                            >
+                                Terminal
+                            </button>
+                            <button
+                                onClick={() => setBottomPanelTab('tests')}
+                                className={cn(
+                                    "px-4 py-2 text-sm font-medium border-r border-neutral-700",
+                                    bottomPanelTab === 'tests'
+                                        ? "bg-neutral-700 text-white"
+                                        : "text-neutral-400 hover:text-white hover:bg-neutral-750"
+                                )}
+                            >
+                                Test Cases
+                            </button>
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="overflow-hidden" style={{ height: `calc(100% - 41px)` }}>
+                            {bottomPanelTab === 'terminal' ? (
+                                <Terminal
+                                    output={terminalOutput}
+                                    isRunning={isRunning}
+                                    onClear={clearTerminal}
+                                />
+                            ) : (
+                                <TestPanel
+                                    rubrics={rubrics?.content || []}
+                                    isRunning={isRunning}
+                                    testResult={lastTestResult}
+                                    liveTestOutput={terminalOutputString}
+                                    onRunTests={handleRunTestsForPanel}
+                                />
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {/* Test Runner Modal */}
+            {/* Test Runner Modal
             {selectedRubric && (
                 <TestRunner
                     isOpen={isTestRunnerOpen}
@@ -442,7 +474,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                     liveTestOutput={liveTestOutput}
                     onRunTests={handleRunTests}
                 />
-            )}
+            )} */}
             {/* Modals */}
             <Dialog open={!!(modal && modal.type !== 'delete')} onOpenChange={(open) => !open && setModal(null)}>
                 <DialogContent className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700">
@@ -499,6 +531,5 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         </div>
     );
 }
-
 export default CodeEditor;
 

@@ -107,7 +107,7 @@ function AssignmentManagePage() {
               Submissions
             </TabsTrigger>
             <TabsTrigger value="compiler">
-              Compiler
+              Try Out
             </TabsTrigger>
           </TabsList>
 
