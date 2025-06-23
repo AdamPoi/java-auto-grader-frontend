@@ -1,86 +1,130 @@
 import type { FileData } from '@/features/code-editor/hooks/use-file-management';
-import React, { useCallback, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import type { TestResult, TryOutSubmission } from '../data/types';
+import { useCreateSubmission, useDeleteSubmission, useSubmissionsList, useUpdateSubmission } from '@/features/submissions/hooks/use-submission';
+import { useParams } from '@tanstack/react-router';
+import React, { useCallback } from 'react';
 import FileUploadArea from './file-upload-area';
 import TryOutSubmissionList from './try-out-submission-list';
 
 const TryOutTab: React.FC = () => {
-    const handleDeleteSubmission = useCallback((id: string) => {
-        setSubmissions(prev => prev.filter(submission => submission.id !== id));
-    }, []);
-    const [submissions, setSubmissions] = useState<TryOutSubmission[]>([]);
+    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { data: submissionsData, isLoading: isLoadingSubmissions, refetch } = useSubmissionsList({
+        page: 0,
+        size: 100,
+        filter: `assignment=eq:${assignmentId}`,
+    });
+
+    const submissions = submissionsData?.content || [];
+
+    const createSubmissionMutation = useCreateSubmission();
+    const updateSubmissionMutation = useUpdateSubmission();
+    const deleteSubmissionMutation = useDeleteSubmission();
 
     const handleFilesUpload = useCallback((files: FileData[]) => {
         if (files.length === 0) {
             return;
         }
 
-        const submissionCodes = files.map(file => ({
-            fileName: file.fileName,
-            content: file.content,
-        }));
-
-        const newSubmission: TryOutSubmission = {
-            id: uuidv4(),
-            submissionCodes: submissionCodes,
-            status: 'pending',
+        const submissionData = {
+            submissionCodes: files.map(file => ({
+                fileName: file.fileName,
+                sourceCode: file.content,
+            })),
+            status: 'uploaded',
+            assignmentId,
         };
-        setSubmissions(prev => [...prev, newSubmission]);
-    }, []);
+
+        createSubmissionMutation.mutate(submissionData, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (error) => {
+                console.error('Failed to create submission:', error);
+            }
+        });
+    }, [createSubmissionMutation, refetch, assignmentId]);
+
+    const handleDeleteSubmission = useCallback((id: string) => {
+        deleteSubmissionMutation.mutate(id, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (error) => {
+                console.error('Failed to delete submission:', error);
+            }
+        });
+    }, [deleteSubmissionMutation, refetch]);
 
     const handleCodeChange = useCallback((id: string, files: FileData[]) => {
-        setSubmissions(prevSubmissions =>
-            prevSubmissions.map(submission =>
-                submission.id === id
-                    ? { ...submission, submissionCodes: files }
-                    : submission
-            )
-        );
-    }, []);
+        const submissionCodes = files.map(file => ({
+            fileName: file.fileName,
+            sourceCode: file.content,
+        }));
+
+        updateSubmissionMutation.mutate({
+            id,
+            data: { submissionCodes }
+        }, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (error) => {
+                console.error('Failed to update submission code:', error);
+            }
+        });
+    }, [updateSubmissionMutation, refetch]);
 
     const handleTestSubmission = useCallback((id: string, submissionCodes: FileData[]) => {
-        setSubmissions(prevSubmissions =>
-            prevSubmissions.map(submission =>
-                submission.id === id
-                    ? {
-                        ...submission,
-                        status: 'testing',
-                        submissionCodes: submissionCodes, // Update submissionCodes with the latest from editor
-                    }
-                    : submission
-            )
-        );
+        updateSubmissionMutation.mutate({
+            id,
+            data: {
+                status: 'testing',
+                submissionCodes: submissionCodes.map(file => ({
+                    fileName: file.fileName,
+                    sourceCode: file.content,
+                }))
+            }
+        }, {
+            onSuccess: () => {
+                refetch();
 
-        setTimeout(() => {
-            setSubmissions(prevSubmissions =>
-                prevSubmissions.map(submission => {
-                    if (submission.id === id) {
-                        const passed = Math.random() > 0.5; // Simulate random pass/fail
-                        const mockTestResults: TestResult[] = [
-                            { testName: 'Test Case 1', passed: passed, output: passed ? 'Output for Test 1: Success' : 'Output for Test 1: Failure' },
-                            { testName: 'Test Case 2', passed: !passed, output: !passed ? 'Output for Test 2: Success' : 'Output for Test 2: Failure' },
-                        ];
-                        return {
-                            ...submission,
+                setTimeout(() => {
+                    const passed = Math.random() > 0.5;
+                    updateSubmissionMutation.mutate({
+                        id,
+                        data: {
                             status: passed ? 'completed' : 'failed',
-                            testResults: mockTestResults,
-                        };
-                    }
-                    return submission;
-                })
-            );
-        }, 2000); // Simulate 2-second test run
-    }, []);
+                            feedback: passed ? 'All tests passed!' : 'Some tests failed.',
+                        }
+                    }, {
+                        onSuccess: () => {
+                            refetch();
+                        },
+                        onError: (error) => {
+                            console.error('Failed to update submission test result:', error);
+                        }
+                    });
+                }, 2000);
+            },
+            onError: (error) => {
+                console.error('Failed to start submission test:', error);
+            }
+        });
+    }, [updateSubmissionMutation, refetch]);
+
     const handleStudentChange = useCallback((id: string, studentId: string) => {
-        setSubmissions(prevSubmissions =>
-            prevSubmissions.map(submission =>
-                submission.id === id
-                    ? { ...submission, studentId: studentId }
-                    : submission
-            )
-        );
-    }, []);
+        updateSubmissionMutation.mutate({
+            id,
+            data: { studentId }
+        }, {
+            onSuccess: () => {
+                refetch();
+            },
+            onError: (error) => {
+                console.error('Failed to update student assignment:', error);
+            }
+        });
+    }, [updateSubmissionMutation, refetch]);
+
     return (
         <div className="space-y-6 p-4">
             <FileUploadArea onFilesUpload={handleFilesUpload} />
@@ -90,6 +134,8 @@ const TryOutTab: React.FC = () => {
                 onCodeChange={handleCodeChange}
                 onDeleteSubmission={handleDeleteSubmission}
                 onStudentChange={handleStudentChange}
+                onRefetch={refetch}
+                assignmentId={assignmentId}
             />
         </div>
     );

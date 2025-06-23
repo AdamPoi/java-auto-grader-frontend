@@ -104,7 +104,7 @@ function AssignmentManagePage() {
               Test Builder
             </TabsTrigger>
             <TabsTrigger value="try-out">
-              Try Out
+              Submissions
             </TabsTrigger>
             <TabsTrigger value="compiler">
               Compiler
