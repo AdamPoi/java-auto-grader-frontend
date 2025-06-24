@@ -10,7 +10,6 @@ import CodeEditor from '@/features/code-editor';
 import { useSubmissionsList, useSubmitStudentSubmission } from '@/features/submissions/hooks/use-submission';
 import { useAuthStore } from '@/stores/auth.store';
 import type { SearchRequestParams } from '@/types/api.types';
-import 'highlight.js/styles/github.css';
 import { useState } from 'react';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';

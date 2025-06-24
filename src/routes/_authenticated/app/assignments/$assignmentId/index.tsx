@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import StudentAssignment from '@/features/assignments/pages/student-assignment';
 import TeacherAssignment from '@/features/assignments/pages/teacher-assignment';
 import { useAuthStore } from '@/stores/auth.store';
-import 'highlight.js/styles/github.css';
 
 
 export const Route = createFileRoute('/_authenticated/app/assignments/$assignmentId/')({
