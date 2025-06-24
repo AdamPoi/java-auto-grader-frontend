@@ -3,6 +3,8 @@ export type User = {
     firstName: string;
     lastName: string;
     email: string;
+    nim?: string;
+    nip?: string;
     password: string;
     roles: UserRole[];
     permissions: string[];

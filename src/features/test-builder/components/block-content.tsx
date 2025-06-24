@@ -9,7 +9,6 @@ import type { AnyBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlo
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
 
 
-// ## Refactored Component for Type Selection ##
 interface TypeSelectProps {
     field: string;
     value: string;
@@ -99,7 +98,6 @@ const TypeSelect: React.FC<TypeSelectProps> = ({ field, value, onDataChange, isP
 };
 
 
-// ## Refactored Component for Variable Selection ##
 interface VariableSelectProps {
     id: string;
     field: string;
@@ -167,6 +165,7 @@ const VariableSelect: React.FC<VariableSelectProps> = ({ id, field, value, onDat
 const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { block: AnyBlock | OmittedBlock, onDataChange: (field: string, value: any) => void, isPalette: boolean }) => {
     const { rubrics } = useTestBuilderStore();
     const id = (block as Block).id;
+    const { blocksById, blocksByParentId } = useContext(BlocksTreeContext);
 
     const renderInput = (field: string, value: string, varType: string = '', placeholder?: string, onChange?: (val: string) => void) => {
         const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -242,6 +241,14 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
             ? `${selectedRubric.name} (${selectedRubric.points} pts)`
             : "-- Unassigned --";
 
+        // Get all currently used rubric IDs from all blocks except current one
+        const usedRubricIds = new Set();
+        blocksById.forEach(blockData => {
+            if (blockData.id !== id && blockData.rubricId) {
+                usedRubricIds.add(blockData.rubricId.toString());
+            }
+        });
+
         return (
             <Select
                 value={value || 'unassigned'}
@@ -255,7 +262,19 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                    {rubrics.map(r => <SelectItem key={r.id} value={r.id.toString()}>{r.name} ({r.points} pts)</SelectItem>)}
+                    {rubrics.map(r => {
+                        const isUsed = usedRubricIds.has(r.id.toString());
+                        return (
+                            <SelectItem
+                                key={r.id}
+                                value={r.id.toString()}
+                                disabled={isUsed}
+                            >
+                                {r.name} ({r.points} pts)
+                                {isUsed && " (Already used)"}
+                            </SelectItem>
+                        );
+                    })}
                 </SelectContent>
             </Select>
         );

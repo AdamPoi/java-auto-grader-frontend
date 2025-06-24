@@ -57,42 +57,35 @@ export const sidebarData: SidebarData = {
             url: '/admin/courses',
             icon: IconBook,
           },
-          {
-            title: 'Submissions',
-            url: '/admin/submissions',
-            icon: IconClipboardCheck,
-          },
-
         ]
       },
     ] : []),
 
     ...(auth.hasRole(['student']) ? [
       {
-        title: 'Submission',
+        title: 'Courses',
         items: [
           {
-            title: 'Submissions',
-            url: '/app/submissions',
+            title: 'Course',
+            url: '/app/course',
             icon: IconClipboardCheck,
           },
-
         ]
       },
     ] : []),
 
     ...(auth.hasRole(['teacher']) ? [
       {
-        title: 'Submission',
+        title: 'Courses',
         items: [
           {
-            title: 'Submissions',
-            url: '/app/submissions',
+            title: 'Course',
+            url: '/app/course',
             icon: IconClipboardCheck,
           },
-
         ]
       },
+
     ] : []),
     {
       title: 'Assignment',

@@ -2,6 +2,7 @@ import type { Rubric, RubricGrade } from "@/features/rubrics/data/types";
 import type { Submission } from "@/features/submissions/data/types";
 import type { User } from "@/features/users/data/types";
 import type { Course } from './../../courses/data/types';
+import type { JavaFile } from "@/features/code-editor/data/types";
 
 
 export interface Assignment {
@@ -32,5 +33,13 @@ export interface Assignment {
 export type AssignmentForm = Assignment & {
     courseId?: string;
     teacherId?: string;
+};
+
+
+export type BulkAssignmentSubmission = {
+    nimToCodeFiles: Record<string, JavaFile[]>;
+    testFiles: JavaFile[];
+    mainClassName: string;
+    buildTool: string;
 };
 

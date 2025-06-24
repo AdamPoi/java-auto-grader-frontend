@@ -7,7 +7,22 @@ import React, { useEffect, useMemo } from 'react';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
 
 export const RubricPanel: React.FC = () => {
-    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
+    const getAssignmentId = () => {
+        try {
+            const adminParams = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
+            return adminParams.assignmentId;
+        } catch {
+            try {
+                const studentParams = useParams({ from: '/_authenticated/app/assignments/$assignmentId/' });
+                return studentParams.assignmentId;
+            } catch {
+                const genericParams = useParams({ strict: false });
+                return genericParams.assignmentId;
+            }
+        }
+    };
+
+    const assignmentId = getAssignmentId();
     const { rubrics, setRubrics } = useTestBuilderStore();
     const searchParams: SearchRequestParams = {
         page: 0,

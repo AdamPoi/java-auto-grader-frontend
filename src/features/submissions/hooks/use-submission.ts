@@ -69,3 +69,13 @@ export function useSubmitStudentSubmission() {
         },
     });
 }
+
+export function useBulkSubmission() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: TestSubmitRequest) => submissionApi.submitBulkStudentSubmission(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['submissions'] });
+        },
+    });
+}

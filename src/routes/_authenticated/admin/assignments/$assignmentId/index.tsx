@@ -17,6 +17,7 @@ import TryOutTab from '@/features/try-out/components/try-out-tab';
 import { useAuthStore } from '@/stores/auth.store';
 import { Suspense, useState } from 'react';
 import { useTryOutSubmission } from '@/features/submissions/hooks/use-submission';
+import BulkUpload from '@/features/assignments/components/bulk-upload';
 
 export const Route = createFileRoute('/_authenticated/admin/assignments/$assignmentId/')({
   component: AssignmentManagePage,
@@ -31,8 +32,6 @@ export const Route = createFileRoute('/_authenticated/admin/assignments/$assignm
 
   }
 });
-
-
 
 
 function AssignmentManagePage() {
@@ -144,7 +143,7 @@ function AssignmentManagePage() {
           <TabsContent value="try-out" className="mt-6" data-testid="test-builder-tab">
             {loadedTabs.has("try-out") ? (
               <Suspense fallback={<TabLoadingSpinner />}>
-                <TryOutTab />
+                <BulkUpload />
               </Suspense>
             ) : null}
           </TabsContent>

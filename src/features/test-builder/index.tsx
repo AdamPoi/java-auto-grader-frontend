@@ -214,7 +214,22 @@ export function TestBuilder() {
     const [isSaving, setIsSaving] = useState(false);
 
 
-    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
+    const getAssignmentId = () => {
+        try {
+            const adminParams = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
+            return adminParams.assignmentId;
+        } catch {
+            try {
+                const studentParams = useParams({ from: '/_authenticated/app/assignments/$assignmentId/' });
+                return studentParams.assignmentId;
+            } catch {
+                const genericParams = useParams({ strict: false });
+                return genericParams.assignmentId;
+            }
+        }
+    };
+
+    const assignmentId = getAssignmentId();
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
 
     const {

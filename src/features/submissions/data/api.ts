@@ -62,9 +62,9 @@ export const submissionApi = {
         return response;
     },
 
-    // submitBulkStudentSubmission: async (data: TestSubmitRequest[]): Promise<Submission[]> => {
-    //     const response = await axios.post('/submissions/bulk', data);
-    //     return response.data;
-    // },
+    submitBulkStudentSubmission: async (data: TestSubmitRequest[]): Promise<Submission[]> => {
+        const response = await axios.post('/submissions/bulk', data);
+        return response.data;
+    },
 
 };
