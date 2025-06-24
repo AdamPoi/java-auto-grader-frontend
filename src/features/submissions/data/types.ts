@@ -1,7 +1,8 @@
 import type { Assignment } from "@/features/assignments/data/types";
-import type { GradeExecution } from "@/features/rubrics/data/types";
+import type { JavaFile, TestJavaProject } from "@/features/code-editor/data/types";
+import type { RubricGrade } from "@/features/rubrics/data/types";
 import type { User } from "@/features/users/data/types";
-
+export type ExecutionStatus = "PENDING" | "RUNNING" | "PASSED" | "FAILED" | "TIMEOUT" | "SKIPPED";
 export interface Submission {
     id: string;
     executionTime?: string;
@@ -12,7 +13,7 @@ export interface Submission {
     assignmentId: string;
     studentId?: string;
     assignment?: Assignment;
-    gradeExecutions?: GradeExecution[];
+    testExecutions?: TestExecution[];
     submissionCodes?: SubmissionCode[];
     student?: User;
 }
@@ -28,9 +29,41 @@ export interface SubmissionCode {
     updatedAt?: string;
 }
 
-export type SubmissionForm = Omit<Submission, 'id' | 'assignment' | 'submissionCodes' | 'gradeExecutions' | 'student'> & {
-    submissionCodes: SubmissionCodeForm[];
+export interface TestExecution {
+    id: string;
+    methodName?: string;
+    status?: ExecutionStatus;
+    output?: string;
+    error?: string;
+    executionTime?: number;
 
+    rubricGradeId: string;
+    submissionId: string;
+    assignmentId: string;
+
+    rubricGrade?: RubricGrade;
+    submission?: Submission;
+
+    testCodeRequest: TestJavaProject
+
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export type SubmissionForm = Omit<Submission, 'id' | 'assignment' | 'submissionCodes' | 'testExecutions' | 'student'> & {
+    submissionCodes: SubmissionCodeForm[];
 };
 
+export type TestSubmitRequest = {
+    assignmentId: string;
+    sourceFiles: JavaFile[];
+    testFiles: JavaFile[];
+    testClassNames?: string[];
+    buildTool?: string;
+}
+
+
+
 export type SubmissionCodeForm = Omit<SubmissionCode, 'id' | 'submission' | 'createdAt' | 'updatedAt'>;
+
+export type TestExecutionForm = Omit<TestExecution, 'id' | 'submission' | 'rubricGrad' | 'createdAt' | 'updatedAt'>;

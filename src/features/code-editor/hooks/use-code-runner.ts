@@ -14,7 +14,8 @@ interface UseCodeRunnerReturn {
     testCode: (sourceFiles: FileData[], testFiles: FileData[], testCodeContent: string) => Promise<void>;
     testResult: Submission | undefined;
     setTestResult: React.Dispatch<React.SetStateAction<Submission | undefined>>;
-    liveTestOutput: string; // New: Live output for tests
+    liveTestOutput: string;
+    setLiveTestOutput: React.Dispatch<React.SetStateAction<string>>; // New: Live output for tests
 }
 
 export function useCodeRunner(): UseCodeRunnerReturn {
@@ -146,7 +147,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
                 status: data.success ? 'PASSED' : 'FAILED',
                 executionTime: data.executionTime?.toString() || '0',
                 feedback: feedbackMessage,
-                gradeExecutions: data.testSuites?.flatMap(suite =>
+                testExecutions: data.testSuites?.flatMap(suite =>
                     suite.testCases.map(testCase => ({
                         id: `execution-${testCase.methodName}`,
                         status: testCase.status as ExecutionStatus,
@@ -182,7 +183,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
                 status: 'ERROR' as ExecutionStatus,
                 executionTime: '0',
                 feedback: `Error: ${error.message}`,
-                gradeExecutions: [],
+                testExecutions: [],
                 startedAt: new Date().toISOString(),
                 completedAt: new Date().toISOString(),
                 assignmentId: 'test-assignment',
@@ -246,5 +247,6 @@ export function useCodeRunner(): UseCodeRunnerReturn {
         testResult,
         setTestResult,
         liveTestOutput, // New: Expose liveTestOutput
+        setLiveTestOutput
     };
 }

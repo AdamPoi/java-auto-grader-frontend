@@ -18,12 +18,14 @@ import { SortableBlock } from '@/features/test-builder/components/sortable-block
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 import { useAssignmentById, useUpdateAssignment } from '../assignments/hooks/use-assignment';
 import type { RubricGrade, RubricGradeForm } from '../rubrics/data/types';
-import { useCreateRubricGrade, useRubricGrades, useUpdateRubricGrade } from '../rubrics/hooks/use-rubric-grade';
+import { useRubricGrades, useSaveManyRubricGrades } from '../rubrics/hooks/use-rubric-grade';
 import { BlockRenderer } from './components/block-renderer';
 import { generateBlockCode, generateLibraryImportCode, generateSetupCode } from './lib/block-code-generator';
 import { parseJavaCodeToBlocks } from './lib/code-to-blocks';
+
 
 interface BlocksTreeContextType {
     blocksByParentId: Map<string | null, Block[]>;
@@ -62,7 +64,6 @@ export function TestBuilder() {
         const parentIdMap = new Map<string | null, Block[]>();
         const idMap = new Map<string, Block>();
 
-        // Initialize parentIdMap to ensure all parents have an entry
         activeSuite.blocks.forEach(block => {
             if (!parentIdMap.has(block.parentId)) {
                 parentIdMap.set(block.parentId, []);
@@ -77,7 +78,6 @@ export function TestBuilder() {
         return { blocksByParentId: parentIdMap, blocksById: idMap };
     }, [activeSuite?.blocks]);
 
-    // Memoize top-level block IDs to prevent unnecessary re-renders
     const topLevelBlockIds = useMemo(() => {
         return (blocksByParentId.get(null) || []).map((b: Block) => b.id);
     }, [blocksByParentId]);
@@ -191,6 +191,7 @@ export function TestBuilder() {
     const generatedCode = useMemo(() => {
         if (!activeSuite) return "// No active test suite selected.";
         let code = ''
+        code += "package workspace;"
         code += generateLibraryImportCode();
         code += `public class ${activeSuite.name} {\n\n`;
         code += generateSetupCode();
@@ -225,7 +226,9 @@ export function TestBuilder() {
         size: 1000,
         filter: `assignment=eq:${assignmentId}`,
     });
-    const createRubricGrade = useCreateRubricGrade(
+
+
+    const saveManyRubricGrades = useSaveManyRubricGrades(
         () => {
             setIsSaving(false);
             refetchRubricGrades();
@@ -241,7 +244,7 @@ export function TestBuilder() {
         if (!existingRubricGrades || existingRubricGrades.content.length === 0 || !activeSuite) return new Map();
         const gradeMap = new Map();
         existingRubricGrades?.content.forEach(grade => {
-            const functionName = grade.arguments?.functionName || grade.name;
+            const functionName = `${grade.name}`;
             if (functionName) {
                 gradeMap.set(functionName, grade);
             }
@@ -251,18 +254,49 @@ export function TestBuilder() {
 
 
     useEffect(() => {
-        if (!assignment?.testCode || !activeSuite) {
+        if (!activeSuite) {
             return;
         }
+
+        if (!assignment?.testCode && activeSuite.blocks.length > 0) {
+            setSuiteBlocks({ suiteId: activeSuite.id, blocks: [] });
+            return;
+        }
+
+        if (!assignment?.testCode) {
+            return;
+        }
+
         const newBlocks = parseJavaCodeToBlocks(assignment.testCode);
+        const functionIdMapping = new Map<string, string>();
+
         const newBlocksWithRubrics = newBlocks.map(block => {
             if (block.type === 'FUNCTION') {
                 const existingGrade: RubricGrade = existingGradesByFunction.get((block as FunctionBlock).funcName);
-                return { ...block, rubricId: existingGrade?.rubricId || undefined };
+                // console.log(existingGrade)
+                const oldId = block.id;
+                const newId = existingGrade?.id || uuidv4();
+
+                functionIdMapping.set(oldId, newId);
+
+                return {
+                    ...block,
+                    id: newId,
+                    rubricId: existingGrade?.rubricId || undefined
+                };
             }
             return block;
         });
 
+        const finalBlocks = newBlocksWithRubrics.map(block => {
+            if (block.parentId && functionIdMapping.has(block.parentId)) {
+                return {
+                    ...block,
+                    parentId: functionIdMapping.get(block.parentId) || null
+                };
+            }
+            return block;
+        });
 
         const currentBlocksRelevantData = activeSuite.blocks.map(b => ({
             type: b.type,
@@ -273,7 +307,7 @@ export function TestBuilder() {
             parentId: b.parentId,
             rubricId: (b as FunctionBlock).rubricId?.toString() || undefined
         }));
-        const newBlocksRelevantData = newBlocksWithRubrics.map(b => ({
+        const newBlocksRelevantData = finalBlocks.map(b => ({
             type: b.type,
             funcName: (b as FunctionBlock).funcName || undefined,
             varName: (b as VariableBlock).varName || undefined,
@@ -287,9 +321,9 @@ export function TestBuilder() {
             return;
         }
 
-        setSuiteBlocks({ suiteId: activeSuite.id, blocks: newBlocksWithRubrics });
+        setSuiteBlocks({ suiteId: activeSuite.id, blocks: finalBlocks });
 
-    }, [assignment?.testCode, activeSuite?.id, setSuiteBlocks, rubrics]);
+    }, [assignment?.testCode, activeSuite?.id, setSuiteBlocks, rubrics, assignmentId]);
 
     const filteredPalette = useMemo(() => {
         if (!searchQuery) return INITIAL_PALETTE_BLOCKS;
@@ -332,7 +366,6 @@ export function TestBuilder() {
 
 
     const updateAssignment = useUpdateAssignment();
-    const updateGrade = useUpdateRubricGrade();
 
 
     const handleSaveRubricGrades = useCallback(async () => {
@@ -359,53 +392,41 @@ export function TestBuilder() {
 
         setIsSaving(true);
         try {
-            const functionBlocksWithRubrics = allFunctionBlocks.filter(block =>
-                'rubricId' in block && block.rubricId
-            ) as Array<FunctionBlock & { rubricId: string }>;
+            // const functionBlocksWithRubrics = allFunctionBlocks.filter(block =>
+            //     'rubricId' in block && block.rubricId
+            // ) as Array<FunctionBlock & { rubricId: string }>;
 
+            const rubricGradesToSave: RubricGradeForm[] = [];
 
-            const savePromises = functionBlocksWithRubrics.map(async (functionBlock) => {
+            allFunctionBlocks.forEach(functionBlock => {
                 const functionName = functionBlock.funcName;
                 const existingGrade = Array.from(existingGradesByFunction.values()).find(
                     (grade) => grade.arguments?.functionBlockId === functionBlock.id
                 );
 
-                try {
-                    if (existingGrade) {
-                        const gradeUpdateData = {
-                            arguments: {
-                                testSuiteId: activeSuite.id,
-                                functionBlockId: functionBlock.id,
-                                functionName: functionName
-                            }
-                        };
-                        await updateGrade.mutateAsync({
-                            rubricGradeId: existingGrade.id,
-                            rubricGradeData: gradeUpdateData
-                        });
-                    } else {
-                        const rubricGradeForm: RubricGradeForm = {
-                            id: functionBlock.id,
-                            name: functionName,
-                            description: `Auto-generated rubric grade for test function: ${functionName}`,
-                            displayOrder: 0,
-                            arguments: {
-                                testSuiteId: activeSuite.id,
-                                functionBlockId: functionBlock.id,
-                                functionName: functionName
-                            },
-                            gradeType: 'AUTOMATIC' as const,
-                            assignmentId: assignmentId,
-                            rubricId: functionBlock.rubricId?.toString()
-                        };
-                        await createRubricGrade.mutateAsync(rubricGradeForm);
-                    }
-                } catch (error: any) {
-                    console.error(`Error processing rubric grade for ${functionName} (Block ID: ${functionBlock.id}):`, error);
-                }
+
+                const baseRubricGradeForm: RubricGradeForm = {
+                    id: existingGrade?.id || functionBlock.id, // Use existing grade ID if available, otherwise functionBlock.id for new
+                    name: functionName,
+                    description: `Auto-generated rubric grade for test function: ${functionName}`,
+                    displayOrder: 0,
+                    arguments: {
+                        testSuiteId: activeSuite.id,
+                        functionBlockId: functionBlock.id,
+                        functionName: functionName
+                    },
+                    gradeType: 'AUTOMATIC' as const,
+                    assignmentId: assignmentId,
+                    rubricId: functionBlock?.rubricId ? functionBlock?.rubricId.toString() : undefined
+                };
+
+                rubricGradesToSave.push(baseRubricGradeForm);
             });
 
-            await Promise.all(savePromises);
+            await saveManyRubricGrades.mutateAsync({
+                assignmentId: assignmentId,
+                rubricGradeData: rubricGradesToSave
+            });
 
             await updateAssignment.mutateAsync({
                 assignmentId: assignmentId,
@@ -420,8 +441,7 @@ export function TestBuilder() {
         } finally {
             setIsSaving(false);
         }
-    }, [activeSuite, generatedCode, createRubricGrade, updateGrade, updateAssignment, assignmentId, existingGradesByFunction]);
-
+    }, [activeSuite, generatedCode, saveManyRubricGrades, updateAssignment, assignmentId, existingGradesByFunction]);
     return (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd} onDragStart={handleDragStart} collisionDetection={rectIntersection}>
             <BlocksTreeContext.Provider value={{ blocksByParentId, blocksById }}>
@@ -500,7 +520,7 @@ export function TestBuilder() {
                                         variant="default"
                                         size="sm"
                                         onClick={handleSaveRubricGrades}
-                                        disabled={!hasRubricAssignments || isSaving || isLoadingRubricGrades}
+                                        disabled={isSaving || isLoadingRubricGrades}
                                     >
                                         {isSaving ? (
                                             <>

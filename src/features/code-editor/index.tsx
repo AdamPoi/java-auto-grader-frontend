@@ -18,11 +18,11 @@ import { useParams } from '@tanstack/react-router';
 import { useAssignmentById } from '../assignments/hooks/use-assignment';
 import type { Rubric } from '../rubrics/data/types';
 import { useRubrics } from '../rubrics/hooks/use-rubric';
-import type { Submission } from '../submissions/data/types';
+import type { TestSubmitRequest } from '../submissions/data/types';
 import Terminal from './components/code-terminal';
-import { TestPanel } from './components/test-panel';
-import { useTestRunner } from './hooks/use-test-runner';
 import MonacoEditor from './components/monaco-editor';
+import { TestPanel } from './components/test-panel';
+import { CodeRunnerApi } from './data/api';
 
 const initialFilesData: FileData[] = [
     { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
@@ -35,38 +35,15 @@ interface CodeEditorProps {
 }
 
 const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly }: CodeEditorProps) => {
-    const { files, activeFileName, setActiveFileName, handleCreateFile, handleRenameFile, handleDeleteFile, handleEditorChange, handleAddMultipleFiles } = useFileManagement(propInitialFilesData || initialFilesData, readOnly);
-    const {
-        isTestRunnerOpen,
-        selectedRubric,
-        openTestRunner,
-        closeTestRunner,
-        runTests,
-        isRunning: isTestRunning,
-        testResult,
-        liveTestOutput
-    } = useTestRunner();
+    const { files, activeFileName, setActiveFileName, handleCreateFile,
+        handleRenameFile, handleDeleteFile, handleEditorChange,
+        handleAddMultipleFiles } = useFileManagement(propInitialFilesData || initialFilesData, readOnly);
+
     const debouncedFiles = useDebounce(files, 500);
     const { intel, errors, validateFile } = useCodeIntel(debouncedFiles);
 
     const prevFilesRef = useRef<FileData[] | undefined>(undefined);
-    const handleRunTests = async () => {
-        if (!selectedRubric) return;
 
-        const sourceFiles = files.filter(file =>
-            !file.fileName.toLowerCase().includes('test')
-        );
-
-        const testFiles =
-            [
-                {
-                    fileName: `Class1Test.java`,
-                    content: assignment?.testCode || ''
-                }
-            ]
-
-        await runTests(sourceFiles, testFiles);
-    };
     useEffect(() => {
         if (onFileChange && !areFilesEqual(prevFilesRef.current, files)) {
             onFileChange(files);
@@ -74,7 +51,6 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         prevFilesRef.current = files;
     }, [files, onFileChange]);
 
-    const { terminalOutput, isRunning, clearTerminal, runCode, testCode, setTestResult } = useCodeRunner();
 
     const [modal, setModal] = useState<{ type: 'create' | 'rename' | 'delete'; payload: string } | null>(null);
     const [fileNameInput, setFileNameInput] = useState('');
@@ -87,18 +63,12 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
 
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [lastTestResult, setLastTestResult] = useState<Submission | undefined>();
     const activeFile = useMemo(() => files.find(f => f.fileName === activeFileName), [files, activeFileName]);
 
     useEffect(() => {
         validateFile(activeFile);
     }, [activeFile, validateFile]);
 
-    const handleMouseDown = (e: React.MouseEvent) => { isResizingRef.current = true; };
-    const handleSidebarMouseDown = (e: React.MouseEvent) => {
-        e.preventDefault();
-        isSidebarResizingRef.current = true;
-    };
 
     const handleMouseUp = (e: MouseEvent) => {
         isResizingRef.current = false;
@@ -212,35 +182,70 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     const { data: rubrics, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
 
 
+    const {
+        terminalOutput,
+        isRunning,
+        clearTerminal,
+        runCode,
+        testCode, // This will no longer be used for rubrics testing
+        testResult,
+        setTestResult,
+        liveTestOutput,
+        setLiveTestOutput // Assuming you have a setter for liveTestOutput to update it
+    } = useCodeRunner();
+
     const handleRunTestsForPanel = async (rubrics: Rubric[]) => {
-        const sourceFiles = files.filter(file =>
-            !file.fileName.toLowerCase().includes('test')
-        );
-
-        const testFiles = rubrics.map(rubric => ({
-            fileName: `${rubric.name.replace(/\s+/g, '')}Test.java`,
-            content: assignment?.testCode || `
-// Mock test code for ${rubric.name}
-public class ${rubric.name.replace(/\s+/g, '')}Test {
-    public static void main(String[] args) {
-        System.out.println("Running tests for: ${rubric.name}");
-        
-        ${rubric.rubricGrades?.map((grade, index) => `
-        // Test ${index + 1}: ${grade.name}
-        try {
-            System.out.println("✓ ${grade.name} - PASSED");
-        } catch (Exception e) {
-            System.out.println("✗ ${grade.name} - FAILED: " + e.getMessage());
+        if (!assignment?.testCode || !rubrics.length) {
+            console.warn('No test code or rubrics available');
+            return;
         }
-        `).join('\n        ')}
-        
-        System.out.println("Tests completed");
-    }
-}`
-        }));
 
-        await runTests(sourceFiles, testFiles);
+
+        const submissionPayload: TestSubmitRequest = {
+            assignmentId: assignmentId,
+            sourceFiles: files.filter(file => !file.fileName.toLowerCase().includes('test'))
+                .map(file => ({
+                    fileName: file.fileName,
+                    content: file.content
+                })),
+            testFiles: [{
+                fileName: 'MainTest.java',
+                content: assignment.testCode
+            }],
+            testClassNames: ['MainTest'],
+            // buildTool: 'gradle'
+        };
+
+        setTestResult(undefined); // Clear previous test result
+        setLiveTestOutput(''); // Clear previous live test output
+
+        try {
+            // Using the new API function
+            const result = await CodeRunnerApi.testSubmissionCode(submissionPayload);
+            setTestResult(result);
+            console.log('result', result);
+            // setTestResult(result);
+            // Assuming liveTestOutput also needs to be updated from the result if applicable
+            // For now, let's just make sure the result is reflected.
+            // If the API returns a stream for live output, you'd integrate that here.
+            // if (result.output) {
+            //     setLiveTestOutput(result.output.map(line => ({ type: line.type, text: line.text })));
+            // }
+
+        } catch (error) {
+            console.error('Error running tests:', error);
+            // setLiveTestOutput([{ type: 'error', text: `Error running tests: ${error.message || ''}` }]);
+            // setTestResult({
+            //     success: false,
+            //     message: `Failed to run tests: ${error.message || 'Unknown error'}`,
+            //     testResults: [],
+            //     output: [],
+            //     compilationErrors: [],
+            //     exception: null,
+            // });
+        }
     };
+
 
     const terminalOutputString = terminalOutput
         .map(line => `${line.type === 'error' ? '[ERROR] ' : ''}${line.text}`)
@@ -453,11 +458,11 @@ public class ${rubric.name.replace(/\s+/g, '')}Test {
                             ) : (
                                 <TestPanel
                                     rubrics={rubrics?.content || []}
-                                    isRunning={isRunning}
-                                    testResult={lastTestResult}
-                                    liveTestOutput={terminalOutputString}
-                                    onRunTests={handleRunTestsForPanel}
+                                    assignmentId={assignmentId}
+                                    testCode={assignment?.testCode}
+                                    files={files}
                                 />
+
                             )}
                         </div>
                     </div>

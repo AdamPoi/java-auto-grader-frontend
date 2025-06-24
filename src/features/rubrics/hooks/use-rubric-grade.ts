@@ -83,6 +83,20 @@ export const useCreateRubricGrade = (onSuccess?: () => void, onError?: (error: E
     return mutation;
 };
 
+export const useSaveManyRubricGrades = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ assignmentId, rubricGradeData }: { assignmentId: string, rubricGradeData: RubricGradeForm[] }) =>
+            rubricGradeApi.saveManyRubricGradeByAssignment(assignmentId, rubricGradeData), onSuccess: (_, variables) => {
+                queryClient.invalidateQueries({ queryKey: getQueryKey({ action: 'list' }) });
+                onSuccess?.();
+            },
+        onError: (error) => {
+            onError?.(error);
+        },
+    });
+};
+
 export const useUpdateRubricGrade = (onSuccess?: () => void, onError?: (error: Error) => void) => {
     const queryClient = useQueryClient();
     return useMutation({

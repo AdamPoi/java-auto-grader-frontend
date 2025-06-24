@@ -18,6 +18,11 @@ export const rubricGradeApi = {
         return response.data;
     },
 
+    saveManyRubricGradeByAssignment: async (assignmentId: string, data: RubricGradeForm[]): Promise<RubricGrade[]> => {
+        const response = await axios.post(`/assignments/${assignmentId}/rubric-grades/bulk`, data);
+        return response.data;
+    },
+
     updateRubricGrade: async (id: string, data: Partial<RubricGradeForm>): Promise<RubricGrade> => {
         const response = await axios.patch(`/rubric-grades/${id}`, data);
         return response.data;

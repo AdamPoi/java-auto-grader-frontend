@@ -3,17 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ExecutionStatus, Rubric, RubricGrade } from '@/features/rubrics/data/types';
-import type { Submission } from '@/features/submissions/data/types';
+import type { Submission, TestSubmitRequest } from '@/features/submissions/data/types';
 import { cn } from '@/lib/utils';
 import { AlertCircle, CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { CodeRunnerApi } from '../data/api';
 
 interface TestPanelProps {
     rubrics: Rubric[];
-    isRunning: boolean;
-    testResults?: Map<string, Submission>;
-    liveTestOutput: string;
-    onRunTests: (rubrics: Rubric[]) => void;
+    assignmentId: string;
+    testCode?: string;
+    files: Array<{ fileName: string; content: string }>;
 }
 
 const getStatusIcon = (status: ExecutionStatus) => {
@@ -34,24 +34,31 @@ const getStatusIcon = (status: ExecutionStatus) => {
     }
 };
 
-const calculateOverallScore = (rubrics: Rubric[], testResults?: Map<string, Submission>) => {
-    if (!testResults) return { score: 0, total: 0, percentage: 0 };
+interface RubricScore {
+    score: number;
+    total: number;
+    percentage: number;
+}
+// Update the calculateOverallScore function to work with the new data structure
+const calculateOverallScore = (rubrics: Rubric[], testResult?: Submission) => {
+    if (!testResult?.testExecutions) return { score: 0, total: 0, percentage: 0 };
 
     let totalScore = 0;
     let totalTests = 0;
 
     rubrics.forEach(rubric => {
-        const result = testResults.get(rubric.id);
         const rubricGrades = rubric.rubricGrades || [];
-
         totalTests += rubricGrades.length;
 
-        if (result?.gradeExecutions) {
-            const passedTests = result.gradeExecutions.filter(execution =>
-                execution.status === 'PASSED'
-            ).length;
-            totalScore += passedTests;
-        }
+        rubricGrades.forEach(grade => {
+            const execution = testResult.testExecutions?.find(
+                exec => exec.methodName?.includes(grade.name) ||
+                    exec.rubricGrade?.name === grade.name
+            );
+            if (execution?.status === 'PASSED') {
+                totalScore++;
+            }
+        });
     });
 
     return {
@@ -60,21 +67,25 @@ const calculateOverallScore = (rubrics: Rubric[], testResults?: Map<string, Subm
         percentage: totalTests > 0 ? Math.round((totalScore / totalTests) * 100) : 0
     };
 };
-interface RubricScore {
-    score: number;
-    total: number;
-    percentage: number;
-}
+
+// Update the calculateRubricScore function
 const calculateRubricScore = (rubric: Rubric, testResult?: Submission): RubricScore => {
     const rubricGrades = rubric.rubricGrades || [];
 
-    if (!testResult?.gradeExecutions) {
-        return { score: 0, total: rubricGrades.length, percentage: 0 }; // Ensure percentage is 0 here
+    if (!testResult?.testExecutions) {
+        return { score: 0, total: rubricGrades.length, percentage: 0 };
     }
 
-    const passedTests = testResult.gradeExecutions.filter(execution =>
-        execution.status === 'PASSED'
-    ).length;
+    let passedTests = 0;
+    rubricGrades.forEach(grade => {
+        const execution = testResult.testExecutions?.find(
+            exec => exec.methodName?.includes(grade.name) ||
+                exec.rubricGrade?.name === grade.name
+        );
+        if (execution?.status === 'PASSED') {
+            passedTests++;
+        }
+    });
 
     return {
         score: passedTests,
@@ -85,51 +96,107 @@ const calculateRubricScore = (rubric: Rubric, testResult?: Submission): RubricSc
 
 export function TestPanel({
     rubrics,
-    isRunning,
-    testResults,
-    liveTestOutput,
-    onRunTests
+    assignmentId,
+    testCode,
+    files,
 }: TestPanelProps) {
     const [hasStarted, setHasStarted] = useState(false);
     const [activeTab, setActiveTab] = useState<string>('overview');
-    console.log(rubrics)
-    useEffect(() => {
-        if (isRunning) {
-            setHasStarted(true);
+    const [isRunning, setIsRunning] = useState(false);
+    const [testResult, setTestResult] = useState<Submission | undefined>();
+    const [liveTestOutput, setLiveTestOutput] = useState<string>('');
+
+    const handleRunTests = async () => {
+        if (!testCode || !rubrics.length) {
+            console.warn('No test code or rubrics available');
+            return;
         }
-    }, [isRunning]);
 
-
-
-    const handleRunTests = () => {
+        setIsRunning(true);
         setHasStarted(true);
-        onRunTests(rubrics);
+        setLiveTestOutput('Compiling and running tests...\n');
+
+        const submissionPayload: TestSubmitRequest = {
+            assignmentId: assignmentId,
+            sourceFiles: files.filter(file => !file.fileName.toLowerCase().includes('test'))
+                .map(file => ({
+                    fileName: file.fileName,
+                    content: file.content
+                })),
+            testFiles: [{
+                fileName: 'MainTest.java',
+                content: testCode
+            }],
+            testClassNames: ['MainTest'],
+        };
+
+        setTestResult(undefined);
+
+        try {
+            const response = await CodeRunnerApi.testSubmissionCode(submissionPayload);
+            console.log('Test response:', response);
+
+            const submissionData = response;
+            setTestResult(submissionData);
+
+            let output = `Test execution completed\n`;
+            output += `Status: ${submissionData.status}\n`;
+            output += `Execution Time: ${submissionData.executionTime}ms\n`;
+            output += `Feedback: ${submissionData.feedback}\n\n`;
+
+            if (submissionData.testExecutions) {
+                output += `Test Results:\n`;
+                submissionData.testExecutions.forEach((execution, index) => {
+                    output += `${index + 1}. ${execution.methodName}: ${execution.status}\n`;
+                    if (execution.output) {
+                        output += `   Output: ${execution.output}\n`;
+                    }
+                    if (execution.error) {
+                        output += `   Error: ${execution.error}\n`;
+                    }
+                });
+            }
+
+            if (submissionData.submissionCodes) {
+                output += `\nSubmitted Files:\n`;
+                submissionData.submissionCodes.forEach((code) => {
+                    output += `- ${code.fileName}\n`;
+                });
+            }
+
+            setLiveTestOutput(output);
+
+        } catch (error: any) {
+            console.error('Error running tests:', error);
+            const errorOutput = `Error running tests: ${error.message || 'Unknown error'}\n`;
+            setLiveTestOutput(errorOutput);
+        } finally {
+            setIsRunning(false);
+        }
     };
 
-    const getTestStatus = (rubricGrade: RubricGrade, rubricId: string): ExecutionStatus => {
-        const testResult = testResults?.get(rubricId);
-
-        if (!testResult?.gradeExecutions) {
+    const getTestStatus = (rubricGrade: RubricGrade): ExecutionStatus => {
+        if (!testResult?.testExecutions) {
             return isRunning ? 'RUNNING' : 'PENDING';
         }
 
-        const execution = testResult.gradeExecutions.find(
-            exec => exec.rubricGrade?.name === rubricGrade.name
+        const execution = testResult.testExecutions.find(
+            exec => exec.methodName?.includes(rubricGrade.name) ||
+                exec.rubricGrade?.name === rubricGrade.name
         );
 
         return execution?.status || 'PENDING';
     };
 
-    const getTestFeedback = (rubricGrade: RubricGrade, rubricId: string): string => {
-        const testResult = testResults?.get(rubricId);
+    const getTestFeedback = (rubricGrade: RubricGrade): string => {
+        if (!testResult?.testExecutions) return '';
 
-        if (!testResult?.gradeExecutions) return '';
-
-        const execution = testResult.gradeExecutions.find(
-            exec => exec.rubricGrade?.name === rubricGrade.name
+        const execution = testResult.testExecutions.find(
+            exec => exec.methodName?.includes(rubricGrade.name) ||
+                exec.rubricGrade?.name === rubricGrade.name
         );
 
-        return execution?.rubricGrade?.description || execution?.error || '';
+        return execution?.error || execution?.output || execution?.rubricGrade?.description || '';
     };
 
     if (rubrics.length === 0) {
@@ -143,10 +210,8 @@ export function TestPanel({
         );
     }
 
-    const { score: totalScore, total: totalTests, percentage: overallPercentage } = calculateOverallScore(rubrics, testResults);
-
+    const { score: totalScore, total: totalTests, percentage: overallPercentage } = calculateOverallScore(rubrics, testResult);
     const renderRubricContent = (rubric: Rubric) => {
-        const testResult = testResults?.get(rubric.id);
         const rubricGrades = rubric.rubricGrades || [];
         const { score: rubricScore, total: rubricTotal, percentage: rubricPercentage } = calculateRubricScore(rubric, testResult);
 
@@ -183,8 +248,8 @@ export function TestPanel({
                     ) : (
                         <div className="space-y-2">
                             {rubricGrades.map((rubricGrade, index) => {
-                                const status = getTestStatus(rubricGrade, rubric.id);
-                                const feedback = getTestFeedback(rubricGrade, rubric.id);
+                                const status = getTestStatus(rubricGrade);
+                                const feedback = getTestFeedback(rubricGrade);
 
                                 return (
                                     <Card
@@ -202,20 +267,41 @@ export function TestPanel({
                                                 <span className="flex-1">{rubricGrade.name}</span>
                                                 <Badge
                                                     variant="outline"
-                                                    className="text-xs bg-neutral-600 text-neutral-200 border-neutral-500"
+                                                    className={cn(
+                                                        "text-xs border-neutral-500",
+                                                        status === 'PASSED' && "bg-green-900/20 text-green-300 border-green-500",
+                                                        status === 'FAILED' && "bg-red-900/20 text-red-300 border-red-500",
+                                                        status === 'RUNNING' && "bg-blue-900/20 text-blue-300 border-blue-500",
+                                                        (status === 'PENDING' || !status) && "bg-neutral-600 text-neutral-200"
+                                                    )}
                                                 >
-                                                    {status}
+                                                    {status || 'PENDING'}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         {(rubricGrade.description || feedback) && (
                                             <CardContent className="pt-0">
-                                                <div className="text-xs text-neutral-300 space-y-1">
+                                                <div className="text-xs text-neutral-300 space-y-2">
                                                     {rubricGrade.description && (
-                                                        <p><strong>Description:</strong> {rubricGrade.description}</p>
+                                                        <div>
+                                                            <p className="font-medium text-neutral-200">Description:</p>
+                                                            <p className="text-neutral-300">{rubricGrade.description}</p>
+                                                        </div>
                                                     )}
                                                     {feedback && status !== 'PENDING' && status !== 'RUNNING' && (
-                                                        <p><strong>Feedback:</strong> {feedback}</p>
+                                                        <div>
+                                                            <p className="font-medium text-neutral-200">
+                                                                {status === 'FAILED' ? 'Error:' : 'Output:'}
+                                                            </p>
+                                                            <p className={cn(
+                                                                "text-xs font-mono p-2 rounded border",
+                                                                status === 'FAILED'
+                                                                    ? "bg-red-900/10 text-red-300 border-red-500/30"
+                                                                    : "bg-green-900/10 text-green-300 border-green-500/30"
+                                                            )}>
+                                                                {feedback}
+                                                            </p>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </CardContent>
@@ -276,7 +362,6 @@ export function TestPanel({
                             Overview
                         </TabsTrigger>
                         {rubrics.map((rubric) => {
-                            const testResult = testResults?.get(rubric.id);
                             const { score, total, percentage } = calculateRubricScore(rubric, testResult);
 
                             return (
@@ -337,7 +422,6 @@ export function TestPanel({
 
                                     {/* Rubric Summaries */}
                                     {rubrics.map((rubric) => {
-                                        const testResult = testResults?.get(rubric.id);
                                         const { score, total, percentage } = calculateRubricScore(rubric, testResult);
 
                                         return (
@@ -373,7 +457,7 @@ export function TestPanel({
                                                     {/* Quick status indicators */}
                                                     <div className="flex gap-1 mt-2">
                                                         {rubric.rubricGrades?.slice(0, 8).map((grade, index) => {
-                                                            const status = getTestStatus(grade, rubric.id);
+                                                            const status = getTestStatus(grade);
                                                             return (
                                                                 <div
                                                                     key={grade.id || index}

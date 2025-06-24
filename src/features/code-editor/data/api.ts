@@ -1,3 +1,4 @@
+import type { Submission, TestExecutionForm, TestSubmitRequest } from '@/features/submissions/data/types';
 import { apiClient } from '@/lib/apiClient';
 import type { ExecutionResult, JavaProject, TestExecutionResult, TestJavaProject } from './types';
 
@@ -13,6 +14,14 @@ export const CodeRunnerApi = {
         const response = await apiClient.post<TestJavaProject, TestExecutionResult>({
             url: '/submission-codes/test',
             data: javaProject,
+        });
+        return response;
+    },
+
+    testSubmissionCode: async (submission: TestSubmitRequest): Promise<Submission> => {
+        const response = await apiClient.post<TestSubmitRequest, Submission>({
+            url: '/test-executions/test',
+            data: submission,
         });
         return response;
     },

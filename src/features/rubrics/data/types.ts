@@ -24,7 +24,7 @@ export interface RubricGrade {
     displayOrder?: number;
     arguments?: Record<string, any>;
     gradeType: GradeType;
-    rubricId: string;
+    rubricId?: string;
     rubric?: Rubric;
     assignment?: Assignment;
     assignmentId: string;
@@ -35,7 +35,7 @@ export interface RubricGrade {
 
 export interface GradeExecution {
     id: string;
-    pointsAwarded?: number;
+    points?: number;
     status: ExecutionStatus;
     actual?: string;
     expected?: string;

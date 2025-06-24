@@ -6,7 +6,7 @@ import type { AnyBlock, AppActions, AppState, Block, FunctionBlock, HistoricalSt
 type Store = AppState & AppActions;
 
 const initialState: AppState = {
-    testSuites: [{ id: 'initial-suite', name: 'Class1Test', blocks: [] }],
+    testSuites: [{ id: 'initial-suite', name: 'MainTest', blocks: [] }],
     activeSuiteId: 'initial-suite',
     rubrics: [],
     sourceFiles: [],

@@ -5,7 +5,7 @@ export const generateSetupCode = () => {
     let code = ''
     // Junit, Assertj, Java Parser setup code
     code += `
-private static final String SOURCE_PATH = "src/main/java";
+private static final String SOURCE_PATH = "src/main/java/workspace";
 private static List<CompilationUnit> allCompilationUnits;
 
 @BeforeAll
@@ -105,25 +105,42 @@ export const generateBlockCode = (block: Block, indent: string, activeSuite: any
                 const uniqueName = `${prefix}${p.name}_${uniqueSuffix}_${index}`;
                 return {
                     declaration: `${p.varType} ${uniqueName} = ${formatValueByType(p.value, p.varType)};`,
-                    name: uniqueName
+                    name: uniqueName,
+                    type: p.varType
                 };
             });
 
             const expectedUniqueName = `_${prefix}${fb.expected.name}_${uniqueSuffix}`;
 
             blockCode += `    ${fb.className} obj = new ${fb.className}();\n`;
+            blockCode += `    try {\n`;
 
+            // Generate parameter types for reflection
+            const paramTypes = paramDeclarations.map(p => `${p.type}.class`).join(', ');
+            blockCode += `        java.lang.reflect.Method ${fb.methodName}Method = ${fb.className}.class.getMethod("${fb.methodName}", ${paramTypes});\n`;
+
+            // Generate parameter declarations
             paramDeclarations.forEach(param => {
-                blockCode += `    ${param.declaration}\n`;
+                blockCode += `        ${param.declaration}\n`;
             });
 
-            blockCode += `    ${fb.expected.varType} ${expectedUniqueName} = ${formatValueByType(fb.expected.value, fb.expected.varType)};\n`;
+            blockCode += `        ${fb.expected.varType} ${expectedUniqueName} = ${formatValueByType(fb.expected.value, fb.expected.varType)};\n`;
 
+            // Generate method invocation with reflection
             const args = paramDeclarations.map(p => p.name).join(', ');
-            blockCode += `    var actual = obj.${fb.methodName}(${args});\n`;
-            blockCode += `    Assertions.assertThat(actual)\n`;
-            blockCode += `        .as("Function Test: Expect ${fb.methodName}(${args}) → " + ${expectedUniqueName})\n`;
-            blockCode += `        .isEqualTo(${expectedUniqueName});\n`;
+            blockCode += `        var actual = ${fb.methodName}Method.invoke(obj, ${args});\n`;
+
+            // Generate assertions
+            blockCode += `        Assertions.assertThat(actual)\n`;
+            blockCode += `            .as("Function Test: Expect ${fb.methodName}(${args}) → " + ${expectedUniqueName})\n`;
+            blockCode += `            .isEqualTo(${expectedUniqueName});\n`;
+
+            // Add exception handling
+            blockCode += `    } catch (NoSuchMethodException e) {\n`;
+            blockCode += `        Assertions.fail("Method ${fb.methodName}(${paramDeclarations.map(p => p.type).join(', ')}) not found in ${fb.className} class");\n`;
+            blockCode += `    } catch (Exception e) {\n`;
+            blockCode += `        Assertions.fail("Error invoking ${fb.methodName} method: " + e.getMessage());\n`;
+            blockCode += `    }\n`;
 
             break;
         }
