@@ -92,7 +92,7 @@ export default function BulkUpload() {
         setError(null);
 
         if (forcedStudentId) {
-            setPendingSubmissions(prev => prev.filter(s => s.studentId !== forcedStudentId));
+            setPendingSubmissions(prev => prev.filter(s => s.nim !== forcedStudentId));
         }
 
         const newPendingSubmissions: PendingSubmission[] = [];
@@ -112,15 +112,15 @@ export default function BulkUpload() {
             let studentId = forcedStudentId;
             let studentNim = forcedStudentNim;
             let requiresSelection = !forcedStudentId;
-
-            if (!studentId && fileName.toLowerCase().startsWith('nim_')) {
-                const extractedNim = fileName.substring(4).replace(/\.[^/.]+$/, "");
-                const foundStudent = students.find(s => s.nim === extractedNim);
-                if (foundStudent) {
-                    studentId = foundStudent.id;
-                    studentNim = foundStudent.nim;
-                    requiresSelection = false;
-                }
+            console.log(students)
+            const extractedNim = fileName.replace(/\.[^/.]+$/, "").split('_')[0];
+            const foundStudent = students.find(s => extractedNim.includes(s?.nim));
+            console.log(extractedNim)
+            console.log(forcedStudentNim)
+            if (foundStudent) {
+                studentId = foundStudent.id;
+                studentNim = foundStudent.nim;
+                requiresSelection = false;
             }
 
             const baseSubmission: PendingSubmission = {

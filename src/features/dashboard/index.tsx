@@ -189,28 +189,28 @@ export default function Dashboard() {
 }
 
 const topNav = [
-  {
-    title: 'Overview',
-    href: 'dashboard/overview',
-    isActive: true,
-    disabled: false,
-  },
-  {
-    title: 'Courses',
-    href: 'dashboard/courses',
-    isActive: false,
-    disabled: true,
-  },
-  {
-    title: 'Assignments',
-    href: 'dashboard/products',
-    isActive: false,
-    disabled: true,
-  },
-  {
-    title: 'Settings',
-    href: 'dashboard/settings',
-    isActive: false,
-    disabled: true,
-  },
+  // {
+  //   title: 'Overview',
+  //   href: 'dashboard/overview',
+  //   isActive: true,
+  //   disabled: false,
+  // },
+  // {
+  //   title: 'Courses',
+  //   href: 'dashboard/courses',
+  //   isActive: false,
+  //   disabled: true,
+  // },
+  // {
+  //   title: 'Assignments',
+  //   href: 'dashboard/products',
+  //   isActive: false,
+  //   disabled: true,
+  // },
+  // {
+  //   title: 'Settings',
+  //   href: 'dashboard/settings',
+  //   isActive: false,
+  //   disabled: true,
+  // },
 ]
