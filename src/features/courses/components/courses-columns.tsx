@@ -44,7 +44,7 @@ export const columns: ColumnDef<Course>[] = [
                 variant='outline'
                 onClick={() => {
                     navigate({
-                        to: '/courses/$courseId/assignments',
+                        to: '/admin/courses/$courseId/assignments',
                         params: { courseId: row.original.id },
                         search: { filter: `course=eq:${row.original.id}` },
                     });

@@ -15,14 +15,14 @@ import type { SearchRequestParams } from '@/types/api.types';
 import { areFilesEqual } from '@/utils/component-util';
 import { IconEdit, IconPlus, IconUpload, IconX } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
+import type { Assignment } from '../assignments/data/types';
 import { useAssignmentById } from '../assignments/hooks/use-assignment';
 import type { Rubric } from '../rubrics/data/types';
 import { useRubrics } from '../rubrics/hooks/use-rubric';
-import type { TestSubmitRequest } from '../submissions/data/types';
+import type { Submission, TestSubmitRequest } from '../submissions/data/types';
 import Terminal from './components/code-terminal';
 import MonacoEditor from './components/monaco-editor';
 import { TestPanel } from './components/test-panel';
-import { CodeRunnerApi } from './data/api';
 
 const initialFilesData: FileData[] = [
     { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
@@ -32,9 +32,15 @@ interface CodeEditorProps {
     initialFilesData?: FileData[];
     onFileChange?: (files: FileData[]) => void;
     readOnly?: boolean;
+    assignment?: Assignment
+    submissionMutation: {
+        mutateAsync: (payload: TestSubmitRequest) => Promise<Submission>;
+        isLoading?: boolean;
+        error?: any;
+    };
 }
 
-const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly }: CodeEditorProps) => {
+const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly, assignment: existedAssignment, submissionMutation }: CodeEditorProps) => {
     const { files, activeFileName, setActiveFileName, handleCreateFile,
         handleRenameFile, handleDeleteFile, handleEditorChange,
         handleAddMultipleFiles } = useFileManagement(propInitialFilesData || initialFilesData, readOnly);
@@ -168,18 +174,52 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         event.target.value = '';
     };
 
+    const [assignmentIdState, setAssignmentIdState] = useState("");
+    const getAssignmentId = () => {
+        try {
+            const adminParams = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
+            return adminParams.assignmentId;
+        } catch {
+            try {
+                const studentParams = useParams({ from: '/_authenticated/app/assignments/$assignmentId/' });
+                return studentParams.assignmentId;
+            } catch {
+                const genericParams = useParams({ strict: false });
+                return genericParams.assignmentId;
+            }
+        }
+    };
 
+    const assignmentId = getAssignmentId();
+    const [rubrics, setRubrics] = useState<Rubric[] | undefined>(undefined);
+    const [assignment, setAssignment] = useState<Assignment | undefined>(undefined);
 
-    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
-    const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
+    useEffect(() => {
+        if (!existedAssignment) {
+            setAssignmentIdState(assignmentId ?? '');
+        } else {
+            setAssignment(existedAssignment);
+            setRubrics(existedAssignment?.rubrics);
+            setAssignmentIdState(existedAssignment.id);
+        }
+    }, [existedAssignment, assignmentId]);
 
     const rubricSearchParams: SearchRequestParams = {
         page: 0,
         size: 1000,
-        filter: `assignment=eq:${assignmentId}`,
+        filter: `assignment=eq:${assignmentIdState}`,
     };
 
-    const { data: rubrics, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
+    const { data: rubricdata, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
+    const { data: assignmentdata, isLoading: isLoadingAssignment } = useAssignmentById(assignmentIdState);
+
+    useEffect(() => {
+        setRubrics(rubricdata?.content);
+        setAssignment(assignmentdata);
+
+    }, [rubricdata, assignmentdata, existedAssignment]);
+
+
 
 
     const {
@@ -187,70 +227,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         isRunning,
         clearTerminal,
         runCode,
-        testCode, // This will no longer be used for rubrics testing
-        testResult,
-        setTestResult,
-        liveTestOutput,
-        setLiveTestOutput // Assuming you have a setter for liveTestOutput to update it
     } = useCodeRunner();
-
-    const handleRunTestsForPanel = async (rubrics: Rubric[]) => {
-        if (!assignment?.testCode || !rubrics.length) {
-            console.warn('No test code or rubrics available');
-            return;
-        }
-
-
-        const submissionPayload: TestSubmitRequest = {
-            assignmentId: assignmentId,
-            sourceFiles: files.filter(file => !file.fileName.toLowerCase().includes('test'))
-                .map(file => ({
-                    fileName: file.fileName,
-                    content: file.content
-                })),
-            testFiles: [{
-                fileName: 'MainTest.java',
-                content: assignment.testCode
-            }],
-            testClassNames: ['MainTest'],
-            // buildTool: 'gradle'
-        };
-
-        setTestResult(undefined); // Clear previous test result
-        setLiveTestOutput(''); // Clear previous live test output
-
-        try {
-            // Using the new API function
-            const result = await CodeRunnerApi.testSubmissionCode(submissionPayload);
-            setTestResult(result);
-            console.log('result', result);
-            // setTestResult(result);
-            // Assuming liveTestOutput also needs to be updated from the result if applicable
-            // For now, let's just make sure the result is reflected.
-            // If the API returns a stream for live output, you'd integrate that here.
-            // if (result.output) {
-            //     setLiveTestOutput(result.output.map(line => ({ type: line.type, text: line.text })));
-            // }
-
-        } catch (error) {
-            console.error('Error running tests:', error);
-            // setLiveTestOutput([{ type: 'error', text: `Error running tests: ${error.message || ''}` }]);
-            // setTestResult({
-            //     success: false,
-            //     message: `Failed to run tests: ${error.message || 'Unknown error'}`,
-            //     testResults: [],
-            //     output: [],
-            //     compilationErrors: [],
-            //     exception: null,
-            // });
-        }
-    };
-
-
-    const terminalOutputString = terminalOutput
-        .map(line => `${line.type === 'error' ? '[ERROR] ' : ''}${line.text}`)
-        .join('');
-
 
     return (
         <div className="bg-neutral-900 text-white h-screen flex font-sans">
@@ -457,7 +434,8 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                 />
                             ) : (
                                 <TestPanel
-                                    rubrics={rubrics?.content || []}
+                                    submissionMutation={submissionMutation}
+                                    rubrics={rubrics || []}
                                     assignmentId={assignmentId}
                                     testCode={assignment?.testCode}
                                     files={files}

@@ -7,6 +7,7 @@ export interface Submission {
     id: string;
     executionTime?: string;
     status: string;
+    totalPoints: number;
     feedback?: string;
     startedAt?: string;
     completedAt?: string;
@@ -56,6 +57,8 @@ export type SubmissionForm = Omit<Submission, 'id' | 'assignment' | 'submissionC
 
 export type TestSubmitRequest = {
     assignmentId: string;
+    userId?: string;
+    submissionId?: string;
     sourceFiles: JavaFile[];
     testFiles: JavaFile[];
     testClassNames?: string[];

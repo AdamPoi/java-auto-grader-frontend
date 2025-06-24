@@ -1,6 +1,6 @@
-import { Badge } from "../../../components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "@tanstack/react-router";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Separator } from "../../../components/ui/separator";
 import type { Assignment } from "../data/types";
 
 interface AssignmentCardProps {
@@ -8,48 +8,33 @@ interface AssignmentCardProps {
 }
 
 export function AssignmentCard({ assignment }: AssignmentCardProps) {
+    const navigate = useNavigate();
     return (
-        <Card className="w-[350px]">
+        <Card className="flex flex-col bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
             <CardHeader>
-                <CardTitle>{assignment.title}</CardTitle>
-                {assignment.course && (
-                    <CardDescription className="text-sm text-muted-foreground">
-                        Course: {assignment.course.name}
-                    </CardDescription>
-                )}
-                <CardDescription>{assignment.description}</CardDescription>
+                <CardTitle className="text-base font-bold tracking-tight">{assignment.title}</CardTitle>
+                <CardDescription className="text-xs">Due: {new Date(assignment.dueDate ? assignment.dueDate : '').toLocaleDateString()}</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4">
-                <div className="flex items-center space-x-4 rounded-md border p-4">
-                    <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                            Due Date: {assignment.dueDate || "N/A"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Points: {assignment.totalPoints}
-                        </p>
-                    </div>
+            <CardContent className="flex-grow flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                    {/* <Badge className={statusStyles[assignment.status] || ''}>
+                        {assignment.status === 'Graded' && <CheckCircle2 className="mr-1.5 h-3 w-3" />}
+                        {assignment.status.includes('Submitted') && <FileText className="mr-1.5 h-3 w-3" />}
+                        {assignment.status.includes('Pending') && <Clock className="mr-1.5 h-3 w-3" />}
+                        {assignment.status}
+                    </Badge> */}
+                    {/* {assignment.grade && (
+                        <div className="text-sm font-bold text-foreground">Grade: <span className="text-primary">{assignment.grade}</span></div>
+                    )} */}
                 </div>
-                {assignment.isPublished && (
-                    <>
-                        <Separator className="my-2" />
-                        <div className="flex justify-between items-center">
-                            <Badge variant="secondary">Published</Badge>
-                            {assignment.maxAttempts && (
-                                <span className="text-sm text-muted-foreground">
-                                    Max Attempts: {assignment.maxAttempts}
-                                </span>
-                            )}
-                        </div>
-                    </>
-                )}
             </CardContent>
             <CardFooter>
-                {assignment.createdByTeacher && (
-                    <p className="text-xs text-muted-foreground">
-                        Created by: {assignment.createdByTeacher.firstName} {assignment.createdByTeacher.lastName}
-                    </p>
-                )}
+                <Button className="w-full" variant="outline" size="sm" onClick={() => navigate({
+                    to: `/app/assignments/${assignment.id}`,
+                })}>
+                    {/* {assignment.status.includes('Submitted') ? 'View Submission' : 'View Assignment'} */}
+                    View Assignment
+                </Button>
             </CardFooter>
         </Card>
     );

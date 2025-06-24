@@ -17,30 +17,39 @@ import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
-import { Route as AuthenticatedSubmissionsIndexRouteImport } from './routes/_authenticated/submissions/index'
-import { Route as AuthenticatedStudentCoursesIndexRouteImport } from './routes/_authenticated/student-courses/index'
-import { Route as AuthenticatedRolesIndexRouteImport } from './routes/_authenticated/roles/index'
-import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
-import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses/index'
-import { Route as AuthenticatedClassroomsIndexRouteImport } from './routes/_authenticated/classrooms/index'
-import { Route as AuthenticatedAssignmentsIndexRouteImport } from './routes/_authenticated/assignments/index'
-import { Route as AuthenticatedStudentSubmissionsAssignmentIdRouteImport } from './routes/_authenticated/student-submissions/$assignmentId'
-import { Route as AuthenticatedStudentCoursesCourseIdRouteImport } from './routes/_authenticated/student-courses/$courseId'
-import { Route as AuthenticatedStudentAssignmentsAssignmentIdRouteImport } from './routes/_authenticated/student-assignments/$assignmentId'
-import { Route as AuthenticatedSubmissionsCreateIndexRouteImport } from './routes/_authenticated/submissions/create/index'
-import { Route as AuthenticatedRolesCreateIndexRouteImport } from './routes/_authenticated/roles/create/index'
-import { Route as AuthenticatedCoursesCreateIndexRouteImport } from './routes/_authenticated/courses/create/index'
-import { Route as AuthenticatedClassroomsCreateIndexRouteImport } from './routes/_authenticated/classrooms/create/index'
-import { Route as AuthenticatedAssignmentsTestBuilderIndexRouteImport } from './routes/_authenticated/assignments/test-builder/index'
-import { Route as AuthenticatedAssignmentsCreateIndexRouteImport } from './routes/_authenticated/assignments/create/index'
-import { Route as AuthenticatedAssignmentsCompilerIndexRouteImport } from './routes/_authenticated/assignments/compiler/index'
-import { Route as AuthenticatedAssignmentsAssignmentIdIndexRouteImport } from './routes/_authenticated/assignments/$assignmentId/index'
-import { Route as AuthenticatedRolesRoleIdEditIndexRouteImport } from './routes/_authenticated/roles/$roleId/edit/index'
-import { Route as AuthenticatedCoursesCourseIdEditIndexRouteImport } from './routes/_authenticated/courses/$courseId/edit/index'
-import { Route as AuthenticatedCoursesCourseIdAssignmentsIndexRouteImport } from './routes/_authenticated/courses/$courseId/assignments/index'
-import { Route as AuthenticatedClassroomsClassroomIdEditIndexRouteImport } from './routes/_authenticated/classrooms/$classroomId/edit/index'
-import { Route as AuthenticatedAssignmentsAssignmentIdEditIndexRouteImport } from './routes/_authenticated/assignments/$assignmentId/edit/index'
+import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAppCoursesIndexRouteImport } from './routes/_authenticated/app/courses/index'
+import { Route as AuthenticatedAppAssignmentsIndexRouteImport } from './routes/_authenticated/app/assignments/index'
+import { Route as AuthenticatedAdminUsersIndexRouteImport } from './routes/_authenticated/admin/users/index'
+import { Route as AuthenticatedAdminSubmissionsIndexRouteImport } from './routes/_authenticated/admin/submissions/index'
+import { Route as AuthenticatedAdminStudentCoursesIndexRouteImport } from './routes/_authenticated/admin/student-courses/index'
+import { Route as AuthenticatedAdminRolesIndexRouteImport } from './routes/_authenticated/admin/roles/index'
+import { Route as AuthenticatedAdminDashboardIndexRouteImport } from './routes/_authenticated/admin/dashboard/index'
+import { Route as AuthenticatedAdminCoursesIndexRouteImport } from './routes/_authenticated/admin/courses/index'
+import { Route as AuthenticatedAdminClassroomsIndexRouteImport } from './routes/_authenticated/admin/classrooms/index'
+import { Route as AuthenticatedAdminAssignmentsIndexRouteImport } from './routes/_authenticated/admin/assignments/index'
+import { Route as AuthenticatedAdminStudentSubmissionsAssignmentIdRouteImport } from './routes/_authenticated/admin/student-submissions/$assignmentId'
+import { Route as AuthenticatedAdminStudentCoursesCourseIdRouteImport } from './routes/_authenticated/admin/student-courses/$courseId'
+import { Route as AuthenticatedAdminStudentAssignmentsAssignmentIdRouteImport } from './routes/_authenticated/admin/student-assignments/$assignmentId'
+import { Route as AuthenticatedAppSubmissionsIndexRouteImport } from './routes/_authenticated/app/submissions/index.'
+import { Route as AuthenticatedAppCoursesCourseIdIndexRouteImport } from './routes/_authenticated/app/courses/$courseId/index'
+import { Route as AuthenticatedAppAssignmentsAssignmentIdIndexRouteImport } from './routes/_authenticated/app/assignments/$assignmentId/index'
+import { Route as AuthenticatedAdminSubmissionsCreateIndexRouteImport } from './routes/_authenticated/admin/submissions/create/index'
+import { Route as AuthenticatedAdminRolesCreateIndexRouteImport } from './routes/_authenticated/admin/roles/create/index'
+import { Route as AuthenticatedAdminCoursesCreateIndexRouteImport } from './routes/_authenticated/admin/courses/create/index'
+import { Route as AuthenticatedAdminClassroomsCreateIndexRouteImport } from './routes/_authenticated/admin/classrooms/create/index'
+import { Route as AuthenticatedAdminAssignmentsTestBuilderIndexRouteImport } from './routes/_authenticated/admin/assignments/test-builder/index'
+import { Route as AuthenticatedAdminAssignmentsCreateIndexRouteImport } from './routes/_authenticated/admin/assignments/create/index'
+import { Route as AuthenticatedAdminAssignmentsCompilerIndexRouteImport } from './routes/_authenticated/admin/assignments/compiler/index'
+import { Route as AuthenticatedAdminAssignmentsAssignmentIdIndexRouteImport } from './routes/_authenticated/admin/assignments/$assignmentId/index'
+import { Route as AuthenticatedAdminRolesRoleIdEditIndexRouteImport } from './routes/_authenticated/admin/roles/$roleId/edit/index'
+import { Route as AuthenticatedAdminCoursesCourseIdEditIndexRouteImport } from './routes/_authenticated/admin/courses/$courseId/edit/index'
+import { Route as AuthenticatedAdminCoursesCourseIdAssignmentsIndexRouteImport } from './routes/_authenticated/admin/courses/$courseId/assignments/index'
+import { Route as AuthenticatedAdminClassroomsClassroomIdEditIndexRouteImport } from './routes/_authenticated/admin/classrooms/$classroomId/edit/index'
+import { Route as AuthenticatedAdminAssignmentsAssignmentIdEditIndexRouteImport } from './routes/_authenticated/admin/assignments/$assignmentId/edit/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -81,151 +90,205 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
+const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSubmissionsIndexRoute =
-  AuthenticatedSubmissionsIndexRouteImport.update({
-    id: '/submissions/',
-    path: '/submissions/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedStudentCoursesIndexRoute =
-  AuthenticatedStudentCoursesIndexRouteImport.update({
-    id: '/student-courses/',
-    path: '/student-courses/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedRolesIndexRoute = AuthenticatedRolesIndexRouteImport.update({
-  id: '/roles/',
-  path: '/roles/',
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardIndexRoute =
-  AuthenticatedDashboardIndexRouteImport.update({
-    id: '/dashboard/',
-    path: '/dashboard/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCoursesIndexRoute =
-  AuthenticatedCoursesIndexRouteImport.update({
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAppCoursesIndexRoute =
+  AuthenticatedAppCoursesIndexRouteImport.update({
     id: '/courses/',
     path: '/courses/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedClassroomsIndexRoute =
-  AuthenticatedClassroomsIndexRouteImport.update({
-    id: '/classrooms/',
-    path: '/classrooms/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAssignmentsIndexRoute =
-  AuthenticatedAssignmentsIndexRouteImport.update({
+const AuthenticatedAppAssignmentsIndexRoute =
+  AuthenticatedAppAssignmentsIndexRouteImport.update({
     id: '/assignments/',
     path: '/assignments/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedStudentSubmissionsAssignmentIdRoute =
-  AuthenticatedStudentSubmissionsAssignmentIdRouteImport.update({
+const AuthenticatedAdminUsersIndexRoute =
+  AuthenticatedAdminUsersIndexRouteImport.update({
+    id: '/users/',
+    path: '/users/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminSubmissionsIndexRoute =
+  AuthenticatedAdminSubmissionsIndexRouteImport.update({
+    id: '/submissions/',
+    path: '/submissions/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminStudentCoursesIndexRoute =
+  AuthenticatedAdminStudentCoursesIndexRouteImport.update({
+    id: '/student-courses/',
+    path: '/student-courses/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRolesIndexRoute =
+  AuthenticatedAdminRolesIndexRouteImport.update({
+    id: '/roles/',
+    path: '/roles/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminDashboardIndexRoute =
+  AuthenticatedAdminDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCoursesIndexRoute =
+  AuthenticatedAdminCoursesIndexRouteImport.update({
+    id: '/courses/',
+    path: '/courses/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminClassroomsIndexRoute =
+  AuthenticatedAdminClassroomsIndexRouteImport.update({
+    id: '/classrooms/',
+    path: '/classrooms/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAssignmentsIndexRoute =
+  AuthenticatedAdminAssignmentsIndexRouteImport.update({
+    id: '/assignments/',
+    path: '/assignments/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminStudentSubmissionsAssignmentIdRoute =
+  AuthenticatedAdminStudentSubmissionsAssignmentIdRouteImport.update({
     id: '/student-submissions/$assignmentId',
     path: '/student-submissions/$assignmentId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedStudentCoursesCourseIdRoute =
-  AuthenticatedStudentCoursesCourseIdRouteImport.update({
+const AuthenticatedAdminStudentCoursesCourseIdRoute =
+  AuthenticatedAdminStudentCoursesCourseIdRouteImport.update({
     id: '/student-courses/$courseId',
     path: '/student-courses/$courseId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedStudentAssignmentsAssignmentIdRoute =
-  AuthenticatedStudentAssignmentsAssignmentIdRouteImport.update({
+const AuthenticatedAdminStudentAssignmentsAssignmentIdRoute =
+  AuthenticatedAdminStudentAssignmentsAssignmentIdRouteImport.update({
     id: '/student-assignments/$assignmentId',
     path: '/student-assignments/$assignmentId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedSubmissionsCreateIndexRoute =
-  AuthenticatedSubmissionsCreateIndexRouteImport.update({
-    id: '/submissions/create/',
-    path: '/submissions/create/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedAppSubmissionsIndexRoute =
+  AuthenticatedAppSubmissionsIndexRouteImport.update({
+    id: '/submissions/index/',
+    path: '/submissions/index/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedRolesCreateIndexRoute =
-  AuthenticatedRolesCreateIndexRouteImport.update({
-    id: '/roles/create/',
-    path: '/roles/create/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedAppCoursesCourseIdIndexRoute =
+  AuthenticatedAppCoursesCourseIdIndexRouteImport.update({
+    id: '/courses/$courseId/',
+    path: '/courses/$courseId/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedCoursesCreateIndexRoute =
-  AuthenticatedCoursesCreateIndexRouteImport.update({
-    id: '/courses/create/',
-    path: '/courses/create/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedClassroomsCreateIndexRoute =
-  AuthenticatedClassroomsCreateIndexRouteImport.update({
-    id: '/classrooms/create/',
-    path: '/classrooms/create/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAssignmentsTestBuilderIndexRoute =
-  AuthenticatedAssignmentsTestBuilderIndexRouteImport.update({
-    id: '/assignments/test-builder/',
-    path: '/assignments/test-builder/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAssignmentsCreateIndexRoute =
-  AuthenticatedAssignmentsCreateIndexRouteImport.update({
-    id: '/assignments/create/',
-    path: '/assignments/create/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAssignmentsCompilerIndexRoute =
-  AuthenticatedAssignmentsCompilerIndexRouteImport.update({
-    id: '/assignments/compiler/',
-    path: '/assignments/compiler/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAssignmentsAssignmentIdIndexRoute =
-  AuthenticatedAssignmentsAssignmentIdIndexRouteImport.update({
+const AuthenticatedAppAssignmentsAssignmentIdIndexRoute =
+  AuthenticatedAppAssignmentsAssignmentIdIndexRouteImport.update({
     id: '/assignments/$assignmentId/',
     path: '/assignments/$assignmentId/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedRolesRoleIdEditIndexRoute =
-  AuthenticatedRolesRoleIdEditIndexRouteImport.update({
+const AuthenticatedAdminSubmissionsCreateIndexRoute =
+  AuthenticatedAdminSubmissionsCreateIndexRouteImport.update({
+    id: '/submissions/create/',
+    path: '/submissions/create/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRolesCreateIndexRoute =
+  AuthenticatedAdminRolesCreateIndexRouteImport.update({
+    id: '/roles/create/',
+    path: '/roles/create/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCoursesCreateIndexRoute =
+  AuthenticatedAdminCoursesCreateIndexRouteImport.update({
+    id: '/courses/create/',
+    path: '/courses/create/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminClassroomsCreateIndexRoute =
+  AuthenticatedAdminClassroomsCreateIndexRouteImport.update({
+    id: '/classrooms/create/',
+    path: '/classrooms/create/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAssignmentsTestBuilderIndexRoute =
+  AuthenticatedAdminAssignmentsTestBuilderIndexRouteImport.update({
+    id: '/assignments/test-builder/',
+    path: '/assignments/test-builder/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAssignmentsCreateIndexRoute =
+  AuthenticatedAdminAssignmentsCreateIndexRouteImport.update({
+    id: '/assignments/create/',
+    path: '/assignments/create/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAssignmentsCompilerIndexRoute =
+  AuthenticatedAdminAssignmentsCompilerIndexRouteImport.update({
+    id: '/assignments/compiler/',
+    path: '/assignments/compiler/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAssignmentsAssignmentIdIndexRoute =
+  AuthenticatedAdminAssignmentsAssignmentIdIndexRouteImport.update({
+    id: '/assignments/$assignmentId/',
+    path: '/assignments/$assignmentId/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRolesRoleIdEditIndexRoute =
+  AuthenticatedAdminRolesRoleIdEditIndexRouteImport.update({
     id: '/roles/$roleId/edit/',
     path: '/roles/$roleId/edit/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedCoursesCourseIdEditIndexRoute =
-  AuthenticatedCoursesCourseIdEditIndexRouteImport.update({
+const AuthenticatedAdminCoursesCourseIdEditIndexRoute =
+  AuthenticatedAdminCoursesCourseIdEditIndexRouteImport.update({
     id: '/courses/$courseId/edit/',
     path: '/courses/$courseId/edit/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedCoursesCourseIdAssignmentsIndexRoute =
-  AuthenticatedCoursesCourseIdAssignmentsIndexRouteImport.update({
+const AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute =
+  AuthenticatedAdminCoursesCourseIdAssignmentsIndexRouteImport.update({
     id: '/courses/$courseId/assignments/',
     path: '/courses/$courseId/assignments/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedClassroomsClassroomIdEditIndexRoute =
-  AuthenticatedClassroomsClassroomIdEditIndexRouteImport.update({
+const AuthenticatedAdminClassroomsClassroomIdEditIndexRoute =
+  AuthenticatedAdminClassroomsClassroomIdEditIndexRouteImport.update({
     id: '/classrooms/$classroomId/edit/',
     path: '/classrooms/$classroomId/edit/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAssignmentsAssignmentIdEditIndexRoute =
-  AuthenticatedAssignmentsAssignmentIdEditIndexRouteImport.update({
+const AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute =
+  AuthenticatedAdminAssignmentsAssignmentIdEditIndexRouteImport.update({
     id: '/assignments/$assignmentId/edit/',
     path: '/assignments/$assignmentId/edit/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/app': typeof AuthenticatedAppRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/401': typeof errors401Route
   '/403': typeof errors403Route
@@ -233,30 +296,37 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
-  '/student-assignments/$assignmentId': typeof AuthenticatedStudentAssignmentsAssignmentIdRoute
-  '/student-courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRoute
-  '/student-submissions/$assignmentId': typeof AuthenticatedStudentSubmissionsAssignmentIdRoute
-  '/assignments': typeof AuthenticatedAssignmentsIndexRoute
-  '/classrooms': typeof AuthenticatedClassroomsIndexRoute
-  '/courses': typeof AuthenticatedCoursesIndexRoute
-  '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/roles': typeof AuthenticatedRolesIndexRoute
-  '/student-courses': typeof AuthenticatedStudentCoursesIndexRoute
-  '/submissions': typeof AuthenticatedSubmissionsIndexRoute
-  '/users': typeof AuthenticatedUsersIndexRoute
-  '/assignments/$assignmentId': typeof AuthenticatedAssignmentsAssignmentIdIndexRoute
-  '/assignments/compiler': typeof AuthenticatedAssignmentsCompilerIndexRoute
-  '/assignments/create': typeof AuthenticatedAssignmentsCreateIndexRoute
-  '/assignments/test-builder': typeof AuthenticatedAssignmentsTestBuilderIndexRoute
-  '/classrooms/create': typeof AuthenticatedClassroomsCreateIndexRoute
-  '/courses/create': typeof AuthenticatedCoursesCreateIndexRoute
-  '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
-  '/submissions/create': typeof AuthenticatedSubmissionsCreateIndexRoute
-  '/assignments/$assignmentId/edit': typeof AuthenticatedAssignmentsAssignmentIdEditIndexRoute
-  '/classrooms/$classroomId/edit': typeof AuthenticatedClassroomsClassroomIdEditIndexRoute
-  '/courses/$courseId/assignments': typeof AuthenticatedCoursesCourseIdAssignmentsIndexRoute
-  '/courses/$courseId/edit': typeof AuthenticatedCoursesCourseIdEditIndexRoute
-  '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
+  '/admin/student-assignments/$assignmentId': typeof AuthenticatedAdminStudentAssignmentsAssignmentIdRoute
+  '/admin/student-courses/$courseId': typeof AuthenticatedAdminStudentCoursesCourseIdRoute
+  '/admin/student-submissions/$assignmentId': typeof AuthenticatedAdminStudentSubmissionsAssignmentIdRoute
+  '/admin/assignments': typeof AuthenticatedAdminAssignmentsIndexRoute
+  '/admin/classrooms': typeof AuthenticatedAdminClassroomsIndexRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesIndexRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardIndexRoute
+  '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/student-courses': typeof AuthenticatedAdminStudentCoursesIndexRoute
+  '/admin/submissions': typeof AuthenticatedAdminSubmissionsIndexRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
+  '/app/assignments': typeof AuthenticatedAppAssignmentsIndexRoute
+  '/app/courses': typeof AuthenticatedAppCoursesIndexRoute
+  '/admin/assignments/$assignmentId': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
+  '/admin/assignments/compiler': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
+  '/admin/assignments/create': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
+  '/admin/assignments/test-builder': typeof AuthenticatedAdminAssignmentsTestBuilderIndexRoute
+  '/admin/classrooms/create': typeof AuthenticatedAdminClassroomsCreateIndexRoute
+  '/admin/courses/create': typeof AuthenticatedAdminCoursesCreateIndexRoute
+  '/admin/roles/create': typeof AuthenticatedAdminRolesCreateIndexRoute
+  '/admin/submissions/create': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
+  '/app/assignments/$assignmentId': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
+  '/app/courses/$courseId': typeof AuthenticatedAppCoursesCourseIdIndexRoute
+  '/app/submissions/index': typeof AuthenticatedAppSubmissionsIndexRoute
+  '/admin/assignments/$assignmentId/edit': typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute
+  '/admin/classrooms/$classroomId/edit': typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRoute
+  '/admin/courses/$courseId/assignments': typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute
+  '/admin/courses/$courseId/edit': typeof AuthenticatedAdminCoursesCourseIdEditIndexRoute
+  '/admin/roles/$roleId/edit': typeof AuthenticatedAdminRolesRoleIdEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
@@ -266,34 +336,43 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
-  '/student-assignments/$assignmentId': typeof AuthenticatedStudentAssignmentsAssignmentIdRoute
-  '/student-courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRoute
-  '/student-submissions/$assignmentId': typeof AuthenticatedStudentSubmissionsAssignmentIdRoute
-  '/assignments': typeof AuthenticatedAssignmentsIndexRoute
-  '/classrooms': typeof AuthenticatedClassroomsIndexRoute
-  '/courses': typeof AuthenticatedCoursesIndexRoute
-  '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/roles': typeof AuthenticatedRolesIndexRoute
-  '/student-courses': typeof AuthenticatedStudentCoursesIndexRoute
-  '/submissions': typeof AuthenticatedSubmissionsIndexRoute
-  '/users': typeof AuthenticatedUsersIndexRoute
-  '/assignments/$assignmentId': typeof AuthenticatedAssignmentsAssignmentIdIndexRoute
-  '/assignments/compiler': typeof AuthenticatedAssignmentsCompilerIndexRoute
-  '/assignments/create': typeof AuthenticatedAssignmentsCreateIndexRoute
-  '/assignments/test-builder': typeof AuthenticatedAssignmentsTestBuilderIndexRoute
-  '/classrooms/create': typeof AuthenticatedClassroomsCreateIndexRoute
-  '/courses/create': typeof AuthenticatedCoursesCreateIndexRoute
-  '/roles/create': typeof AuthenticatedRolesCreateIndexRoute
-  '/submissions/create': typeof AuthenticatedSubmissionsCreateIndexRoute
-  '/assignments/$assignmentId/edit': typeof AuthenticatedAssignmentsAssignmentIdEditIndexRoute
-  '/classrooms/$classroomId/edit': typeof AuthenticatedClassroomsClassroomIdEditIndexRoute
-  '/courses/$courseId/assignments': typeof AuthenticatedCoursesCourseIdAssignmentsIndexRoute
-  '/courses/$courseId/edit': typeof AuthenticatedCoursesCourseIdEditIndexRoute
-  '/roles/$roleId/edit': typeof AuthenticatedRolesRoleIdEditIndexRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/app': typeof AuthenticatedAppIndexRoute
+  '/admin/student-assignments/$assignmentId': typeof AuthenticatedAdminStudentAssignmentsAssignmentIdRoute
+  '/admin/student-courses/$courseId': typeof AuthenticatedAdminStudentCoursesCourseIdRoute
+  '/admin/student-submissions/$assignmentId': typeof AuthenticatedAdminStudentSubmissionsAssignmentIdRoute
+  '/admin/assignments': typeof AuthenticatedAdminAssignmentsIndexRoute
+  '/admin/classrooms': typeof AuthenticatedAdminClassroomsIndexRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesIndexRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardIndexRoute
+  '/admin/roles': typeof AuthenticatedAdminRolesIndexRoute
+  '/admin/student-courses': typeof AuthenticatedAdminStudentCoursesIndexRoute
+  '/admin/submissions': typeof AuthenticatedAdminSubmissionsIndexRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
+  '/app/assignments': typeof AuthenticatedAppAssignmentsIndexRoute
+  '/app/courses': typeof AuthenticatedAppCoursesIndexRoute
+  '/admin/assignments/$assignmentId': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
+  '/admin/assignments/compiler': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
+  '/admin/assignments/create': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
+  '/admin/assignments/test-builder': typeof AuthenticatedAdminAssignmentsTestBuilderIndexRoute
+  '/admin/classrooms/create': typeof AuthenticatedAdminClassroomsCreateIndexRoute
+  '/admin/courses/create': typeof AuthenticatedAdminCoursesCreateIndexRoute
+  '/admin/roles/create': typeof AuthenticatedAdminRolesCreateIndexRoute
+  '/admin/submissions/create': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
+  '/app/assignments/$assignmentId': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
+  '/app/courses/$courseId': typeof AuthenticatedAppCoursesCourseIdIndexRoute
+  '/app/submissions/index': typeof AuthenticatedAppSubmissionsIndexRoute
+  '/admin/assignments/$assignmentId/edit': typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute
+  '/admin/classrooms/$classroomId/edit': typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRoute
+  '/admin/courses/$courseId/assignments': typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute
+  '/admin/courses/$courseId/edit': typeof AuthenticatedAdminCoursesCourseIdEditIndexRoute
+  '/admin/roles/$roleId/edit': typeof AuthenticatedAdminRolesRoleIdEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/app': typeof AuthenticatedAppRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(errors)/401': typeof errors401Route
   '/(errors)/403': typeof errors403Route
@@ -301,35 +380,44 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/student-assignments/$assignmentId': typeof AuthenticatedStudentAssignmentsAssignmentIdRoute
-  '/_authenticated/student-courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRoute
-  '/_authenticated/student-submissions/$assignmentId': typeof AuthenticatedStudentSubmissionsAssignmentIdRoute
-  '/_authenticated/assignments/': typeof AuthenticatedAssignmentsIndexRoute
-  '/_authenticated/classrooms/': typeof AuthenticatedClassroomsIndexRoute
-  '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
-  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
-  '/_authenticated/student-courses/': typeof AuthenticatedStudentCoursesIndexRoute
-  '/_authenticated/submissions/': typeof AuthenticatedSubmissionsIndexRoute
-  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
-  '/_authenticated/assignments/$assignmentId/': typeof AuthenticatedAssignmentsAssignmentIdIndexRoute
-  '/_authenticated/assignments/compiler/': typeof AuthenticatedAssignmentsCompilerIndexRoute
-  '/_authenticated/assignments/create/': typeof AuthenticatedAssignmentsCreateIndexRoute
-  '/_authenticated/assignments/test-builder/': typeof AuthenticatedAssignmentsTestBuilderIndexRoute
-  '/_authenticated/classrooms/create/': typeof AuthenticatedClassroomsCreateIndexRoute
-  '/_authenticated/courses/create/': typeof AuthenticatedCoursesCreateIndexRoute
-  '/_authenticated/roles/create/': typeof AuthenticatedRolesCreateIndexRoute
-  '/_authenticated/submissions/create/': typeof AuthenticatedSubmissionsCreateIndexRoute
-  '/_authenticated/assignments/$assignmentId/edit/': typeof AuthenticatedAssignmentsAssignmentIdEditIndexRoute
-  '/_authenticated/classrooms/$classroomId/edit/': typeof AuthenticatedClassroomsClassroomIdEditIndexRoute
-  '/_authenticated/courses/$courseId/assignments/': typeof AuthenticatedCoursesCourseIdAssignmentsIndexRoute
-  '/_authenticated/courses/$courseId/edit/': typeof AuthenticatedCoursesCourseIdEditIndexRoute
-  '/_authenticated/roles/$roleId/edit/': typeof AuthenticatedRolesRoleIdEditIndexRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/admin/student-assignments/$assignmentId': typeof AuthenticatedAdminStudentAssignmentsAssignmentIdRoute
+  '/_authenticated/admin/student-courses/$courseId': typeof AuthenticatedAdminStudentCoursesCourseIdRoute
+  '/_authenticated/admin/student-submissions/$assignmentId': typeof AuthenticatedAdminStudentSubmissionsAssignmentIdRoute
+  '/_authenticated/admin/assignments/': typeof AuthenticatedAdminAssignmentsIndexRoute
+  '/_authenticated/admin/classrooms/': typeof AuthenticatedAdminClassroomsIndexRoute
+  '/_authenticated/admin/courses/': typeof AuthenticatedAdminCoursesIndexRoute
+  '/_authenticated/admin/dashboard/': typeof AuthenticatedAdminDashboardIndexRoute
+  '/_authenticated/admin/roles/': typeof AuthenticatedAdminRolesIndexRoute
+  '/_authenticated/admin/student-courses/': typeof AuthenticatedAdminStudentCoursesIndexRoute
+  '/_authenticated/admin/submissions/': typeof AuthenticatedAdminSubmissionsIndexRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
+  '/_authenticated/app/assignments/': typeof AuthenticatedAppAssignmentsIndexRoute
+  '/_authenticated/app/courses/': typeof AuthenticatedAppCoursesIndexRoute
+  '/_authenticated/admin/assignments/$assignmentId/': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
+  '/_authenticated/admin/assignments/compiler/': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
+  '/_authenticated/admin/assignments/create/': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
+  '/_authenticated/admin/assignments/test-builder/': typeof AuthenticatedAdminAssignmentsTestBuilderIndexRoute
+  '/_authenticated/admin/classrooms/create/': typeof AuthenticatedAdminClassroomsCreateIndexRoute
+  '/_authenticated/admin/courses/create/': typeof AuthenticatedAdminCoursesCreateIndexRoute
+  '/_authenticated/admin/roles/create/': typeof AuthenticatedAdminRolesCreateIndexRoute
+  '/_authenticated/admin/submissions/create/': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
+  '/_authenticated/app/assignments/$assignmentId/': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
+  '/_authenticated/app/courses/$courseId/': typeof AuthenticatedAppCoursesCourseIdIndexRoute
+  '/_authenticated/app/submissions/index/': typeof AuthenticatedAppSubmissionsIndexRoute
+  '/_authenticated/admin/assignments/$assignmentId/edit/': typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute
+  '/_authenticated/admin/classrooms/$classroomId/edit/': typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRoute
+  '/_authenticated/admin/courses/$courseId/assignments/': typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute
+  '/_authenticated/admin/courses/$courseId/edit/': typeof AuthenticatedAdminCoursesCourseIdEditIndexRoute
+  '/_authenticated/admin/roles/$roleId/edit/': typeof AuthenticatedAdminRolesRoleIdEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | ''
+    | '/admin'
+    | '/app'
     | '/login'
     | '/401'
     | '/403'
@@ -337,30 +425,37 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
-    | '/student-assignments/$assignmentId'
-    | '/student-courses/$courseId'
-    | '/student-submissions/$assignmentId'
-    | '/assignments'
-    | '/classrooms'
-    | '/courses'
-    | '/dashboard'
-    | '/roles'
-    | '/student-courses'
-    | '/submissions'
-    | '/users'
-    | '/assignments/$assignmentId'
-    | '/assignments/compiler'
-    | '/assignments/create'
-    | '/assignments/test-builder'
-    | '/classrooms/create'
-    | '/courses/create'
-    | '/roles/create'
-    | '/submissions/create'
-    | '/assignments/$assignmentId/edit'
-    | '/classrooms/$classroomId/edit'
-    | '/courses/$courseId/assignments'
-    | '/courses/$courseId/edit'
-    | '/roles/$roleId/edit'
+    | '/admin/'
+    | '/app/'
+    | '/admin/student-assignments/$assignmentId'
+    | '/admin/student-courses/$courseId'
+    | '/admin/student-submissions/$assignmentId'
+    | '/admin/assignments'
+    | '/admin/classrooms'
+    | '/admin/courses'
+    | '/admin/dashboard'
+    | '/admin/roles'
+    | '/admin/student-courses'
+    | '/admin/submissions'
+    | '/admin/users'
+    | '/app/assignments'
+    | '/app/courses'
+    | '/admin/assignments/$assignmentId'
+    | '/admin/assignments/compiler'
+    | '/admin/assignments/create'
+    | '/admin/assignments/test-builder'
+    | '/admin/classrooms/create'
+    | '/admin/courses/create'
+    | '/admin/roles/create'
+    | '/admin/submissions/create'
+    | '/app/assignments/$assignmentId'
+    | '/app/courses/$courseId'
+    | '/app/submissions/index'
+    | '/admin/assignments/$assignmentId/edit'
+    | '/admin/classrooms/$classroomId/edit'
+    | '/admin/courses/$courseId/assignments'
+    | '/admin/courses/$courseId/edit'
+    | '/admin/roles/$roleId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -370,33 +465,42 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
-    | '/student-assignments/$assignmentId'
-    | '/student-courses/$courseId'
-    | '/student-submissions/$assignmentId'
-    | '/assignments'
-    | '/classrooms'
-    | '/courses'
-    | '/dashboard'
-    | '/roles'
-    | '/student-courses'
-    | '/submissions'
-    | '/users'
-    | '/assignments/$assignmentId'
-    | '/assignments/compiler'
-    | '/assignments/create'
-    | '/assignments/test-builder'
-    | '/classrooms/create'
-    | '/courses/create'
-    | '/roles/create'
-    | '/submissions/create'
-    | '/assignments/$assignmentId/edit'
-    | '/classrooms/$classroomId/edit'
-    | '/courses/$courseId/assignments'
-    | '/courses/$courseId/edit'
-    | '/roles/$roleId/edit'
+    | '/admin'
+    | '/app'
+    | '/admin/student-assignments/$assignmentId'
+    | '/admin/student-courses/$courseId'
+    | '/admin/student-submissions/$assignmentId'
+    | '/admin/assignments'
+    | '/admin/classrooms'
+    | '/admin/courses'
+    | '/admin/dashboard'
+    | '/admin/roles'
+    | '/admin/student-courses'
+    | '/admin/submissions'
+    | '/admin/users'
+    | '/app/assignments'
+    | '/app/courses'
+    | '/admin/assignments/$assignmentId'
+    | '/admin/assignments/compiler'
+    | '/admin/assignments/create'
+    | '/admin/assignments/test-builder'
+    | '/admin/classrooms/create'
+    | '/admin/courses/create'
+    | '/admin/roles/create'
+    | '/admin/submissions/create'
+    | '/app/assignments/$assignmentId'
+    | '/app/courses/$courseId'
+    | '/app/submissions/index'
+    | '/admin/assignments/$assignmentId/edit'
+    | '/admin/classrooms/$classroomId/edit'
+    | '/admin/courses/$courseId/assignments'
+    | '/admin/courses/$courseId/edit'
+    | '/admin/roles/$roleId/edit'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/_authenticated/admin'
+    | '/_authenticated/app'
     | '/(auth)/login'
     | '/(errors)/401'
     | '/(errors)/403'
@@ -404,30 +508,37 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
-    | '/_authenticated/student-assignments/$assignmentId'
-    | '/_authenticated/student-courses/$courseId'
-    | '/_authenticated/student-submissions/$assignmentId'
-    | '/_authenticated/assignments/'
-    | '/_authenticated/classrooms/'
-    | '/_authenticated/courses/'
-    | '/_authenticated/dashboard/'
-    | '/_authenticated/roles/'
-    | '/_authenticated/student-courses/'
-    | '/_authenticated/submissions/'
-    | '/_authenticated/users/'
-    | '/_authenticated/assignments/$assignmentId/'
-    | '/_authenticated/assignments/compiler/'
-    | '/_authenticated/assignments/create/'
-    | '/_authenticated/assignments/test-builder/'
-    | '/_authenticated/classrooms/create/'
-    | '/_authenticated/courses/create/'
-    | '/_authenticated/roles/create/'
-    | '/_authenticated/submissions/create/'
-    | '/_authenticated/assignments/$assignmentId/edit/'
-    | '/_authenticated/classrooms/$classroomId/edit/'
-    | '/_authenticated/courses/$courseId/assignments/'
-    | '/_authenticated/courses/$courseId/edit/'
-    | '/_authenticated/roles/$roleId/edit/'
+    | '/_authenticated/admin/'
+    | '/_authenticated/app/'
+    | '/_authenticated/admin/student-assignments/$assignmentId'
+    | '/_authenticated/admin/student-courses/$courseId'
+    | '/_authenticated/admin/student-submissions/$assignmentId'
+    | '/_authenticated/admin/assignments/'
+    | '/_authenticated/admin/classrooms/'
+    | '/_authenticated/admin/courses/'
+    | '/_authenticated/admin/dashboard/'
+    | '/_authenticated/admin/roles/'
+    | '/_authenticated/admin/student-courses/'
+    | '/_authenticated/admin/submissions/'
+    | '/_authenticated/admin/users/'
+    | '/_authenticated/app/assignments/'
+    | '/_authenticated/app/courses/'
+    | '/_authenticated/admin/assignments/$assignmentId/'
+    | '/_authenticated/admin/assignments/compiler/'
+    | '/_authenticated/admin/assignments/create/'
+    | '/_authenticated/admin/assignments/test-builder/'
+    | '/_authenticated/admin/classrooms/create/'
+    | '/_authenticated/admin/courses/create/'
+    | '/_authenticated/admin/roles/create/'
+    | '/_authenticated/admin/submissions/create/'
+    | '/_authenticated/app/assignments/$assignmentId/'
+    | '/_authenticated/app/courses/$courseId/'
+    | '/_authenticated/app/submissions/index/'
+    | '/_authenticated/admin/assignments/$assignmentId/edit/'
+    | '/_authenticated/admin/classrooms/$classroomId/edit/'
+    | '/_authenticated/admin/courses/$courseId/assignments/'
+    | '/_authenticated/admin/courses/$courseId/edit/'
+    | '/_authenticated/admin/roles/$roleId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -498,245 +609,358 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/submissions/': {
-      id: '/_authenticated/submissions/'
-      path: '/submissions'
-      fullPath: '/submissions'
-      preLoaderRoute: typeof AuthenticatedSubmissionsIndexRouteImport
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/student-courses/': {
-      id: '/_authenticated/student-courses/'
-      path: '/student-courses'
-      fullPath: '/student-courses'
-      preLoaderRoute: typeof AuthenticatedStudentCoursesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/roles/': {
-      id: '/_authenticated/roles/'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof AuthenticatedRolesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/dashboard/': {
-      id: '/_authenticated/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/courses/': {
-      id: '/_authenticated/courses/'
+    '/_authenticated/app/courses/': {
+      id: '/_authenticated/app/courses/'
       path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/app/courses'
+      preLoaderRoute: typeof AuthenticatedAppCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/classrooms/': {
-      id: '/_authenticated/classrooms/'
-      path: '/classrooms'
-      fullPath: '/classrooms'
-      preLoaderRoute: typeof AuthenticatedClassroomsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assignments/': {
-      id: '/_authenticated/assignments/'
+    '/_authenticated/app/assignments/': {
+      id: '/_authenticated/app/assignments/'
       path: '/assignments'
-      fullPath: '/assignments'
-      preLoaderRoute: typeof AuthenticatedAssignmentsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/app/assignments'
+      preLoaderRoute: typeof AuthenticatedAppAssignmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/student-submissions/$assignmentId': {
-      id: '/_authenticated/student-submissions/$assignmentId'
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/submissions/': {
+      id: '/_authenticated/admin/submissions/'
+      path: '/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AuthenticatedAdminSubmissionsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/student-courses/': {
+      id: '/_authenticated/admin/student-courses/'
+      path: '/student-courses'
+      fullPath: '/admin/student-courses'
+      preLoaderRoute: typeof AuthenticatedAdminStudentCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/roles/': {
+      id: '/_authenticated/admin/roles/'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AuthenticatedAdminRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/dashboard/': {
+      id: '/_authenticated/admin/dashboard/'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/courses/': {
+      id: '/_authenticated/admin/courses/'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/classrooms/': {
+      id: '/_authenticated/admin/classrooms/'
+      path: '/classrooms'
+      fullPath: '/admin/classrooms'
+      preLoaderRoute: typeof AuthenticatedAdminClassroomsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/assignments/': {
+      id: '/_authenticated/admin/assignments/'
+      path: '/assignments'
+      fullPath: '/admin/assignments'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/student-submissions/$assignmentId': {
+      id: '/_authenticated/admin/student-submissions/$assignmentId'
       path: '/student-submissions/$assignmentId'
-      fullPath: '/student-submissions/$assignmentId'
-      preLoaderRoute: typeof AuthenticatedStudentSubmissionsAssignmentIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/student-submissions/$assignmentId'
+      preLoaderRoute: typeof AuthenticatedAdminStudentSubmissionsAssignmentIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/student-courses/$courseId': {
-      id: '/_authenticated/student-courses/$courseId'
+    '/_authenticated/admin/student-courses/$courseId': {
+      id: '/_authenticated/admin/student-courses/$courseId'
       path: '/student-courses/$courseId'
-      fullPath: '/student-courses/$courseId'
-      preLoaderRoute: typeof AuthenticatedStudentCoursesCourseIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/student-courses/$courseId'
+      preLoaderRoute: typeof AuthenticatedAdminStudentCoursesCourseIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/student-assignments/$assignmentId': {
-      id: '/_authenticated/student-assignments/$assignmentId'
+    '/_authenticated/admin/student-assignments/$assignmentId': {
+      id: '/_authenticated/admin/student-assignments/$assignmentId'
       path: '/student-assignments/$assignmentId'
-      fullPath: '/student-assignments/$assignmentId'
-      preLoaderRoute: typeof AuthenticatedStudentAssignmentsAssignmentIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/student-assignments/$assignmentId'
+      preLoaderRoute: typeof AuthenticatedAdminStudentAssignmentsAssignmentIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/submissions/create/': {
-      id: '/_authenticated/submissions/create/'
-      path: '/submissions/create'
-      fullPath: '/submissions/create'
-      preLoaderRoute: typeof AuthenticatedSubmissionsCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/app/submissions/index/': {
+      id: '/_authenticated/app/submissions/index/'
+      path: '/submissions/index'
+      fullPath: '/app/submissions/index'
+      preLoaderRoute: typeof AuthenticatedAppSubmissionsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/roles/create/': {
-      id: '/_authenticated/roles/create/'
-      path: '/roles/create'
-      fullPath: '/roles/create'
-      preLoaderRoute: typeof AuthenticatedRolesCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/app/courses/$courseId/': {
+      id: '/_authenticated/app/courses/$courseId/'
+      path: '/courses/$courseId'
+      fullPath: '/app/courses/$courseId'
+      preLoaderRoute: typeof AuthenticatedAppCoursesCourseIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/courses/create/': {
-      id: '/_authenticated/courses/create/'
-      path: '/courses/create'
-      fullPath: '/courses/create'
-      preLoaderRoute: typeof AuthenticatedCoursesCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/classrooms/create/': {
-      id: '/_authenticated/classrooms/create/'
-      path: '/classrooms/create'
-      fullPath: '/classrooms/create'
-      preLoaderRoute: typeof AuthenticatedClassroomsCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assignments/test-builder/': {
-      id: '/_authenticated/assignments/test-builder/'
-      path: '/assignments/test-builder'
-      fullPath: '/assignments/test-builder'
-      preLoaderRoute: typeof AuthenticatedAssignmentsTestBuilderIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assignments/create/': {
-      id: '/_authenticated/assignments/create/'
-      path: '/assignments/create'
-      fullPath: '/assignments/create'
-      preLoaderRoute: typeof AuthenticatedAssignmentsCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assignments/compiler/': {
-      id: '/_authenticated/assignments/compiler/'
-      path: '/assignments/compiler'
-      fullPath: '/assignments/compiler'
-      preLoaderRoute: typeof AuthenticatedAssignmentsCompilerIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/assignments/$assignmentId/': {
-      id: '/_authenticated/assignments/$assignmentId/'
+    '/_authenticated/app/assignments/$assignmentId/': {
+      id: '/_authenticated/app/assignments/$assignmentId/'
       path: '/assignments/$assignmentId'
-      fullPath: '/assignments/$assignmentId'
-      preLoaderRoute: typeof AuthenticatedAssignmentsAssignmentIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/app/assignments/$assignmentId'
+      preLoaderRoute: typeof AuthenticatedAppAssignmentsAssignmentIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/roles/$roleId/edit/': {
-      id: '/_authenticated/roles/$roleId/edit/'
+    '/_authenticated/admin/submissions/create/': {
+      id: '/_authenticated/admin/submissions/create/'
+      path: '/submissions/create'
+      fullPath: '/admin/submissions/create'
+      preLoaderRoute: typeof AuthenticatedAdminSubmissionsCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/roles/create/': {
+      id: '/_authenticated/admin/roles/create/'
+      path: '/roles/create'
+      fullPath: '/admin/roles/create'
+      preLoaderRoute: typeof AuthenticatedAdminRolesCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/courses/create/': {
+      id: '/_authenticated/admin/courses/create/'
+      path: '/courses/create'
+      fullPath: '/admin/courses/create'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/classrooms/create/': {
+      id: '/_authenticated/admin/classrooms/create/'
+      path: '/classrooms/create'
+      fullPath: '/admin/classrooms/create'
+      preLoaderRoute: typeof AuthenticatedAdminClassroomsCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/assignments/test-builder/': {
+      id: '/_authenticated/admin/assignments/test-builder/'
+      path: '/assignments/test-builder'
+      fullPath: '/admin/assignments/test-builder'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsTestBuilderIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/assignments/create/': {
+      id: '/_authenticated/admin/assignments/create/'
+      path: '/assignments/create'
+      fullPath: '/admin/assignments/create'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsCreateIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/assignments/compiler/': {
+      id: '/_authenticated/admin/assignments/compiler/'
+      path: '/assignments/compiler'
+      fullPath: '/admin/assignments/compiler'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsCompilerIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/assignments/$assignmentId/': {
+      id: '/_authenticated/admin/assignments/$assignmentId/'
+      path: '/assignments/$assignmentId'
+      fullPath: '/admin/assignments/$assignmentId'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/roles/$roleId/edit/': {
+      id: '/_authenticated/admin/roles/$roleId/edit/'
       path: '/roles/$roleId/edit'
-      fullPath: '/roles/$roleId/edit'
-      preLoaderRoute: typeof AuthenticatedRolesRoleIdEditIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/roles/$roleId/edit'
+      preLoaderRoute: typeof AuthenticatedAdminRolesRoleIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/courses/$courseId/edit/': {
-      id: '/_authenticated/courses/$courseId/edit/'
+    '/_authenticated/admin/courses/$courseId/edit/': {
+      id: '/_authenticated/admin/courses/$courseId/edit/'
       path: '/courses/$courseId/edit'
-      fullPath: '/courses/$courseId/edit'
-      preLoaderRoute: typeof AuthenticatedCoursesCourseIdEditIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/courses/$courseId/edit'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesCourseIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/courses/$courseId/assignments/': {
-      id: '/_authenticated/courses/$courseId/assignments/'
+    '/_authenticated/admin/courses/$courseId/assignments/': {
+      id: '/_authenticated/admin/courses/$courseId/assignments/'
       path: '/courses/$courseId/assignments'
-      fullPath: '/courses/$courseId/assignments'
-      preLoaderRoute: typeof AuthenticatedCoursesCourseIdAssignmentsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/courses/$courseId/assignments'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/classrooms/$classroomId/edit/': {
-      id: '/_authenticated/classrooms/$classroomId/edit/'
+    '/_authenticated/admin/classrooms/$classroomId/edit/': {
+      id: '/_authenticated/admin/classrooms/$classroomId/edit/'
       path: '/classrooms/$classroomId/edit'
-      fullPath: '/classrooms/$classroomId/edit'
-      preLoaderRoute: typeof AuthenticatedClassroomsClassroomIdEditIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/classrooms/$classroomId/edit'
+      preLoaderRoute: typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/assignments/$assignmentId/edit/': {
-      id: '/_authenticated/assignments/$assignmentId/edit/'
+    '/_authenticated/admin/assignments/$assignmentId/edit/': {
+      id: '/_authenticated/admin/assignments/$assignmentId/edit/'
       path: '/assignments/$assignmentId/edit'
-      fullPath: '/assignments/$assignmentId/edit'
-      preLoaderRoute: typeof AuthenticatedAssignmentsAssignmentIdEditIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/admin/assignments/$assignmentId/edit'
+      preLoaderRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminStudentAssignmentsAssignmentIdRoute: typeof AuthenticatedAdminStudentAssignmentsAssignmentIdRoute
+  AuthenticatedAdminStudentCoursesCourseIdRoute: typeof AuthenticatedAdminStudentCoursesCourseIdRoute
+  AuthenticatedAdminStudentSubmissionsAssignmentIdRoute: typeof AuthenticatedAdminStudentSubmissionsAssignmentIdRoute
+  AuthenticatedAdminAssignmentsIndexRoute: typeof AuthenticatedAdminAssignmentsIndexRoute
+  AuthenticatedAdminClassroomsIndexRoute: typeof AuthenticatedAdminClassroomsIndexRoute
+  AuthenticatedAdminCoursesIndexRoute: typeof AuthenticatedAdminCoursesIndexRoute
+  AuthenticatedAdminDashboardIndexRoute: typeof AuthenticatedAdminDashboardIndexRoute
+  AuthenticatedAdminRolesIndexRoute: typeof AuthenticatedAdminRolesIndexRoute
+  AuthenticatedAdminStudentCoursesIndexRoute: typeof AuthenticatedAdminStudentCoursesIndexRoute
+  AuthenticatedAdminSubmissionsIndexRoute: typeof AuthenticatedAdminSubmissionsIndexRoute
+  AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
+  AuthenticatedAdminAssignmentsAssignmentIdIndexRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
+  AuthenticatedAdminAssignmentsCompilerIndexRoute: typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
+  AuthenticatedAdminAssignmentsCreateIndexRoute: typeof AuthenticatedAdminAssignmentsCreateIndexRoute
+  AuthenticatedAdminAssignmentsTestBuilderIndexRoute: typeof AuthenticatedAdminAssignmentsTestBuilderIndexRoute
+  AuthenticatedAdminClassroomsCreateIndexRoute: typeof AuthenticatedAdminClassroomsCreateIndexRoute
+  AuthenticatedAdminCoursesCreateIndexRoute: typeof AuthenticatedAdminCoursesCreateIndexRoute
+  AuthenticatedAdminRolesCreateIndexRoute: typeof AuthenticatedAdminRolesCreateIndexRoute
+  AuthenticatedAdminSubmissionsCreateIndexRoute: typeof AuthenticatedAdminSubmissionsCreateIndexRoute
+  AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute
+  AuthenticatedAdminClassroomsClassroomIdEditIndexRoute: typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRoute
+  AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute: typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute
+  AuthenticatedAdminCoursesCourseIdEditIndexRoute: typeof AuthenticatedAdminCoursesCourseIdEditIndexRoute
+  AuthenticatedAdminRolesRoleIdEditIndexRoute: typeof AuthenticatedAdminRolesRoleIdEditIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminStudentAssignmentsAssignmentIdRoute:
+      AuthenticatedAdminStudentAssignmentsAssignmentIdRoute,
+    AuthenticatedAdminStudentCoursesCourseIdRoute:
+      AuthenticatedAdminStudentCoursesCourseIdRoute,
+    AuthenticatedAdminStudentSubmissionsAssignmentIdRoute:
+      AuthenticatedAdminStudentSubmissionsAssignmentIdRoute,
+    AuthenticatedAdminAssignmentsIndexRoute:
+      AuthenticatedAdminAssignmentsIndexRoute,
+    AuthenticatedAdminClassroomsIndexRoute:
+      AuthenticatedAdminClassroomsIndexRoute,
+    AuthenticatedAdminCoursesIndexRoute: AuthenticatedAdminCoursesIndexRoute,
+    AuthenticatedAdminDashboardIndexRoute:
+      AuthenticatedAdminDashboardIndexRoute,
+    AuthenticatedAdminRolesIndexRoute: AuthenticatedAdminRolesIndexRoute,
+    AuthenticatedAdminStudentCoursesIndexRoute:
+      AuthenticatedAdminStudentCoursesIndexRoute,
+    AuthenticatedAdminSubmissionsIndexRoute:
+      AuthenticatedAdminSubmissionsIndexRoute,
+    AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
+    AuthenticatedAdminAssignmentsAssignmentIdIndexRoute:
+      AuthenticatedAdminAssignmentsAssignmentIdIndexRoute,
+    AuthenticatedAdminAssignmentsCompilerIndexRoute:
+      AuthenticatedAdminAssignmentsCompilerIndexRoute,
+    AuthenticatedAdminAssignmentsCreateIndexRoute:
+      AuthenticatedAdminAssignmentsCreateIndexRoute,
+    AuthenticatedAdminAssignmentsTestBuilderIndexRoute:
+      AuthenticatedAdminAssignmentsTestBuilderIndexRoute,
+    AuthenticatedAdminClassroomsCreateIndexRoute:
+      AuthenticatedAdminClassroomsCreateIndexRoute,
+    AuthenticatedAdminCoursesCreateIndexRoute:
+      AuthenticatedAdminCoursesCreateIndexRoute,
+    AuthenticatedAdminRolesCreateIndexRoute:
+      AuthenticatedAdminRolesCreateIndexRoute,
+    AuthenticatedAdminSubmissionsCreateIndexRoute:
+      AuthenticatedAdminSubmissionsCreateIndexRoute,
+    AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute:
+      AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute,
+    AuthenticatedAdminClassroomsClassroomIdEditIndexRoute:
+      AuthenticatedAdminClassroomsClassroomIdEditIndexRoute,
+    AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute:
+      AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute,
+    AuthenticatedAdminCoursesCourseIdEditIndexRoute:
+      AuthenticatedAdminCoursesCourseIdEditIndexRoute,
+    AuthenticatedAdminRolesRoleIdEditIndexRoute:
+      AuthenticatedAdminRolesRoleIdEditIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedAppRouteRouteChildren {
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAssignmentsIndexRoute: typeof AuthenticatedAppAssignmentsIndexRoute
+  AuthenticatedAppCoursesIndexRoute: typeof AuthenticatedAppCoursesIndexRoute
+  AuthenticatedAppAssignmentsAssignmentIdIndexRoute: typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
+  AuthenticatedAppCoursesCourseIdIndexRoute: typeof AuthenticatedAppCoursesCourseIdIndexRoute
+  AuthenticatedAppSubmissionsIndexRoute: typeof AuthenticatedAppSubmissionsIndexRoute
+}
+
+const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAssignmentsIndexRoute: AuthenticatedAppAssignmentsIndexRoute,
+  AuthenticatedAppCoursesIndexRoute: AuthenticatedAppCoursesIndexRoute,
+  AuthenticatedAppAssignmentsAssignmentIdIndexRoute:
+    AuthenticatedAppAssignmentsAssignmentIdIndexRoute,
+  AuthenticatedAppCoursesCourseIdIndexRoute:
+    AuthenticatedAppCoursesCourseIdIndexRoute,
+  AuthenticatedAppSubmissionsIndexRoute: AuthenticatedAppSubmissionsIndexRoute,
+}
+
+const AuthenticatedAppRouteRouteWithChildren =
+  AuthenticatedAppRouteRoute._addFileChildren(
+    AuthenticatedAppRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedAppRouteRoute: typeof AuthenticatedAppRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedStudentAssignmentsAssignmentIdRoute: typeof AuthenticatedStudentAssignmentsAssignmentIdRoute
-  AuthenticatedStudentCoursesCourseIdRoute: typeof AuthenticatedStudentCoursesCourseIdRoute
-  AuthenticatedStudentSubmissionsAssignmentIdRoute: typeof AuthenticatedStudentSubmissionsAssignmentIdRoute
-  AuthenticatedAssignmentsIndexRoute: typeof AuthenticatedAssignmentsIndexRoute
-  AuthenticatedClassroomsIndexRoute: typeof AuthenticatedClassroomsIndexRoute
-  AuthenticatedCoursesIndexRoute: typeof AuthenticatedCoursesIndexRoute
-  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedRolesIndexRoute: typeof AuthenticatedRolesIndexRoute
-  AuthenticatedStudentCoursesIndexRoute: typeof AuthenticatedStudentCoursesIndexRoute
-  AuthenticatedSubmissionsIndexRoute: typeof AuthenticatedSubmissionsIndexRoute
-  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
-  AuthenticatedAssignmentsAssignmentIdIndexRoute: typeof AuthenticatedAssignmentsAssignmentIdIndexRoute
-  AuthenticatedAssignmentsCompilerIndexRoute: typeof AuthenticatedAssignmentsCompilerIndexRoute
-  AuthenticatedAssignmentsCreateIndexRoute: typeof AuthenticatedAssignmentsCreateIndexRoute
-  AuthenticatedAssignmentsTestBuilderIndexRoute: typeof AuthenticatedAssignmentsTestBuilderIndexRoute
-  AuthenticatedClassroomsCreateIndexRoute: typeof AuthenticatedClassroomsCreateIndexRoute
-  AuthenticatedCoursesCreateIndexRoute: typeof AuthenticatedCoursesCreateIndexRoute
-  AuthenticatedRolesCreateIndexRoute: typeof AuthenticatedRolesCreateIndexRoute
-  AuthenticatedSubmissionsCreateIndexRoute: typeof AuthenticatedSubmissionsCreateIndexRoute
-  AuthenticatedAssignmentsAssignmentIdEditIndexRoute: typeof AuthenticatedAssignmentsAssignmentIdEditIndexRoute
-  AuthenticatedClassroomsClassroomIdEditIndexRoute: typeof AuthenticatedClassroomsClassroomIdEditIndexRoute
-  AuthenticatedCoursesCourseIdAssignmentsIndexRoute: typeof AuthenticatedCoursesCourseIdAssignmentsIndexRoute
-  AuthenticatedCoursesCourseIdEditIndexRoute: typeof AuthenticatedCoursesCourseIdEditIndexRoute
-  AuthenticatedRolesRoleIdEditIndexRoute: typeof AuthenticatedRolesRoleIdEditIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedAppRouteRoute: AuthenticatedAppRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedStudentAssignmentsAssignmentIdRoute:
-    AuthenticatedStudentAssignmentsAssignmentIdRoute,
-  AuthenticatedStudentCoursesCourseIdRoute:
-    AuthenticatedStudentCoursesCourseIdRoute,
-  AuthenticatedStudentSubmissionsAssignmentIdRoute:
-    AuthenticatedStudentSubmissionsAssignmentIdRoute,
-  AuthenticatedAssignmentsIndexRoute: AuthenticatedAssignmentsIndexRoute,
-  AuthenticatedClassroomsIndexRoute: AuthenticatedClassroomsIndexRoute,
-  AuthenticatedCoursesIndexRoute: AuthenticatedCoursesIndexRoute,
-  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedRolesIndexRoute: AuthenticatedRolesIndexRoute,
-  AuthenticatedStudentCoursesIndexRoute: AuthenticatedStudentCoursesIndexRoute,
-  AuthenticatedSubmissionsIndexRoute: AuthenticatedSubmissionsIndexRoute,
-  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
-  AuthenticatedAssignmentsAssignmentIdIndexRoute:
-    AuthenticatedAssignmentsAssignmentIdIndexRoute,
-  AuthenticatedAssignmentsCompilerIndexRoute:
-    AuthenticatedAssignmentsCompilerIndexRoute,
-  AuthenticatedAssignmentsCreateIndexRoute:
-    AuthenticatedAssignmentsCreateIndexRoute,
-  AuthenticatedAssignmentsTestBuilderIndexRoute:
-    AuthenticatedAssignmentsTestBuilderIndexRoute,
-  AuthenticatedClassroomsCreateIndexRoute:
-    AuthenticatedClassroomsCreateIndexRoute,
-  AuthenticatedCoursesCreateIndexRoute: AuthenticatedCoursesCreateIndexRoute,
-  AuthenticatedRolesCreateIndexRoute: AuthenticatedRolesCreateIndexRoute,
-  AuthenticatedSubmissionsCreateIndexRoute:
-    AuthenticatedSubmissionsCreateIndexRoute,
-  AuthenticatedAssignmentsAssignmentIdEditIndexRoute:
-    AuthenticatedAssignmentsAssignmentIdEditIndexRoute,
-  AuthenticatedClassroomsClassroomIdEditIndexRoute:
-    AuthenticatedClassroomsClassroomIdEditIndexRoute,
-  AuthenticatedCoursesCourseIdAssignmentsIndexRoute:
-    AuthenticatedCoursesCourseIdAssignmentsIndexRoute,
-  AuthenticatedCoursesCourseIdEditIndexRoute:
-    AuthenticatedCoursesCourseIdEditIndexRoute,
-  AuthenticatedRolesRoleIdEditIndexRoute:
-    AuthenticatedRolesRoleIdEditIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

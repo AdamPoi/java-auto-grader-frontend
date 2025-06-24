@@ -6,7 +6,7 @@ import FileUploadArea from './file-upload-area';
 import TryOutSubmissionList from './try-out-submission-list';
 
 const TryOutTab: React.FC = () => {
-    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
     const { data: submissionsData, isLoading: isLoadingSubmissions, refetch } = useSubmissionsList({
         page: 0,
         size: 100,

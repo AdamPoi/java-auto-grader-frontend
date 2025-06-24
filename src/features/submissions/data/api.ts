@@ -1,6 +1,7 @@
+import { apiClient } from '@/lib/apiClient';
 import axios from '@/lib/axios';
 import type { SearchRequestParams, SearchResponse } from '@/types/api.types';
-import type { Submission, SubmissionForm } from './types';
+import type { Submission, SubmissionForm, TestSubmitRequest } from './types';
 
 export const submissionApi = {
     getSubmissions: async (params: SearchRequestParams): Promise<SearchResponse<Submission>> => {
@@ -45,13 +46,25 @@ export const submissionApi = {
         return response.data;
     },
 
-    submitForGrading: async (id: string): Promise<Submission> => {
-        const response = await axios.post(`/submissions/${id}/submit`);
-        return response.data;
+    tryOutSubmission: async (submission: TestSubmitRequest): Promise<Submission> => {
+        const response = await apiClient.post<TestSubmitRequest, Submission>({
+            url: '/submissions/tryout',
+            data: submission,
+        });
+        return response;
     },
 
-    rerunTests: async (id: string): Promise<Submission> => {
-        const response = await axios.post(`/submissions/${id}/rerun-tests`);
-        return response.data;
+    submitStudentSubmission: async (data: TestSubmitRequest): Promise<Submission> => {
+        const response = await apiClient.post<TestSubmitRequest, Submission>({
+            url: '/submissions/tryout',
+            data,
+        });
+        return response;
     },
+
+    // submitBulkStudentSubmission: async (data: TestSubmitRequest[]): Promise<Submission[]> => {
+    //     const response = await axios.post('/submissions/bulk', data);
+    //     return response.data;
+    // },
+
 };

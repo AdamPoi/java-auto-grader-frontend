@@ -7,7 +7,7 @@ export function CoursesPrimaryButtons() {
   const navigate = useNavigate();
 
   const handleAddCourseClick = () => {
-    navigate({ to: '/courses/create' });
+    navigate({ to: '/admin/courses/create' });
   };
   const { auth } = useAuthStore()
 

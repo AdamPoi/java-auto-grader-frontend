@@ -41,7 +41,7 @@ export function AssignmentsTableRowActions({ row }: AssignmentsTableRowActionsPr
             <DropdownMenuItem
               onClick={() => {
                 navigate({
-                  to: '/assignments/$assignmentId/edit',
+                  to: '/admin/assignments/$assignmentId/edit',
                   params: { assignmentId: row.original.id },
                 })
               }}

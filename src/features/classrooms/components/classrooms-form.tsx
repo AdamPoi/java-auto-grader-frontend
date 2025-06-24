@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { classroomFormSchema } from '@/features/classrooms/data/schema';
 import { type User } from '@/features/users/data/types';
+import { useUsersList } from '@/features/users/hooks/use-user';
 import { handleServerErrors } from '@/lib/form-utils';
 import { debounce } from '@tanstack/pacer';
 import { useRouter } from '@tanstack/react-router';
@@ -25,7 +26,6 @@ import { toast } from 'sonner';
 import type { Classroom, ClassroomForm } from '../data/types';
 import { useCreateClassroom, useUpdateClassroom } from '../hooks/use-classroom';
 import { createStudentColumns } from './student-columns';
-import { useUsersList } from '@/features/users/hooks/use-user';
 
 interface ClassroomFormProps {
     initialData?: Classroom;
@@ -219,7 +219,7 @@ export function ClassroomForm({
             updateClassroomMutation.mutate({ classroomId: initialData.id, classroomData: data }, {
                 onSuccess: () => {
                     toast.success(`Classroom with Name ${data.name} updated successfully.`);
-                    router.navigate({ to: '/classrooms' });
+                    router.navigate({ to: '/admin/classrooms' });
                 },
                 onError: (error) => {
                     toast.error(`Failed to update classroom with Name ${data.name}: ${error.message}`);
@@ -229,7 +229,7 @@ export function ClassroomForm({
             createClassroomMutation.mutate(data, {
                 onSuccess: () => {
                     toast.success(`Classroom with Name ${data.name} created successfully.`);
-                    router.navigate({ to: '/classrooms' });
+                    router.navigate({ to: '/admin/classrooms' });
                 },
                 onError: (error) => {
                     toast.error(`Failed to create classroom with Name ${data.name}: ${error.message}`);

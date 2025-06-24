@@ -20,7 +20,7 @@ interface ClassroomsTableRowActionsProps {
 }
 
 export function ClassroomsTableRowActions({ row }: ClassroomsTableRowActionsProps) {
-  const navigate = useNavigate({ from: '/classrooms' })
+  const navigate = useNavigate({ from: '/admin/classrooms' })
   const { setOpen, setCurrentRow } = useClassroomsContext()
   const { auth } = useAuthStore();
   return (
@@ -40,7 +40,7 @@ export function ClassroomsTableRowActions({ row }: ClassroomsTableRowActionsProp
             <DropdownMenuItem
               onClick={() => {
                 navigate({
-                  to: '/classrooms/$classroomId/edit',
+                  to: '/admin/classrooms/$classroomId/edit',
                   params: { classroomId: row.original.id },
                 })
               }}

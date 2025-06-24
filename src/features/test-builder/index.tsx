@@ -214,7 +214,7 @@ export function TestBuilder() {
     const [isSaving, setIsSaving] = useState(false);
 
 
-    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
 
     const {

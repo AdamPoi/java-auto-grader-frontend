@@ -1,13 +1,13 @@
 import { Input } from '@/components/ui/input';
 import { useRubrics } from '@/features/rubrics/hooks/use-rubric';
 import type { SearchRequestParams } from '@/types/api.types';
+import { useParams } from '@tanstack/react-router';
 import { Award } from 'lucide-react';
 import React, { useEffect, useMemo } from 'react';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
-import { useParams } from '@tanstack/react-router';
 
 export const RubricPanel: React.FC = () => {
-    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
     const { rubrics, setRubrics } = useTestBuilderStore();
     const searchParams: SearchRequestParams = {
         page: 0,

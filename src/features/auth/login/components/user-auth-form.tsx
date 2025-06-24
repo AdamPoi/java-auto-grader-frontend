@@ -36,7 +36,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     reset()
     await login(data)
-    navigate({ to: "/dashboard" })
+    navigate({ to: "/admin/dashboard" })
   }
 
   return (

@@ -5,10 +5,10 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 
 export function AssignmentsPrimaryButtons() {
   const navigate = useNavigate();
-  const { courseId } = useParams({ from: '/_authenticated/courses/$courseId/assignments/' });
+  const { courseId } = useParams({ from: '/_authenticated/admin/courses/$courseId/assignments/' });
 
   const handleAddAssignmentClick = () => {
-    navigate({ to: '/assignments/create', search: { courseId } });
+    navigate({ to: '/admin/assignments/create', search: { courseId } });
   };
   const { auth } = useAuthStore()
 

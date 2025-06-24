@@ -8,7 +8,7 @@ import { RubricView } from './components/rubric-view';
 
 
 function StudentSubmission() {
-    const { assignmentId } = useParams({ from: '/_authenticated/student-submissions/$assignmentId' });
+    const { assignmentId } = useParams({ from: '/_authenticated/admin/student-submissions/$assignmentId' });
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignmentById(assignmentId);
 
     const searchParams: SearchRequestParams = {

@@ -7,7 +7,7 @@ export function SubmissionsPrimaryButtons() {
   const navigate = useNavigate();
 
   const handleAddSubmissionClick = () => {
-    navigate({ to: '/submissions/create' });
+    navigate({ to: '/admin/submissions/create' });
   };
   const { auth } = useAuthStore()
 

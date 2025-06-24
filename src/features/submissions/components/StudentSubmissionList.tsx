@@ -13,7 +13,7 @@ interface StudentSubmissionListProps {
 
 const StudentSubmissionList: React.FC<StudentSubmissionListProps> = ({ assignmentId }) => {
     const searchParams = useSearch({
-        from: '/_authenticated/submissions/',
+        from: '_authenticated/admin/submissions/',
     }) as { page?: number; size?: number }; // Cast to include page and size
 
     const setSearchParams = (updater: (prev: { page?: number; size?: number }) => { page?: number; size?: number }) => {

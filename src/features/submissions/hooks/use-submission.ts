@@ -1,4 +1,4 @@
-import type { SubmissionForm } from '@/features/submissions/data/types';
+import type { SubmissionForm, TestSubmitRequest } from '@/features/submissions/data/types';
 import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { submissionApi } from '../data/api';
@@ -44,6 +44,26 @@ export function useDeleteSubmission() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (id: string) => submissionApi.deleteSubmission(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['submissions'] });
+        },
+    });
+}
+
+export function useTryOutSubmission() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: TestSubmitRequest) => submissionApi.tryOutSubmission(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['submissions'] });
+        },
+    });
+}
+
+export function useSubmitStudentSubmission() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: TestSubmitRequest) => submissionApi.submitStudentSubmission(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['submissions'] });
         },

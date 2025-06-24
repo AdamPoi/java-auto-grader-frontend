@@ -20,7 +20,7 @@ interface RolesTableRowActionsProps {
 }
 
 export function RolesTableRowActions({ row }: RolesTableRowActionsProps) {
-    const navigate = useNavigate({ from: '/roles' })
+    const navigate = useNavigate({ from: '/admin/roles' })
     const { setOpen, setCurrentRow } = useRolesContext()
     const { auth } = useAuthStore();
     return (
@@ -40,7 +40,7 @@ export function RolesTableRowActions({ row }: RolesTableRowActionsProps) {
                         <DropdownMenuItem
                             onClick={() => {
                                 navigate({
-                                    to: '/roles/$roleId/edit',
+                                    to: '/admin/roles/$roleId/edit',
                                     params: { roleId: row.original.id },
                                 })
                             }}

@@ -20,7 +20,7 @@ interface CoursesTableRowActionsProps {
 }
 
 export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
-  const navigate = useNavigate({ from: '/courses' })
+  const navigate = useNavigate({ from: '/admin/courses' })
   const { setOpen, setCurrentRow } = useCoursesContext()
   const { auth } = useAuthStore();
   return (
@@ -41,7 +41,7 @@ export function CoursesTableRowActions({ row }: CoursesTableRowActionsProps) {
             <DropdownMenuItem
               onClick={() => {
                 navigate({
-                  to: '/courses/$courseId/edit',
+                  to: '/admin/courses/$courseId/edit',
                   params: { courseId: row.original.id },
                 })
               }}

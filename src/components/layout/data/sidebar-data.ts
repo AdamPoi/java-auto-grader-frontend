@@ -1,17 +1,17 @@
+import { useAuthStore } from '@/stores/auth.store'
 import {
   IconBook,
   IconChalkboard,
-  IconChalkboardTeacher,
   IconClipboardCheck,
   IconCode,
   IconFileCode,
   IconLayoutDashboard,
-  IconSchool,
   IconShield,
   IconUsers
 } from '@tabler/icons-react'
-import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
 import { type SidebarData } from '../types'
+
+const { auth } = useAuthStore.getState()
 
 export const sidebarData: SidebarData = {
   user: {
@@ -32,58 +32,79 @@ export const sidebarData: SidebarData = {
         },
       ],
     },
-    {
-      title: 'Data',
-      items: [
-        {
-          title: 'Users',
-          url: '/users',
-          icon: IconUsers,
-        },
-        {
-          title: 'Roles',
-          url: '/roles',
-          icon: IconShield,
-        },
-        // {
-        //   title: 'Students',
-        //   url: '/students',
-        //   icon: IconSchool,
-        // },
-        // {
-        //   title: 'Teachers',
-        //   url: '/teachers',
-        //   icon: IconChalkboardTeacher,
-        // },
-        {
-          title: 'Classrooms',
-          url: '/classrooms',
-          icon: IconChalkboard,
-        },
-        {
-          title: 'Courses',
-          url: '/courses',
-          icon: IconBook,
-        },
-        {
-          title: 'Submissions',
-          url: '/submissions',
-          icon: IconClipboardCheck,
-        },
-      ],
-    },
 
+    ...(auth.hasRole(['admin']) ? [
+      {
+        title: 'Data',
+        items: [
+          {
+            title: 'Users',
+            url: '/admin/users' as any,
+            icon: IconUsers,
+          },
+          {
+            title: 'Roles',
+            url: '/admin/roles',
+            icon: IconShield,
+          },
+          {
+            title: 'Classrooms',
+            url: '/admin/classrooms',
+            icon: IconChalkboard,
+          },
+          {
+            title: 'Courses',
+            url: '/admin/courses',
+            icon: IconBook,
+          },
+          {
+            title: 'Submissions',
+            url: '/admin/submissions',
+            icon: IconClipboardCheck,
+          },
+
+        ]
+      },
+    ] : []),
+
+    ...(auth.hasRole(['student']) ? [
+      {
+        title: 'Submission',
+        items: [
+          {
+            title: 'Submissions',
+            url: '/app/submissions',
+            icon: IconClipboardCheck,
+          },
+
+        ]
+      },
+    ] : []),
+
+    ...(auth.hasRole(['teacher']) ? [
+      {
+        title: 'Submission',
+        items: [
+          {
+            title: 'Submissions',
+            url: '/app/submissions',
+            icon: IconClipboardCheck,
+          },
+
+        ]
+      },
+    ] : []),
     {
       title: 'Assignment',
       items: [
         {
           title: 'Compiler',
-          url: '/assignments/compiler',
+          url: '/admin/assignments/compiler',
           icon: IconCode,
         },
         {
           title: 'Test Builder',
-          url: '/assignments/test-builder',
+          url: '/admin/assignments/test-builder',
           icon: IconFileCode,
         },
       ]

@@ -1,11 +1,11 @@
 import { DataTableColumnHeader } from '@/components/datatable/data-table-column-header';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useNavigate } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
+import { ExternalLinkIcon } from 'lucide-react';
 import type { Assignment } from '../data/types';
 import { AssignmentsTableRowActions } from './assignments-table-row-actions';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from '@tanstack/react-router';
-import { ExternalLinkIcon } from 'lucide-react';
 
 export const columns: ColumnDef<Assignment>[] = [
     {
@@ -105,7 +105,7 @@ export const columns: ColumnDef<Assignment>[] = [
                 variant='outline'
                 onClick={() => {
                     navigate({
-                        to: '/assignments/$assignmentId',
+                        to: '/admin/assignments/$assignmentId',
                         params: { assignmentId: row.original.id },
                     });
                 }}>

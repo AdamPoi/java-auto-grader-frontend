@@ -7,7 +7,7 @@ export function RolesPrimaryButtons() {
   const navigate = useNavigate();
 
   const handleAddRoleClick = () => {
-    navigate({ to: '/roles/create' });
+    navigate({ to: '/admin/roles/create' });
   };
   const { auth } = useAuthStore()
 

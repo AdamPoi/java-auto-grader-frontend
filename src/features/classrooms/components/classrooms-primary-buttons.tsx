@@ -7,7 +7,7 @@ export function ClassroomsPrimaryButtons() {
   const navigate = useNavigate();
 
   const handleAddClassroomClick = () => {
-    navigate({ to: '/classrooms/create' });
+    navigate({ to: '/admin/classrooms/create' });
   };
   const { auth } = useAuthStore()
 

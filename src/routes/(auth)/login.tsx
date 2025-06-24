@@ -14,7 +14,7 @@ export const Route = createFileRoute('/(auth)/login')({
       }
     }
     if (auth.isAuthenticated) {
-      throw redirect({ to: '/dashboard' })
+      throw redirect({ to: '/admin/dashboard' })
     }
   },
 })

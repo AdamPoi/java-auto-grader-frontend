@@ -3,17 +3,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ExecutionStatus, Rubric, RubricGrade } from '@/features/rubrics/data/types';
+import { useRubricGrades } from '@/features/rubrics/hooks/use-rubric-grade';
 import type { Submission, TestSubmitRequest } from '@/features/submissions/data/types';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth.store';
+import type { SearchRequestParams } from '@/types/api.types';
 import { AlertCircle, CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { CodeRunnerApi } from '../data/api';
 
 interface TestPanelProps {
     rubrics: Rubric[];
     assignmentId: string;
     testCode?: string;
     files: Array<{ fileName: string; content: string }>;
+    submissionMutation: {
+        mutateAsync: (payload: TestSubmitRequest) => Promise<Submission>;
+        isLoading?: boolean;
+        error?: any;
+    };
 }
 
 const getStatusIcon = (status: ExecutionStatus) => {
@@ -99,12 +106,21 @@ export function TestPanel({
     assignmentId,
     testCode,
     files,
+    submissionMutation
 }: TestPanelProps) {
     const [hasStarted, setHasStarted] = useState(false);
     const [activeTab, setActiveTab] = useState<string>('overview');
     const [isRunning, setIsRunning] = useState(false);
     const [testResult, setTestResult] = useState<Submission | undefined>();
     const [liveTestOutput, setLiveTestOutput] = useState<string>('');
+    const { auth } = useAuthStore.getState();
+    const rubricSearchParams: SearchRequestParams = {
+        page: 0,
+        size: 1000,
+        filter: `assignment=eq:${assignmentId}`,
+    };
+    const { data: rubricGrades, isLoading: isLoadingRubricGrades } = useRubricGrades(rubricSearchParams);
+
 
     const handleRunTests = async () => {
         if (!testCode || !rubrics.length) {
@@ -127,44 +143,16 @@ export function TestPanel({
                 fileName: 'MainTest.java',
                 content: testCode
             }],
+            userId: auth.user?.id,
             testClassNames: ['MainTest'],
         };
 
         setTestResult(undefined);
 
         try {
-            const response = await CodeRunnerApi.testSubmissionCode(submissionPayload);
+            const response = await submissionMutation.mutateAsync(submissionPayload);
             console.log('Test response:', response);
-
-            const submissionData = response;
-            setTestResult(submissionData);
-
-            let output = `Test execution completed\n`;
-            output += `Status: ${submissionData.status}\n`;
-            output += `Execution Time: ${submissionData.executionTime}ms\n`;
-            output += `Feedback: ${submissionData.feedback}\n\n`;
-
-            if (submissionData.testExecutions) {
-                output += `Test Results:\n`;
-                submissionData.testExecutions.forEach((execution, index) => {
-                    output += `${index + 1}. ${execution.methodName}: ${execution.status}\n`;
-                    if (execution.output) {
-                        output += `   Output: ${execution.output}\n`;
-                    }
-                    if (execution.error) {
-                        output += `   Error: ${execution.error}\n`;
-                    }
-                });
-            }
-
-            if (submissionData.submissionCodes) {
-                output += `\nSubmitted Files:\n`;
-                submissionData.submissionCodes.forEach((code) => {
-                    output += `- ${code.fileName}\n`;
-                });
-            }
-
-            setLiveTestOutput(output);
+            setTestResult(response);
 
         } catch (error: any) {
             console.error('Error running tests:', error);
@@ -176,6 +164,7 @@ export function TestPanel({
     };
 
     const getTestStatus = (rubricGrade: RubricGrade): ExecutionStatus => {
+        console.log(testResult?.testExecutions)
         if (!testResult?.testExecutions) {
             return isRunning ? 'RUNNING' : 'PENDING';
         }
@@ -456,7 +445,7 @@ export function TestPanel({
                                                     </div>
                                                     {/* Quick status indicators */}
                                                     <div className="flex gap-1 mt-2">
-                                                        {rubric.rubricGrades?.slice(0, 8).map((grade, index) => {
+                                                        {rubricGrades?.content?.slice(0, 8).map((grade, index) => {
                                                             const status = getTestStatus(grade);
                                                             return (
                                                                 <div
@@ -492,14 +481,12 @@ export function TestPanel({
                         </div>
                     </TabsContent>
 
-                    {/* Individual Rubric Tabs - Always render to ensure tabs are clickable */}
                     {rubrics.map((rubric) => (
                         <TabsContent key={rubric.id} value={rubric.id} className="flex-1 overflow-hidden m-0">
                             {renderRubricContent(rubric)}
                         </TabsContent>
                     ))}
 
-                    {/* Output Tab */}
                     <TabsContent value="output" className="flex-1 overflow-hidden m-3 mt-2">
                         <Card className="h-full bg-neutral-700 border-neutral-600">
                             <CardContent className="p-3 h-full overflow-y-auto">

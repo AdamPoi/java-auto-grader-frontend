@@ -34,7 +34,7 @@ export function RubricForm({
     const router = useRouter();
     const createRubricMutation = useCreateRubric();
     const updateRubricMutation = useUpdateRubric();
-    const { assignmentId } = useParams({ from: '/_authenticated/assignments/$assignmentId/' });
+    const { assignmentId } = useParams({ from: '/_authenticated/admin/assignments/$assignmentId/' });
     const isEditMode = !!initialData;
     const mutation = isEditMode ? updateRubricMutation : createRubricMutation;
     const form = useForm<RubricForm>({
