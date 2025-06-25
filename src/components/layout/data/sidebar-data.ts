@@ -66,8 +66,8 @@ export const sidebarData: SidebarData = {
         title: 'Courses',
         items: [
           {
-            title: 'Course',
-            url: '/app/course',
+            title: 'Courses',
+            url: '/app/courses',
             icon: IconClipboardCheck,
           },
         ]
@@ -76,32 +76,33 @@ export const sidebarData: SidebarData = {
 
     ...(auth.hasRole(['teacher']) ? [
       {
-        title: 'Courses',
+        title: 'Assignment',
         items: [
           {
-            title: 'Course',
-            url: '/app/course',
-            icon: IconClipboardCheck,
+            title: 'Courses',
+            url: '/admin/courses',
+            icon: IconBook,
           },
         ]
       },
 
+
     ] : []),
-    {
-      title: 'Assignment',
-      items: [
-        {
-          title: 'Compiler',
-          url: '/admin/assignments/compiler',
-          icon: IconCode,
-        },
-        {
-          title: 'Test Builder',
-          url: '/admin/assignments/test-builder',
-          icon: IconFileCode,
-        },
-      ]
-    },
+    // {
+    //   title: 'Assignment',
+    //   items: [
+    //     {
+    //       title: 'Compiler',
+    //       url: '/admin/assignments/compiler',
+    //       icon: IconCode,
+    //     },
+    //     {
+    //       title: 'Test Builder',
+    //       url: '/admin/assignments/test-builder',
+    //       icon: IconFileCode,
+    //     },
+    //   ]
+    // },
     // {
     //   title: 'Pages',
     //   items: [
