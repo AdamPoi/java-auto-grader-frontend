@@ -21,7 +21,7 @@ export default function AssignmentDetailPage() {
   }
 
   else {
-    return <TeacherAssignment />
+    return <StudentAssignment />
   }
 
 

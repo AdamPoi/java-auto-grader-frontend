@@ -151,7 +151,7 @@ export default function StudentAssignment() {
 
                                                                 {submission.feedback && (
                                                                     <div>
-                                                                        <p className="font-semibold mb-1">Instructor Feedback:</p>
+                                                                        <p className="font-semibold mb-1">Instructor:</p>
                                                                         <p className="text-muted-foreground p-3 bg-muted rounded-md">{submission.feedback}</p>
                                                                     </div>
                                                                 )}

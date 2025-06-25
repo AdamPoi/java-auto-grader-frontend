@@ -288,7 +288,6 @@ export function TestBuilder() {
         const newBlocksWithRubrics = newBlocks.map(block => {
             if (block.type === 'FUNCTION') {
                 const existingGrade: RubricGrade = existingGradesByFunction.get((block as FunctionBlock).funcName);
-                // console.log(existingGrade)
                 const oldId = block.id;
                 const newId = existingGrade?.id || uuidv4();
 

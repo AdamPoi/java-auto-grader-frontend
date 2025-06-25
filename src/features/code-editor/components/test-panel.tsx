@@ -151,7 +151,6 @@ export function TestPanel({
 
         try {
             const response = await submissionMutation.mutateAsync(submissionPayload);
-            console.log('Test response:', response);
             setTestResult(response);
 
         } catch (error: any) {
@@ -164,7 +163,6 @@ export function TestPanel({
     };
 
     const getTestStatus = (rubricGrade: RubricGrade): ExecutionStatus => {
-        console.log(testResult?.testExecutions)
         if (!testResult?.testExecutions) {
             return isRunning ? 'RUNNING' : 'PENDING';
         }

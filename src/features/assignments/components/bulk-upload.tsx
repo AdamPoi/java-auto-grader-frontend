@@ -112,11 +112,8 @@ export default function BulkUpload() {
             let studentId = forcedStudentId;
             let studentNim = forcedStudentNim;
             let requiresSelection = !forcedStudentId;
-            console.log(students)
             const extractedNim = fileName.replace(/\.[^/.]+$/, "").split('_')[0];
             const foundStudent = students.find(s => extractedNim.includes(s?.nim));
-            console.log(extractedNim)
-            console.log(forcedStudentNim)
             if (foundStudent) {
                 studentId = foundStudent.id;
                 studentNim = foundStudent.nim;
@@ -132,15 +129,18 @@ export default function BulkUpload() {
                 type: file.type === 'application/zip' || fileName.endsWith('.zip') ? 'zip' : 'java',
                 files: []
             };
+
             if (file.type === 'application/zip' || fileName.endsWith('.zip')) {
                 try {
-                    const jszip = await new Promise<any>(resolve => loadJSZip(resolve));
-                    const zip = await jszip.loadAsync(file);
+                    // Import JSZip dynamically
+                    const JSZip = (await import('jszip')).default;
+                    const zip = new JSZip();
+                    const loadedZip = await zip.loadAsync(file);
                     const javaFiles: FileData[] = [];
 
-                    for (const zipFileName in zip.files) {
-                        if (zipFileName.endsWith('.java') && !zip.files[zipFileName].dir) {
-                            const fileContent = await zip.files[zipFileName].async("string");
+                    for (const zipFileName in loadedZip.files) {
+                        if (zipFileName.endsWith('.java') && !loadedZip.files[zipFileName].dir) {
+                            const fileContent = await loadedZip.files[zipFileName].async("string");
                             const justFileName = zipFileName.split('/').pop() || zipFileName;
                             javaFiles.push({ fileName: justFileName, content: fileContent });
                         }
@@ -152,7 +152,7 @@ export default function BulkUpload() {
                     }
                 } catch (e) {
                     console.error("Error processing zip file:", e);
-                    setError(`Failed to process ${fileName}.`);
+                    setError(`Failed to process ${fileName}: ${e instanceof Error ? e.message : 'Unknown error'}`);
                 }
             } else if (fileName.endsWith('.java')) {
                 const content = await file.text();
@@ -160,7 +160,6 @@ export default function BulkUpload() {
                 newPendingSubmissions.push(baseSubmission);
             }
         }
-
 
         if (newPendingSubmissions.length > 0) {
             setPendingSubmissions(prev => {
@@ -271,12 +270,62 @@ export default function BulkUpload() {
 
 
     const handleBulkSubmit = useCallback(() => {
-        pendingSubmissions.forEach(submission => {
-            if (submission.studentId && !submission.requiresSelection) {
-                handleCreateSubmission(submission.studentId, submission.files);
+        setIsCreateSubmissionLoading(true);
+
+        const submissionsToCreate = pendingSubmissions.filter(
+            submission => submission.studentId && !submission.requiresSelection
+        );
+
+        if (submissionsToCreate.length === 0) {
+            setIsCreateSubmissionLoading(false);
+            return;
+        }
+
+        let completedCount = 0;
+        const totalCount = submissionsToCreate.length;
+
+        submissionsToCreate.forEach(submission => {
+            if (submission.studentId) {
+                const submissionData: TestSubmitRequest = {
+                    sourceFiles: submission.files.map(file => ({
+                        fileName: file.fileName,
+                        content: file.content,
+                    })),
+                    testFiles: [{
+                        fileName: 'MainTest.java',
+                        content: assignment?.testCode || '',
+                    }],
+                    status: 'uploaded',
+                    assignmentId,
+                    userId: submission.studentId,
+                    totalPoints: 0,
+                };
+
+                createSubmissionMutation.mutate(submissionData, {
+                    onSuccess: () => {
+                        completedCount++;
+                        setPendingSubmissions(prev => prev.filter(p => p.studentId !== submission.studentId));
+
+                        if (completedCount === totalCount) {
+                            setIsCreateSubmissionLoading(false);
+                            refetch();
+                        }
+                    },
+                    onError: (error) => {
+                        completedCount++;
+                        console.error('Failed to create submission:', error);
+                        setError(`Failed to create submission: ${error}`);
+
+                        if (completedCount === totalCount) {
+                            setIsCreateSubmissionLoading(false);
+                            refetch();
+                        }
+                    }
+                });
             }
         });
-    }, [pendingSubmissions, handleCreateSubmission]);
+    }, [pendingSubmissions, createSubmissionMutation, refetch, assignmentId, assignment?.testCode]);
+
 
     const removePendingSubmission = useCallback((keyToRemove: string) => {
         setPendingSubmissions(prev => prev.filter(sub => sub.key !== keyToRemove));
@@ -367,6 +416,7 @@ export default function BulkUpload() {
                                             </div>
                                             <p className="text-xs text-muted-foreground mb-2">
                                                 NIM: {submission.student?.nim}
+                                                Grade: {submission.totalPoints} / {assignment?.totalPoints}
                                             </p>
                                             {submission.submissionCodes && submission.submissionCodes.length > 0 && (
                                                 <div className="space-y-1">

@@ -56,7 +56,7 @@ export const submissionApi = {
 
     submitStudentSubmission: async (data: TestSubmitRequest): Promise<Submission> => {
         const response = await apiClient.post<TestSubmitRequest, Submission>({
-            url: '/submissions/tryout',
+            url: '/submissions',
             data,
         });
         return response;
