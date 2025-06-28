@@ -70,12 +70,23 @@ export function useSubmitStudentSubmission() {
     });
 }
 
-export function useBulkSubmission() {
+
+export function useAiCodeFeedback() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: TestSubmitRequest) => submissionApi.submitBulkStudentSubmission(data),
+        mutationFn: ({ id, data }: { id: string; data: string }) =>
+            submissionApi.getAiCodeFeedback(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['submissions'] });
-        },
+        }
     });
 }
+// export function useBulkSubmission() {
+//     const queryClient = useQueryClient();
+//     return useMutation({
+//         mutationFn: (data: TestSubmitRequest) => submissionApi.submitBulkStudentSubmission(data),
+//         onSuccess: () => {
+//             queryClient.invalidateQueries({ queryKey: ['submissions'] });
+//         },
+//     });
+// }

@@ -65,7 +65,10 @@ export type TestSubmitRequest = {
     buildTool?: string;
 }
 
-
+export type AiSubmissionFeedback = {
+    sourceFiles: JavaFile[];
+    executionTime: number;
+};
 
 export type SubmissionCodeForm = Omit<SubmissionCode, 'id' | 'submission' | 'createdAt' | 'updatedAt'>;
 

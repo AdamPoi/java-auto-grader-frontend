@@ -109,7 +109,7 @@ export default function StudentAssignment() {
                                                     </Markdown>
                                                 </pre>
                                             </div>
-                                            <Button className="mt-6">Submit Assignment</Button>
+                                            {/* <Button className="mt-6">Submit Assignment</Button> */}
                                         </TabsContent>
                                         <TabsContent value="rubrics" hidden={activeTab !== 'rubrics'}>
                                             <h3 className="text-lg font-semibold mb-4">Grading Rubric</h3>

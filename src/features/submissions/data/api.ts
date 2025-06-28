@@ -67,4 +67,12 @@ export const submissionApi = {
         return response.data;
     },
 
+    getAiCodeFeedback: async (id: string, data: string): Promise<string> => {
+        const response = await apiClient.post<string, string>({
+            url: `/${id}/code-feedback`,
+            data,
+        });
+        return response;
+    },
+
 };
