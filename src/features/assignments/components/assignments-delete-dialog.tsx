@@ -24,18 +24,18 @@ export function AssignmentsDeleteDialog({ open, onOpenChange, currentRow }: Prop
 
   const handleDelete = () => {
     if (value.trim() !== currentRow.title) {
-      toast.error("Title does not match for deletion confirmation.");
+      toast.error("Name does not match for deletion confirmation.");
       return;
     }
 
     deleteAssignmentMutate(currentRow?.id, {
       onSuccess: () => {
-        toast.success(`Assignment with Title ${currentRow.title} deleted successfully.`);
+        toast.success(`Assignment with Name ${currentRow.title} deleted successfully.`);
         onOpenChange(false);
         queryClient.refetchQueries({ queryKey: getQueryKey({ action: 'list' }) });
       },
       onError: (error) => {
-        toast.error(`Failed to delete assignment with Title ${currentRow.title}: ${error.message}`);
+        toast.error(`Failed to delete assignment with Name ${currentRow.title}: ${error.message}`);
       },
     });
   }

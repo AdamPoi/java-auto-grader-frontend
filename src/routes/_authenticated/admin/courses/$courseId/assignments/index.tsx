@@ -1,17 +1,18 @@
 import Assignments from '@/features/assignments';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useParams } from '@tanstack/react-router';
 
-function AssignmentsPage() {
-    return (
 
-        <Assignments />
-    );
-}
 
 export const Route = createFileRoute(
     '/_authenticated/admin/courses/$courseId/assignments/',
 )({
-    component: AssignmentsPage,
+    component: CourseAssignmentsPage,
 });
 
 
+function CourseAssignmentsPage() {
+    const { courseId } = useParams({ from: '/_authenticated/admin/courses/$courseId/assignments/' });
+    return (
+        <Assignments courseId={courseId} />
+    );
+}

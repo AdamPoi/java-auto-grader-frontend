@@ -33,7 +33,6 @@ export default function StudentAssignment() {
 
     const router = useRouter();
 
-    // Skeleton Loader
     if (isLoading) {
         return (
             <div className="max-w-4xl mx-auto p-4 space-y-6">
@@ -180,36 +179,6 @@ export default function StudentAssignment() {
                             </div>
                             <div className="flex-grow">
                                 <CodeEditor assignment={assignment} submissionMutation={studentSubmissionMutation} />
-                            </div>
-                            <div className="flex-shrink-0 border-t" style={{ height: '33%' }}>
-                                {/* <Tabs value={ideTab} onValueChange={setIdeTab} className="h-full flex flex-col">
-                <div className="flex justify-between items-center p-2 border-b">
-                  <TabsList>
-                    <TabsTrigger value="terminal" onClick={() => setIdeTab('terminal')} data-state={ideTab === 'terminal' ? 'active' : 'inactive'}><Terminal className="mr-2 h-4 w-4" />Terminal</TabsTrigger>
-                    <TabsTrigger value="testcases" onClick={() => setIdeTab('testcases')} data-state={ideTab === 'testcases' ? 'active' : 'inactive'}><CheckCircle className="mr-2 h-4 w-4" />Test Cases</TabsTrigger>
-                  </TabsList>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRunCode}><Play className="mr-2 h-4 w-4" />Run</Button>
-                    <Button size="sm">Submit</Button>
-                  </div>
-                </div>
-                <div className="p-4 flex-grow overflow-auto bg-black">
-                  <TabsContent value="terminal" hidden={ideTab !== 'terminal'}>
-                    <pre className="font-mono text-sm text-white whitespace-pre-wrap">{terminalOutput}</pre>
-                  </TabsContent>
-                  <TabsContent value="testcases" hidden={ideTab !== 'testcases'}>
-                    <div className="space-y-2">
-                      {assignment.testCases.map(tc => (
-                        <div key={tc.id} className={`p-2 rounded-md flex items-center gap-3 ${tc.passed ? 'bg-green-900/50' : 'bg-red-900/50'}`}>
-                          {tc.passed ? <Check className="h-5 w-5 text-green-400" /> : <X className="h-5 w-5 text-red-400" />}
-                          <span className="text-sm text-foreground">{tc.name}</span>
-                          {!tc.passed && <span className="text-xs text-red-400">(Expected: {tc.expectedOutput.trim()}, Got: {tc.actualOutput.trim()})</span>}
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                </div>
-              </Tabs> */}
                             </div>
                         </div>
                     </div>

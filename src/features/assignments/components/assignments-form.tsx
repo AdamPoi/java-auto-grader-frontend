@@ -62,26 +62,33 @@ export function AssignmentsForm({
             description: initialData.description,
             resource: initialData.resource,
             dueDate: initialData.dueDate || '',
-            isPublished: initialData.isPublished || false,
             starterCode: initialData.starterCode,
             solutionCode: initialData.solutionCode,
-            timeLimit: initialData.timeLimit,
             totalPoints: initialData.totalPoints,
             courseId: initialData.course?.id,
             teacherId: initialData.createdByTeacher?.id,
+            options: initialData.options,
         } : {
             id: '',
             title: '',
             description: '',
             resource: '',
             dueDate: '',
-            isPublished: false,
             starterCode: '',
             solutionCode: '',
-            timeLimit: undefined,
             totalPoints: 0,
             courseId: courseId ?? undefined,
             teacherId: undefined,
+            options: {
+                isTimed: false,
+                isPublished: false,
+                showTrySubmission: true,
+                showFeedback: true,
+                showSolution: false,
+                allowUpload: false,
+                timeLimit: undefined,
+                maxAttempts: undefined,
+            },
         },
     });
 
@@ -150,17 +157,26 @@ export function AssignmentsForm({
                 id: initialData.id,
                 title: initialData.title,
                 description: initialData.description,
+                resource: initialData.resource,
                 dueDate: initialData.dueDate || '',
-                isPublished: initialData.isPublished || false,
                 starterCode: initialData.starterCode,
                 solutionCode: initialData.solutionCode,
-                timeLimit: initialData.timeLimit,
                 totalPoints: initialData.totalPoints,
                 courseId: initialData.course?.id,
                 teacherId: initialData.createdByTeacher?.id,
+                options: initialData.options ?? {
+                    isTimed: false,
+                    showTrySubmission: true,
+                    showFeedback: true,
+                    showSolution: false,
+                    allowUpload: false,
+                    timeLimit: undefined,
+                    maxAttempts: undefined,
+                },
             });
         }
     }, [initialData, form]);
+
 
     const handleFormSubmit = (data: AssignmentForm) => {
         if (onSubmit) {
@@ -276,18 +292,6 @@ export function AssignmentsForm({
                     )} />
 
 
-
-                    <FormField control={form.control} name='timeLimit' render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Time Limit (seconds)</FormLabel>
-                            <FormControl>
-                                <Input type='number' placeholder='Enter time limit in seconds' {...field}
-                                    onChange={e => field.onChange(parseInt(e.target.value))}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -334,21 +338,93 @@ export function AssignmentsForm({
                     )} />
                 </div>
 
-                <div className="max-w-lg">
-                    <FormField control={form.control} name='isPublished' render={({ field }) => (
-                        <FormItem>
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base">Publish Assignment</FormLabel>
-                                <FormMessage />
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )} />
+                <div className="w-full">
+                    <fieldset className="border rounded-lg p-4 mb-4">
+                        <legend className="font-semibold px-2">Assessment Options</legend>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField control={form.control} name="options.isTimed" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Timed Assessment</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.timeLimit" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Time Limit (minutes)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            placeholder="e.g. 60"
+                                            {...field}
+                                            value={field.value ? Math.floor(field.value / 60) : ''}
+                                            onChange={e => {
+                                                const minutes = parseInt(e.target.value);
+                                                field.onChange(isNaN(minutes) ? undefined : minutes * 60);
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.maxAttempts" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Max Attempts</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" min={1} placeholder="e.g. 3" {...field}
+                                            onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.showTrySubmission" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Show Try Submission</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.showFeedback" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Show Feedback After Submit</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.showSolution" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Show Solution After Submit</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+
+                            <FormField control={form.control} name="options.allowUpload" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Allow Code Upload</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    </fieldset>
                 </div>
 
                 {withFooter && <div className="flex justify-between">

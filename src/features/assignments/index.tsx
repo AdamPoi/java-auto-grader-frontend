@@ -15,8 +15,11 @@ import { AssignmentsTable } from './components/assignments-table'
 import AssignmentsProvider from './context/assignments-context'
 import { useAssignment } from './hooks/use-assignment'
 
+interface AssignmentsProps {
+    courseId?: string;
+}
 
-export default function Assignments() {
+export default function Assignments({ courseId }: AssignmentsProps) {
     const router = useRouter();
 
     const [pagination, setPagination] = useState({
@@ -76,31 +79,18 @@ export default function Assignments() {
     }, [searchValue, isInitialized]);
 
     useEffect(() => {
-        if (!isInitialized) return;
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const existingFilter = urlParams.get('filter');
-
         const filters: string[] = [];
-
-        // Preserve non-search filters from URL (like courseId)
-        if (existingFilter) {
-            const existingFilters = existingFilter.split('&').filter(f => !f.startsWith('search='));
-            filters.push(...existingFilters);
-        }
-
-        // Add search filter if exists
         if (debouncedSearchValue) {
             filters.push(`search=like:${debouncedSearchValue}`);
         }
-
-        // Add sorting if exists
         if (sorting.length > 0) {
             const sort = sorting[0];
             const sortString = `sort=${sort.desc ? '-' : '+'}${sort.id}`;
             filters.push(sortString);
         }
-
+        if (courseId) {
+            filters.push(`course=eq:${courseId}`);
+        }
         setFilter(filters.length > 0 ? filters.join('&') : undefined);
 
         const url = new URL(window.location.href);
@@ -111,7 +101,7 @@ export default function Assignments() {
         }
         window.history.replaceState({}, '', url.toString());
 
-    }, [debouncedSearchValue, sorting, isInitialized]);
+    }, [debouncedSearchValue, sorting]);
 
 
     const searchParams: SearchRequestParams = {
