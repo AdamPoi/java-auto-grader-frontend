@@ -1,6 +1,6 @@
 import Editor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import React, { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { type CodeIntelData, type MonacoEditorError } from '../hooks/use-code-intel';
 
 interface MonacoEditorProps {
@@ -12,14 +12,27 @@ interface MonacoEditorProps {
     readOnly?: boolean;
 }
 
-const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, codeIntel, errors, readOnly }) => {
+export interface MonacoEditorRef {
+    goToLine: (lineNumber: number) => void;
+}
+
+const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(({ language, value, onChange, codeIntel, errors, readOnly }, ref) => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const completionProviderRef = useRef<monaco.IDisposable | null>(null);
 
-    // Handle editor did mount
-    const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
+    const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof import('monaco-editor')) => {
         editorRef.current = editor;
     };
+
+    useImperativeHandle(ref, () => ({
+        goToLine: (lineNumber: number) => {
+            if (editorRef.current) {
+                editorRef.current.revealLineInCenter(lineNumber);
+                editorRef.current.setPosition({ lineNumber, column: 1 });
+                editorRef.current.focus();
+            }
+        }
+    }));
 
     // Register completion provider for IntelliSense
     useEffect(() => {
@@ -50,7 +63,6 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
                         let isStaticAccess = false;
 
                         if (!varType) {
-                            // Check if it's a static access to a class directly
                             if (codeIntel.classes[variableName]) {
                                 varType = variableName;
                                 isStaticAccess = true;
@@ -72,7 +84,6 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
                         };
                     }
 
-                    // Global keywords and class/variable suggestions
                     const keywords = ['public', 'private', 'static', 'void', 'class', 'if', 'else', 'for', 'while', 'try', 'catch', 'int', 'String', 'boolean'];
                     return {
                         suggestions: [
@@ -122,7 +133,6 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
         };
     }, [codeIntel]);
 
-    // Update error markers
     useEffect(() => {
         if (editorRef.current) {
             const model = editorRef.current.getModel();
@@ -148,6 +158,6 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ language, value, onChange, 
             }}
         />
     );
-};
+});
 
 export default MonacoEditor;

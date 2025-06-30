@@ -1,5 +1,5 @@
 import type { ExecutionStatus } from '@/features/rubrics/data/types';
-import type { Submission } from '@/features/submissions/data/types';
+import type { Submission, SubmissionStatus, SubmissionType } from '@/features/submissions/data/types';
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { CodeRunnerApi } from '../data/api';
@@ -15,14 +15,16 @@ interface UseCodeRunnerReturn {
     testResult: Submission | undefined;
     setTestResult: React.Dispatch<React.SetStateAction<Submission | undefined>>;
     liveTestOutput: string;
-    setLiveTestOutput: React.Dispatch<React.SetStateAction<string>>; // New: Live output for tests
+    setLiveTestOutput: React.Dispatch<React.SetStateAction<string>>;
+    addOutput: (text: string, type?: 'log' | 'error') => void;
+
 }
 
 export function useCodeRunner(): UseCodeRunnerReturn {
     const [terminalOutput, setTerminalOutput] = useState<TerminalOutputLine[]>([]);
     const [isRunning, setIsRunning] = useState(false);
     const [testResult, setTestResult] = useState<Submission | undefined>(undefined);
-    const [liveTestOutput, setLiveTestOutput] = useState<string>(''); // New state
+    const [liveTestOutput, setLiveTestOutput] = useState<string>('');
 
     const addOutput = useCallback((text: string, type: 'log' | 'error' = 'log') => {
         setTerminalOutput(p => [...p, { text, type }]);
@@ -36,9 +38,9 @@ export function useCodeRunner(): UseCodeRunnerReturn {
         },
         onSuccess: (data: ExecutionResult) => {
             if (data.compilationErrors && Array.isArray(data.compilationErrors) && data.compilationErrors.length > 0) {
+                const errorCount = data.compilationErrors.length;
                 data.compilationErrors.forEach((error: CompilationError) => {
-                    addOutput(`Compilation Error in ${error.errorFile}:${error.line}`, 'error');
-                    addOutput(error.errorMessage, 'error');
+                    addOutput(`${error.errorFile}:${error.line}: error: ${error.errorMessage}`, 'error');
                     if (error.codeSnippet) {
                         addOutput(error.codeSnippet, 'log');
                     }
@@ -46,6 +48,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
                         addOutput(error.pointer, 'log');
                     }
                 });
+                addOutput(`\n${errorCount} error${errorCount > 1 ? 's' : ''}`, 'error');
                 return;
             }
 
@@ -144,7 +147,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
 
             setTestResult({
                 id: 'test-submission',
-                status: data.success ? 'PASSED' : 'FAILED',
+                status: data.success ? 'COMPLETED' : 'FAILED',
                 executionTime: data.executionTime?.toString() || '0',
                 feedback: feedbackMessage,
                 testExecutions: data.testSuites?.flatMap(suite =>
@@ -171,7 +174,9 @@ export function useCodeRunner(): UseCodeRunnerReturn {
                 completedAt: new Date().toISOString(),
                 assignmentId: 'test-assignment',
                 studentId: 'test-student',
-                submissionCodes: []
+                submissionCodes: [],
+                type: 'TRYOUT' as SubmissionType,
+                totalPoints: 0
             });
         },
         onError: (error: Error) => {
@@ -180,7 +185,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
 
             setTestResult({
                 id: 'test-submission-error',
-                status: 'ERROR' as ExecutionStatus,
+                status: 'FAILED' as SubmissionStatus,
                 executionTime: '0',
                 feedback: `Error: ${error.message}`,
                 testExecutions: [],
@@ -188,7 +193,9 @@ export function useCodeRunner(): UseCodeRunnerReturn {
                 completedAt: new Date().toISOString(),
                 assignmentId: 'test-assignment',
                 studentId: 'test-student',
-                submissionCodes: []
+                submissionCodes: [],
+                type: 'TRYOUT' as SubmissionType,
+                totalPoints: 0
             });
         },
         onSettled: () => {
@@ -247,6 +254,7 @@ export function useCodeRunner(): UseCodeRunnerReturn {
         testResult,
         setTestResult,
         liveTestOutput, // New: Expose liveTestOutput
-        setLiveTestOutput
+        setLiveTestOutput,
+        addOutput
     };
 }

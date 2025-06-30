@@ -1,14 +1,15 @@
+import { Button } from '@/components/ui/button';
 import React, { useEffect, useRef } from 'react';
 import type { TerminalOutputLine } from '../data/types';
-import { Button } from '@/components/ui/button';
 
 interface TerminalProps {
     output: TerminalOutputLine[];
     onClear: () => void;
     isRunning: boolean;
+    onErrorClick: (fileName: string, lineNumber: number) => void;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning }) => {
+const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning, onErrorClick }) => {
     const terminalBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -16,6 +17,14 @@ const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning }) => {
             terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
         }
     }, [output]);
+
+    const parseErrorLink = (text: string): { fileName: string, lineNumber: number } | null => {
+        const match = text.match(/^(.+\.java):(\d+):/);
+        if (match) {
+            return { fileName: match[1], lineNumber: parseInt(match[2], 10) };
+        }
+        return null;
+    };
 
     return (
         <div className="h-full flex flex-col bg-neutral-900">
@@ -29,16 +38,49 @@ const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning }) => {
                     Clear
                 </Button>
             </div>
-            <div ref={terminalBodyRef} className="flex-grow p-2 overflow-y-auto font-mono text-sm">
-                {output.map((line, index) => (
-                    <div
-                        key={index}
-                        className={line.type === 'error' ? 'text-red-400' : 'text-neutral-300'}
-                    >
-                        <span className="select-none mr-2">{'>'}</span>
-                        <span>{line.text}</span>
-                    </div>
-                ))}
+            <div ref={terminalBodyRef} className="flex-grow p-2 overflow-y-auto font-mono text-sm leading-6">
+                {output.map((line, index) => {
+                    const errorLinkInfo = parseErrorLink(line.text);
+                    const isError = line.type === 'error';
+
+                    // A pointer line starts with optional whitespace, followed by a caret '^'.
+                    const isPointerLine = /^\s*\^/.test(line.text);
+                    // The line before a pointer is the code snippet.
+                    const isCodeSnippet = /^\s*\^/.test(output[index + 1]?.text || '');
+
+                    if (errorLinkInfo) {
+                        return (
+                            <div
+                                key={index}
+                                className="text-red-400 cursor-pointer underline hover:font-bold "
+                                onClick={() => onErrorClick(errorLinkInfo.fileName, errorLinkInfo.lineNumber)}
+                            >
+                                <span className="select-none mr-2">{'>'}</span>
+                                <span>{line.text}</span>
+                            </div>
+                        );
+                    }
+
+                    if (isCodeSnippet || isPointerLine) {
+                        return (
+                            <div
+                                key={index}
+                                className={isPointerLine ? 'text-red-400' : 'text-neutral-300'}
+                                style={{ whiteSpace: 'pre' }}
+                            >
+                                {/* <span className="select-none mr-2">{'>'}</span> */}
+                                <span>{line.text}</span>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div key={index} className={isError ? 'text-red-400' : 'text-neutral-300'}>
+                            {/* <span className="select-none mr-2">{'>'}</span> */}
+                            <span>{line.text}</span>
+                        </div>
+                    );
+                })}
                 {isRunning && <div className="animate-pulse text-neutral-400">_</div>}
             </div>
         </div>

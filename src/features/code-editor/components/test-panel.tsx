@@ -10,17 +10,17 @@ import { useAuthStore } from '@/stores/auth.store';
 import type { SearchRequestParams } from '@/types/api.types';
 import { AlertCircle, CheckCircle, Clock, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import type { CompilationError } from '../data/types';
 
 interface TestPanelProps {
     rubrics: Rubric[];
     assignmentId: string;
     testCode?: string;
     files: Array<{ fileName: string; content: string }>;
-    submissionMutation: {
-        mutateAsync: (payload: TestSubmitRequest) => Promise<Submission>;
-        isLoading?: boolean;
-        error?: any;
-    };
+    onRunTests: (payload: TestSubmitRequest) => Promise<Submission>;
+    setBottomPanelTab: (tab: 'terminal' | 'tests') => void;
+    addOutput: (text: string, type?: 'log' | 'error') => void;
+    onClear: () => void;
 }
 
 const getStatusIcon = (status: ExecutionStatus) => {
@@ -33,7 +33,6 @@ const getStatusIcon = (status: ExecutionStatus) => {
             return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
         case 'PENDING':
             return <Clock className="h-4 w-4 text-yellow-500" />;
-        case 'ERROR':
         case 'TIMEOUT':
             return <AlertCircle className="h-4 w-4 text-red-500" />;
         default:
@@ -106,7 +105,10 @@ export function TestPanel({
     assignmentId,
     testCode,
     files,
-    submissionMutation
+    onRunTests,
+    setBottomPanelTab,
+    addOutput,
+    onClear
 }: TestPanelProps) {
     const [hasStarted, setHasStarted] = useState(false);
     const [activeTab, setActiveTab] = useState<string>('overview');
@@ -131,30 +133,42 @@ export function TestPanel({
         setIsRunning(true);
         setHasStarted(true);
         setLiveTestOutput('Compiling and running tests...\n');
-
+        console.log(files)
         const submissionPayload: TestSubmitRequest = {
-            assignmentId: assignmentId,
-            sourceFiles: files.filter(file => !file.fileName.toLowerCase().includes('test'))
-                .map(file => ({
-                    fileName: file.fileName,
-                    content: file.content
-                })),
-            testFiles: [{
-                fileName: 'MainTest.java',
-                content: testCode
-            }],
+            assignmentId,
+            sourceFiles: files.filter(file => file.fileName.toLowerCase().includes('.java')).map(file => ({
+                fileName: file.fileName,
+                content: file.content,
+            })),
+            testFiles: [{ fileName: 'MainTest.java', content: testCode }],
             userId: auth.user?.id,
             testClassNames: ['MainTest'],
+            buildTool: 'gradle',
+            mainClassName: 'Main'
         };
 
         setTestResult(undefined);
 
         try {
-            const response = await submissionMutation.mutateAsync(submissionPayload);
+            const response = await onRunTests(submissionPayload);
+            onClear();
             setTestResult(response);
-
+            if (response.compilationErrors && response.compilationErrors.length > 0) {
+                setBottomPanelTab('terminal');
+                const errorCount = response.compilationErrors.length;
+                response.compilationErrors.forEach((error: CompilationError) => {
+                    addOutput(`${error.errorFile}:${error.line}: error: ${error.errorMessage}`, 'error');
+                    if (error.codeSnippet) {
+                        addOutput(error.codeSnippet, 'log');
+                    }
+                    if (error.pointer) {
+                        addOutput(error.pointer, 'log');
+                    }
+                });
+                addOutput(`\n${errorCount} error${errorCount > 1 ? 's' : ''}`, 'error');
+            }
         } catch (error: any) {
-            console.error('Error running tests:', error);
+            onClear();
             const errorOutput = `Error running tests: ${error.message || 'Unknown error'}\n`;
             setLiveTestOutput(errorOutput);
         } finally {

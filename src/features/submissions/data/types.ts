@@ -1,12 +1,18 @@
 import type { Assignment } from "@/features/assignments/data/types";
-import type { JavaFile, TestJavaProject } from "@/features/code-editor/data/types";
+import type { CompilationError, JavaFile } from "@/features/code-editor/data/types";
 import type { RubricGrade } from "@/features/rubrics/data/types";
 import type { User } from "@/features/users/data/types";
+
+
+export type SubmissionType = "TRYOUT" | "ATTEMPT" | "FINAL";
+export type SubmissionStatus = "IN_PROGRESS" | "SUBMITTED" | "COMPLETED" | "FAILED" | "TIMEOUT";
 export type ExecutionStatus = "PENDING" | "RUNNING" | "PASSED" | "FAILED" | "TIMEOUT" | "SKIPPED";
+
 export interface Submission {
     id: string;
     executionTime?: string;
-    status: string;
+    status: SubmissionStatus;
+    type: SubmissionType;
     totalPoints: number;
     feedback?: string;
     startedAt?: string;
@@ -16,6 +22,7 @@ export interface Submission {
     assignment?: Assignment;
     testExecutions?: TestExecution[];
     submissionCodes?: SubmissionCode[];
+    compilationErrors?: CompilationError[];
     student?: User;
 }
 
@@ -33,19 +40,19 @@ export interface SubmissionCode {
 export interface TestExecution {
     id: string;
     methodName?: string;
-    status?: ExecutionStatus;
+    status: ExecutionStatus;
     output?: string;
     error?: string;
     executionTime?: number;
 
     rubricGradeId: string;
     submissionId: string;
-    assignmentId: string;
+    // assignmentId: string;
 
     rubricGrade?: RubricGrade;
     submission?: Submission;
 
-    testCodeRequest: TestJavaProject
+    // testCodeRequest: TestJavaProject
 
     createdAt?: string;
     updatedAt?: string;
@@ -63,6 +70,7 @@ export type TestSubmitRequest = {
     testFiles: JavaFile[];
     testClassNames?: string[];
     buildTool?: string;
+    mainClassName?: string;
 }
 
 export type AiSubmissionFeedback = {

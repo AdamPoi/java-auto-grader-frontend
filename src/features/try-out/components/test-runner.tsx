@@ -55,9 +55,9 @@ const getStatusColor = (status: ExecutionStatus) => {
 };
 
 const calculateScore = (rubricGrades: RubricGrade[], testResult?: Submission) => {
-    if (!testResult?.gradeExecutions) return { score: 0, total: rubricGrades.length };
+    if (!testResult?.testExecutions) return { score: 0, total: rubricGrades.length };
 
-    const passedTests = testResult.gradeExecutions.filter(execution =>
+    const passedTests = testResult.testExecutions.filter(execution =>
         execution.status === 'PASSED'
     ).length;
 
@@ -93,11 +93,11 @@ export function TestRunner({
     };
 
     const getTestStatus = (rubricGrade: RubricGrade): ExecutionStatus => {
-        if (!testResult?.gradeExecutions) {
+        if (!testResult?.testExecutions) {
             return isRunning ? 'RUNNING' : 'PENDING';
         }
 
-        const execution = testResult.gradeExecutions.find(
+        const execution = testResult.testExecutions.find(
             exec => exec.rubricGrade?.name === rubricGrade.name
         );
 
@@ -105,9 +105,9 @@ export function TestRunner({
     };
 
     const getTestFeedback = (rubricGrade: RubricGrade): string => {
-        if (!testResult?.gradeExecutions) return '';
+        if (!testResult?.testExecutions) return '';
 
-        const execution = testResult.gradeExecutions.find(
+        const execution = testResult.testExecutions.find(
             exec => exec.rubricGrade?.name === rubricGrade.name
         );
 

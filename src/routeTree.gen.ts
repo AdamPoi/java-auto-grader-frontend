@@ -41,6 +41,7 @@ import { Route as AuthenticatedAdminAssignmentsTestBuilderIndexRouteImport } fro
 import { Route as AuthenticatedAdminAssignmentsCreateIndexRouteImport } from './routes/_authenticated/admin/assignments/create/index'
 import { Route as AuthenticatedAdminAssignmentsCompilerIndexRouteImport } from './routes/_authenticated/admin/assignments/compiler/index'
 import { Route as AuthenticatedAdminAssignmentsAssignmentIdIndexRouteImport } from './routes/_authenticated/admin/assignments/$assignmentId/index'
+import { Route as AuthenticatedAppAssignmentsAssignmentIdAssesmentRouteImport } from './routes/_authenticated/app/assignments/$assignmentId/assesment'
 import { Route as AuthenticatedAdminRolesRoleIdEditIndexRouteImport } from './routes/_authenticated/admin/roles/$roleId/edit/index'
 import { Route as AuthenticatedAdminCoursesCourseIdEditIndexRouteImport } from './routes/_authenticated/admin/courses/$courseId/edit/index'
 import { Route as AuthenticatedAdminCoursesCourseIdAssignmentsIndexRouteImport } from './routes/_authenticated/admin/courses/$courseId/assignments/index'
@@ -226,6 +227,12 @@ const AuthenticatedAdminAssignmentsAssignmentIdIndexRoute =
     path: '/assignments/$assignmentId/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute =
+  AuthenticatedAppAssignmentsAssignmentIdAssesmentRouteImport.update({
+    id: '/assignments/$assignmentId/assesment',
+    path: '/assignments/$assignmentId/assesment',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 const AuthenticatedAdminRolesRoleIdEditIndexRoute =
   AuthenticatedAdminRolesRoleIdEditIndexRouteImport.update({
     id: '/roles/$roleId/edit/',
@@ -279,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/app/assignments': typeof AuthenticatedAppAssignmentsIndexRoute
   '/app/courses': typeof AuthenticatedAppCoursesIndexRoute
+  '/app/assignments/$assignmentId/assesment': typeof AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute
   '/admin/assignments/$assignmentId': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
   '/admin/assignments/compiler': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
   '/admin/assignments/create': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
@@ -315,6 +323,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/app/assignments': typeof AuthenticatedAppAssignmentsIndexRoute
   '/app/courses': typeof AuthenticatedAppCoursesIndexRoute
+  '/app/assignments/$assignmentId/assesment': typeof AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute
   '/admin/assignments/$assignmentId': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
   '/admin/assignments/compiler': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
   '/admin/assignments/create': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
@@ -355,6 +364,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
   '/_authenticated/app/assignments/': typeof AuthenticatedAppAssignmentsIndexRoute
   '/_authenticated/app/courses/': typeof AuthenticatedAppCoursesIndexRoute
+  '/_authenticated/app/assignments/$assignmentId/assesment': typeof AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute
   '/_authenticated/admin/assignments/$assignmentId/': typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRoute
   '/_authenticated/admin/assignments/compiler/': typeof AuthenticatedAdminAssignmentsCompilerIndexRoute
   '/_authenticated/admin/assignments/create/': typeof AuthenticatedAdminAssignmentsCreateIndexRoute
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/app/assignments'
     | '/app/courses'
+    | '/app/assignments/$assignmentId/assesment'
     | '/admin/assignments/$assignmentId'
     | '/admin/assignments/compiler'
     | '/admin/assignments/create'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/app/assignments'
     | '/app/courses'
+    | '/app/assignments/$assignmentId/assesment'
     | '/admin/assignments/$assignmentId'
     | '/admin/assignments/compiler'
     | '/admin/assignments/create'
@@ -471,6 +483,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users/'
     | '/_authenticated/app/assignments/'
     | '/_authenticated/app/courses/'
+    | '/_authenticated/app/assignments/$assignmentId/assesment'
     | '/_authenticated/admin/assignments/$assignmentId/'
     | '/_authenticated/admin/assignments/compiler/'
     | '/_authenticated/admin/assignments/create/'
@@ -725,6 +738,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/app/assignments/$assignmentId/assesment': {
+      id: '/_authenticated/app/assignments/$assignmentId/assesment'
+      path: '/assignments/$assignmentId/assesment'
+      fullPath: '/app/assignments/$assignmentId/assesment'
+      preLoaderRoute: typeof AuthenticatedAppAssignmentsAssignmentIdAssesmentRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/admin/roles/$roleId/edit/': {
       id: '/_authenticated/admin/roles/$roleId/edit/'
       path: '/roles/$roleId/edit'
@@ -838,6 +858,7 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAssignmentsIndexRoute: typeof AuthenticatedAppAssignmentsIndexRoute
   AuthenticatedAppCoursesIndexRoute: typeof AuthenticatedAppCoursesIndexRoute
+  AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute: typeof AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute
   AuthenticatedAppAssignmentsAssignmentIdIndexRoute: typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
   AuthenticatedAppCoursesCourseIdIndexRoute: typeof AuthenticatedAppCoursesCourseIdIndexRoute
   AuthenticatedAppSubmissionsIndexRoute: typeof AuthenticatedAppSubmissionsIndexRoute
@@ -847,6 +868,8 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppAssignmentsIndexRoute: AuthenticatedAppAssignmentsIndexRoute,
   AuthenticatedAppCoursesIndexRoute: AuthenticatedAppCoursesIndexRoute,
+  AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute:
+    AuthenticatedAppAssignmentsAssignmentIdAssesmentRoute,
   AuthenticatedAppAssignmentsAssignmentIdIndexRoute:
     AuthenticatedAppAssignmentsAssignmentIdIndexRoute,
   AuthenticatedAppCoursesCourseIdIndexRoute:

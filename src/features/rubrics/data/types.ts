@@ -3,7 +3,7 @@ import type { Submission } from "@/features/submissions/data/types";
 
 export type GradeType = "AUTOMATIC" | "MANUAL" | "HYBRID";
 
-export type ExecutionStatus = "PENDING" | "RUNNING" | "PASSED" | "FAILED" | "ERROR" | "TIMEOUT" | "SKIPPED";
+export type ExecutionStatus = "PENDING" | "RUNNING" | "PASSED" | "FAILED" | "TIMEOUT" | "SKIPPED";
 
 export interface Rubric {
     id: string;
@@ -28,12 +28,12 @@ export interface RubricGrade {
     rubric?: Rubric;
     assignment?: Assignment;
     assignmentId: string;
-    gradeExecutions?: GradeExecution[];
+    testExecutions?: testExecution[];
     createdAt?: string;
     updatedAt?: string;
 }
 
-export interface GradeExecution {
+export interface testExecution {
     id: string;
     points?: number;
     status: ExecutionStatus;
@@ -54,7 +54,7 @@ export type RubricForm = Omit<Rubric, 'id' | 'assignment' | 'createdAt' | 'updat
     assignmentId?: string;
 };
 
-export type RubricGradeForm = Omit<RubricGrade, 'rubric' | 'gradeExecutions' | 'assignment' | 'createdAt' | 'updatedAt'>;
+export type RubricGradeForm = Omit<RubricGrade, 'rubric' | 'testExecutions' | 'assignment' | 'createdAt' | 'updatedAt'>;
 
-export type GradeExecutionForm = Omit<GradeExecution, 'id' | 'rubricGrade' | 'submission' | 'createdAt' | 'updatedAt'>;
+export type testExecutionForm = Omit<testExecution, 'id' | 'rubricGrade' | 'submission' | 'createdAt' | 'updatedAt'>;
 

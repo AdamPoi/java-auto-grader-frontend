@@ -29,7 +29,12 @@ const TryOutTab: React.FC = () => {
                 fileName: file.fileName,
                 sourceCode: file.content,
             })),
-            status: 'uploaded',
+            status: 'IN_PROGRESS',
+            type: 'TRYOUT',
+            totalPoints: 0,
+            feedback: '',
+            startedAt: new Date().toISOString(),
+            completedAt: '',
             assignmentId,
         };
 
@@ -77,7 +82,8 @@ const TryOutTab: React.FC = () => {
         updateSubmissionMutation.mutate({
             id,
             data: {
-                status: 'testing',
+                status: 'COMPLETED',
+                type: 'TRYOUT',
                 submissionCodes: submissionCodes.map(file => ({
                     fileName: file.fileName,
                     sourceCode: file.content,
@@ -92,7 +98,7 @@ const TryOutTab: React.FC = () => {
                     updateSubmissionMutation.mutate({
                         id,
                         data: {
-                            status: passed ? 'completed' : 'failed',
+                            status: passed ? 'COMPLETED' : 'FAILED',
                             feedback: passed ? 'All tests passed!' : 'Some tests failed.',
                         }
                     }, {

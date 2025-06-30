@@ -1,11 +1,12 @@
 import { assignmentSchema } from "@/features/assignments/data/schema";
 import { submissionSchema } from "@/features/submissions/data/schema";
+import type { TestExecution, TestExecutionForm } from "@/features/submissions/data/types";
 import { z } from "zod";
-import type { GradeExecution, GradeExecutionForm, Rubric, RubricForm, RubricGrade, RubricGradeForm } from "./types";
+import type { Rubric, RubricForm, RubricGrade, RubricGradeForm } from "./types";
 
 const gradeTypeSchema = z.enum(["AUTOMATIC", "MANUAL", "HYBRID"]);
 
-const executionStatusSchema = z.enum(["PENDING", "RUNNING", "PASSED", "FAILED", "ERROR", "TIMEOUT", "SKIPPED"]);
+const executionStatusSchema = z.enum(["PENDING", "RUNNING", "PASSED", "FAILED", "TIMEOUT", "SKIPPED"]);
 
 export const baseRubricSchema = z.object({
     id: z.string(),
@@ -32,7 +33,7 @@ export const baseRubricGradeSchema = z.object({
     updatedAt: z.string().datetime({ offset: true }).optional(),
 });
 
-export const baseGradeExecutionSchema = z.object({
+export const baseTestExecutionSchema = z.object({
     id: z.string(),
     pointsAwarded: z.coerce.number().optional(),
     status: executionStatusSchema,
@@ -44,18 +45,21 @@ export const baseGradeExecutionSchema = z.object({
     submissionId: z.string(),
     createdAt: z.string().datetime({ offset: true }).optional(),
     updatedAt: z.string().datetime({ offset: true }).optional(),
+
 });
 
 export const rubricGradeSchema: z.ZodType<RubricGrade> = baseRubricGradeSchema.extend({
     rubric: z.lazy(() => rubricSchema).optional(),
     assignment: z.lazy(() => assignmentSchema).optional(),
-    gradeExecutions: z.lazy(() => z.array(gradeExecutionSchema)).optional(),
+    testExecutions: z.lazy(() => z.array(testExecutionSchema)).optional(),
 });
 
-export const gradeExecutionSchema: z.ZodType<GradeExecution> = baseGradeExecutionSchema.extend({
-    rubricGrade: z.lazy(() => rubricGradeSchema).optional(),
-    submission: z.lazy(() => submissionSchema).optional(),
-});
+export const testExecutionSchema: z.ZodType<TestExecution> = baseTestExecutionSchema
+    .extend({
+        rubricGrade: z.lazy(() => rubricGradeSchema).optional(),
+        submission: z.lazy(() => submissionSchema).optional(),
+        status: z.enum(["PENDING", "RUNNING", "PASSED", "FAILED", "TIMEOUT", "SKIPPED"]),
+    });
 
 
 export const rubricSchema: z.ZodType<Rubric> = baseRubricSchema.extend({
@@ -76,9 +80,9 @@ export const rubricGradeFormSchema = baseRubricGradeSchema.omit({
     updatedAt: true,
 }) satisfies z.ZodType<RubricGradeForm>;
 
-export const gradeExecutionFormSchema = baseGradeExecutionSchema.omit({
+export const testExecutionFormSchema = baseTestExecutionSchema.omit({
     id: true,
     createdAt: true,
     updatedAt: true,
-}) satisfies z.ZodType<GradeExecutionForm>;
+}) satisfies z.ZodType<TestExecutionForm>;
 

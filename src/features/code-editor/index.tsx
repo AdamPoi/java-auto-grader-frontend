@@ -21,7 +21,7 @@ import type { Rubric } from '../rubrics/data/types';
 import { useRubrics } from '../rubrics/hooks/use-rubric';
 import type { Submission, TestSubmitRequest } from '../submissions/data/types';
 import Terminal from './components/code-terminal';
-import MonacoEditor from './components/monaco-editor';
+import MonacoEditor, { type MonacoEditorRef } from './components/monaco-editor';
 import { TestPanel } from './components/test-panel';
 
 const initialFilesData: FileData[] = [
@@ -33,20 +33,18 @@ interface CodeEditorProps {
     onFileChange?: (files: FileData[]) => void;
     readOnly?: boolean;
     assignment?: Assignment
-    submissionMutation: {
-        mutateAsync: (payload: TestSubmitRequest) => Promise<Submission>;
-        isLoading?: boolean;
-        error?: any;
-    };
+    onRunTests: (payload: TestSubmitRequest) => Promise<Submission>;
+
 }
 
-const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly, assignment: existedAssignment, submissionMutation }: CodeEditorProps) => {
+const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly, assignment: existedAssignment, onRunTests }: CodeEditorProps) => {
     const { files, activeFileName, setActiveFileName, handleCreateFile,
         handleRenameFile, handleDeleteFile, handleEditorChange,
         handleAddMultipleFiles } = useFileManagement(propInitialFilesData || initialFilesData, readOnly);
 
     const debouncedFiles = useDebounce(files, 500);
     const { intel, errors, validateFile } = useCodeIntel(debouncedFiles);
+    const monacoEditorRef = useRef<MonacoEditorRef>(null);
 
     const prevFilesRef = useRef<FileData[] | undefined>(undefined);
 
@@ -63,13 +61,26 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     const [modalError, setModalError] = useState('');
     const [terminalHeight, setTerminalHeight] = useState(360);
     const [bottomPanelTab, setBottomPanelTab] = useState<'terminal' | 'tests'>('terminal');
-    const [sidebarWidth, setSidebarWidth] = useState(320);
+    const [sidebarWidth, setSidebarWidth] = useState(180);
     const isResizingRef = useRef(false);
     const isSidebarResizingRef = useRef(false);
 
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const activeFile = useMemo(() => files.find(f => f.fileName === activeFileName), [files, activeFileName]);
+
+    const handleErrorClick = (fileName: string, lineNumber: number) => {
+        const fileExists = files.some(f => f.fileName === fileName);
+        if (fileExists) {
+            setActiveFileName(fileName);
+            setTimeout(() => {
+                monacoEditorRef.current?.goToLine(lineNumber);
+            }, 100);
+        } else {
+            console.warn(`File "${fileName}" not found in the editor.`);
+        }
+    };
+
 
     useEffect(() => {
         validateFile(activeFile);
@@ -89,6 +100,50 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             setSidebarWidth(Math.max(200, Math.min(400, e.clientX)));
         }
     }, []);
+    function handleSidebarResizeMouseDown(e: React.MouseEvent, sidebarWidth: number, setSidebarWidth: (w: number) => void) {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startWidth = sidebarWidth;
+
+        const handleMouseMove = (event: MouseEvent) => {
+            const deltaX = event.clientX - startX;
+            const newWidth = Math.max(150, Math.min(600, startWidth + deltaX));
+            setSidebarWidth(newWidth);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    function handleTerminalResizeMouseDown(
+        e: React.MouseEvent,
+        terminalHeight: number,
+        setTerminalHeight: (h: number) => void
+    ) {
+        e.preventDefault();
+        const startY = e.clientY;
+        const startHeight = terminalHeight;
+
+        const handleMouseMove = (event: MouseEvent) => {
+            const deltaY = startY - event.clientY;
+            const newHeight = Math.max(150, Math.min(600, startHeight + deltaY));
+            setTerminalHeight(newHeight);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    }
+
 
     useEffect(() => {
         window.addEventListener('mousemove', handleMouseMove);
@@ -170,7 +225,6 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             handleAddMultipleFiles(newFilesData);
         }
         setIsUploading(false);
-        // Clear the input so the same file can be uploaded again
         event.target.value = '';
     };
 
@@ -193,6 +247,9 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     const assignmentId = getAssignmentId();
     const [rubrics, setRubrics] = useState<Rubric[] | undefined>(undefined);
     const [assignment, setAssignment] = useState<Assignment | undefined>(undefined);
+    const showTrySubmission = assignment?.options?.showTrySubmission !== false;
+
+    const isAllowUpload = assignment?.options?.allowUpload !== false;
 
     useEffect(() => {
         if (!existedAssignment) {
@@ -220,13 +277,12 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     }, [rubricdata, assignmentdata, existedAssignment]);
 
 
-
-
     const {
         terminalOutput,
         isRunning,
         clearTerminal,
         runCode,
+        addOutput
     } = useCodeRunner();
 
     return (
@@ -255,7 +311,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             multiple
                             accept=".java,.zip"
                         />
-                        <Button
+                        {isAllowUpload && (<Button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isRunning || isUploading}
                             variant="ghost"
@@ -263,7 +319,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             title="Upload Files"
                         >
                             <IconUpload className='h-4 w-4 text-2xl' />
-                        </Button>
+                        </Button>)}
                     </div>
                 </div>
 
@@ -281,7 +337,6 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                 ${activeFileName === file.fileName ? 'bg-neutral-700 border-l-2 ' : ''}
                             `}
                         >
-                            {/* <span className="mr-2 text-xs">{getFileIcon(file.fileName)}</span> */}
                             <span className="flex-grow truncate">{file.fileName}</span>
                             <div className="flex items-center justify-end opacity-0 group-hover:opacity-100">
                                 <Button
@@ -311,10 +366,10 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             </div>
 
             {/* Sidebar Resize Handle */}
-            {/* <div
-                onMouseDown={handleSidebarMouseDown}
-                className="w-1 bg-neutral-700 hover:bg-pri cursor-col-resize flex-shrink-0"
-            ></div> */}
+            <div
+                className="w-1 bg-neutral-700 hover:bg-blue-500 cursor-col-resize flex-shrink-0"
+                onMouseDown={e => handleSidebarResizeMouseDown(e, sidebarWidth, setSidebarWidth)}
+            />
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -323,7 +378,6 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                     <div className="flex items-center space-x-2">
                         {activeFile && (
                             <div className="flex items-center space-x-2 text-sm text-neutral-300">
-                                {/* <span>{getFileIcon(activeFile.fileName)}</span> */}
                                 <span>{activeFile.fileName}</span>
                             </div>
                         )}
@@ -331,7 +385,10 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                     <div className="flex justify-end space-x-2">
 
                         <Button
-                            onClick={() => runCode(files)}
+                            onClick={() => {
+                                setBottomPanelTab('terminal');
+                                runCode(files)
+                            }}
                             disabled={isRunning || isUploading}
                             className="bg-green-600 hover:bg-green-500 text-white"
                             title="Run Code"
@@ -341,11 +398,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             </svg>
                             <span className="ml-2">Run</span>
                         </Button>
-                        {/* {rubrics?.content && rubrics.content.length > 0 && <TestButton
-                            rubrics={rubrics.content}
-                            onSelectRubric={openTestRunner}
-                            disabled={files.length === 0}
-                        />} */}
+
                     </div>
 
                 </div>
@@ -355,8 +408,8 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                     {/* Code Editor Area */}
                     <div className="flex-1 overflow-hidden" style={{ height: `calc(100vh - 120px - ${terminalHeight}px)` }}>
                         {activeFile ? (
-
                             <MonacoEditor
+                                ref={monacoEditorRef}
                                 key={activeFile.fileName}
                                 language={"java"}
                                 value={activeFile.content || ''}
@@ -377,25 +430,8 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                         {/* Resize Handle */}
                         <div
                             className="h-1 bg-neutral-600 cursor-row-resize hover:bg-blue-500 w-full"
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                                const startY = e.clientY;
-                                const startHeight = terminalHeight;
+                            onMouseDown={(e) => handleTerminalResizeMouseDown(e, terminalHeight, setTerminalHeight)}
 
-                                const handleMouseMove = (e: MouseEvent) => {
-                                    const deltaY = startY - e.clientY;
-                                    const newHeight = Math.max(150, Math.min(600, startHeight + deltaY));
-                                    setTerminalHeight(newHeight);
-                                };
-
-                                const handleMouseUp = () => {
-                                    document.removeEventListener('mousemove', handleMouseMove);
-                                    document.removeEventListener('mouseup', handleMouseUp);
-                                };
-
-                                document.addEventListener('mousemove', handleMouseMove);
-                                document.addEventListener('mouseup', handleMouseUp);
-                            }}
                         />
 
                         {/* Tab Header */}
@@ -411,7 +447,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             >
                                 Terminal
                             </button>
-                            <button
+                            {showTrySubmission && (<button
                                 onClick={() => setBottomPanelTab('tests')}
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium border-r border-neutral-700",
@@ -421,7 +457,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                 )}
                             >
                                 Test Cases
-                            </button>
+                            </button>)}
                         </div>
 
                         {/* Tab Content */}
@@ -431,36 +467,36 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                     output={terminalOutput}
                                     isRunning={isRunning}
                                     onClear={clearTerminal}
+                                    onErrorClick={handleErrorClick}
                                 />
                             ) : (
-                                <TestPanel
-                                    submissionMutation={submissionMutation}
+                                showTrySubmission && (<TestPanel
+                                    onRunTests={onRunTests}
                                     rubrics={rubrics || []}
-                                    assignmentId={assignmentId}
+                                    assignmentId={assignmentId ?? ''}
                                     testCode={assignment?.testCode}
                                     files={files}
-                                />
+                                    setBottomPanelTab={setBottomPanelTab}
+                                    addOutput={addOutput}
+                                    onClear={clearTerminal}
+                                />)
 
                             )}
                         </div>
                     </div>
                 </div>
             </div>
-            {/* Test Runner Modal
-            {selectedRubric && (
-                <TestRunner
-                    isOpen={isTestRunnerOpen}
-                    onClose={closeTestRunner}
-                    rubric={selectedRubric}
-                    isRunning={isTestRunning}
-                    testResult={testResult}
-                    liveTestOutput={liveTestOutput}
-                    onRunTests={handleRunTests}
-                />
-            )} */}
+
             {/* Modals */}
             <Dialog open={!!(modal && modal.type !== 'delete')} onOpenChange={(open) => !open && setModal(null)}>
-                <DialogContent className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700">
+                <DialogContent
+                    className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                            setModal(null);
+                        }
+                    }}
+                >
                     <DialogHeader>
                         <DialogTitle className="text-neutral-900 dark:text-neutral-100">{(modal?.type ? modal.type.charAt(0).toUpperCase() + modal.type.slice(1) : '') + ' File'}</DialogTitle>
                     </DialogHeader>
@@ -472,6 +508,11 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             id='fileNameInput'
                             value={fileNameInput}
                             onChange={e => setFileNameInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleModalSubmit(e);
+                                }
+                            }}
                             placeholder="MyClass.java"
                             autoFocus
                             className="bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-600"
@@ -489,7 +530,17 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
             </Dialog>
 
             <Dialog open={!!(modal?.type === 'delete')} onOpenChange={(open) => !open && setModal(null)}>
-                <DialogContent className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700">
+                <DialogContent
+                    className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                            setModal(null);
+                        } else if (e.key === 'Enter') {
+                            if (modal) handleDeleteFile(modal.payload);
+                            setModal(null);
+                        }
+                    }}
+                >
                     <DialogHeader>
                         <DialogTitle className="text-neutral-900 dark:text-neutral-100">Confirm Deletion</DialogTitle>
                         <DialogDescription className="text-neutral-600 dark:text-neutral-400">
@@ -501,7 +552,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                         <Button
                             variant="destructive"
                             onClick={() => {
-                                handleDeleteFile(modal?.payload || '');
+                                if (modal) handleDeleteFile(modal.payload);
                                 setModal(null);
                             }}
                         >
@@ -515,4 +566,3 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     );
 }
 export default CodeEditor;
-

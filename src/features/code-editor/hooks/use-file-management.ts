@@ -35,11 +35,12 @@ function useFileManagement(initialFiles: FileData[], readOnly?: boolean): UseFil
 
     const handleAddMultipleFiles = useCallback((newFiles: FileData[]) => {
         if (readOnly) return;
-
         setFiles(prevFiles => {
-            const existingNames = new Set(prevFiles.map(f => f.fileName));
-            const uniqueFiles = newFiles.filter(file => !existingNames.has(file.fileName));
-            return [...prevFiles, ...uniqueFiles];
+            const filesMap = new Map(prevFiles.map(f => [f.fileName, f]));
+            newFiles.forEach(file => {
+                filesMap.set(file.fileName, file);
+            });
+            return Array.from(filesMap.values());
         });
     }, [readOnly]);
 

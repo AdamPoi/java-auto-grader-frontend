@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { Suspense, useState } from 'react';
 import { useTryOutSubmission } from '@/features/submissions/hooks/use-submission';
 import BulkUpload from '@/features/assignments/components/bulk-upload';
+import type { TestSubmitRequest } from '@/features/submissions/data/types';
 
 export const Route = createFileRoute('/_authenticated/admin/assignments/$assignmentId/')({
   component: AssignmentManagePage,
@@ -57,6 +58,9 @@ function AssignmentManagePage() {
     </div>
   );
 
+  const handleRunTests = async (payload: TestSubmitRequest) => {
+    return tryOutSubmissionMutation.mutateAsync(payload);
+  };
 
 
 
@@ -151,7 +155,7 @@ function AssignmentManagePage() {
           <TabsContent value="compiler" className="mt-6" data-testid="compiler-tab">
             {loadedTabs.has("compiler") ? (
               <Suspense fallback={<TabLoadingSpinner />}>
-                <CodeEditor submissionMutation={tryOutSubmissionMutation} />
+                <CodeEditor onRunTests={handleRunTests} />
               </Suspense>
             ) : null}
           </TabsContent>

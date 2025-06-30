@@ -1,19 +1,25 @@
 import { assignmentSchema } from "@/features/assignments/data/schema";
-import { gradeExecutionSchema } from "@/features/rubrics/data/schema";
+import { testExecutionSchema } from "@/features/rubrics/data/schema";
 import { userSchema } from "@/features/users/data/schema";
 import { z } from "zod";
 import type { Submission, SubmissionCode, SubmissionCodeForm, SubmissionForm } from "./types";
 
+export const submissionTypeEnum = z.enum(["TRYOUT", "ATTEMPT", "FINAL"]);
+export const submissionStatusEnum = z.enum([
+    "IN_PROGRESS", "SUBMITTED", "COMPLETED", "FAILED", "TIMEOUT"
+]);
+
 export const baseSubmissionSchema = z.object({
     id: z.string(),
-    submissionTime: z.string().datetime({ offset: true }).optional(),
-    attemptNumber: z.number().int(),
-    status: z.string().min(3).max(255),
-    graderFeedback: z.string().optional(),
-    gradingStartedAt: z.string().datetime({ offset: true }).optional(),
-    gradingCompletedAt: z.string().datetime({ offset: true }).optional(),
+    executionTime: z.string().optional(),
+    status: submissionStatusEnum,
+    type: submissionTypeEnum,
+    totalPoints: z.number(),
+    feedback: z.string().optional(),
+    startedAt: z.string().optional(),
+    completedAt: z.string().optional(),
     assignmentId: z.string(),
-    studentId: z.string(),
+    studentId: z.string().optional(),
 });
 
 export const baseSubmissionCodeSchema = z.object({
@@ -33,13 +39,15 @@ export const submissionCodeSchema: z.ZodType<SubmissionCode> = baseSubmissionCod
 
 export const submissionSchema: z.ZodType<Submission> = baseSubmissionSchema.extend({
     assignment: z.lazy(() => assignmentSchema).optional(),
-    gradeExecutions: z.lazy(() => z.array(gradeExecutionSchema)).optional(),
+    testExecutions: z.lazy(() => z.array(testExecutionSchema)).optional(),
     submissionCodes: z.lazy(() => z.array(submissionCodeSchema)).optional(),
     student: userSchema.optional(),
 });
 
 export const submissionFormSchema = baseSubmissionSchema.omit({
     id: true,
+}).extend({
+    submissionCodes: z.array(z.lazy(() => submissionCodeFormSchema)),
 }) satisfies z.ZodType<SubmissionForm>;
 
 export const submissionCodeFormSchema = baseSubmissionCodeSchema.omit({
