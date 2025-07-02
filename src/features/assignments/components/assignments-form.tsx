@@ -67,7 +67,16 @@ export function AssignmentsForm({
             totalPoints: initialData.totalPoints,
             courseId: initialData.course?.id,
             teacherId: initialData.createdByTeacher?.id,
-            options: initialData.options,
+            options: {
+                isTimed: initialData.options?.isTimed ?? false,
+                isPublished: initialData.options?.isPublished ?? false,
+                showTrySubmission: initialData.options?.showTrySubmission ?? true,
+                showFeedback: initialData.options?.showFeedback ?? true,
+                showSolution: initialData.options?.showSolution ?? false,
+                allowUpload: initialData.options?.allowUpload ?? false,
+                timeLimit: initialData.options?.timeLimit ?? 0,
+                maxAttempts: initialData.options?.maxAttempts ?? 0,
+            },
         } : {
             id: '',
             title: '',

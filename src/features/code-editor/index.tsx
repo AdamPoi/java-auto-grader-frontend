@@ -25,7 +25,12 @@ import MonacoEditor, { type MonacoEditorRef } from './components/monaco-editor';
 import { TestPanel } from './components/test-panel';
 
 const initialFilesData: FileData[] = [
-    { fileName: "Main.java", content: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("hello world");\n        helloIndonesia();\n    }\n\n    public static void helloIndonesia() {\n        String kota = "Jakarta";\n        System.out.println("Hello from Indonesia! We are in " + kota);\n    }\n}` },
+    {
+        fileName: "Main.java", content: `public class Main {\n  
+          public static void main(String[] args) {\n       
+           System.out.println("hello world");\n        
+            }\n 
+            }\n ` },
 ];
 
 interface CodeEditorProps {
@@ -33,11 +38,10 @@ interface CodeEditorProps {
     onFileChange?: (files: FileData[]) => void;
     readOnly?: boolean;
     assignment?: Assignment
-    onRunTests: (payload: TestSubmitRequest) => Promise<Submission>;
-
+    onRunTests?: (payload: TestSubmitRequest) => Promise<Submission>;
 }
 
-const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly, assignment: existedAssignment, onRunTests }: CodeEditorProps) => {
+const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, readOnly = false, assignment: existedAssignment, onRunTests }: CodeEditorProps) => {
     const { files, activeFileName, setActiveFileName, handleCreateFile,
         handleRenameFile, handleDeleteFile, handleEditorChange,
         handleAddMultipleFiles } = useFileManagement(propInitialFilesData || initialFilesData, readOnly);
@@ -155,6 +159,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
     }, [handleMouseMove]);
 
     const showModal = (type: 'create' | 'rename' | 'delete', payload: string = '') => {
+        if (readOnly) return;
         setFileNameInput(payload);
         setModalError('');
         setModal({ type, payload });
@@ -267,7 +272,11 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
         filter: `assignment=eq:${assignmentIdState}`,
     };
 
-    const { data: rubricdata, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams);
+    const { data: rubricdata, isLoading: isLoadingRubrics } = useRubrics(rubricSearchParams,
+        {
+            enabled: !readOnly
+        }
+    );
     const { data: assignmentdata, isLoading: isLoadingAssignment } = useAssignmentById(assignmentIdState);
 
     useEffect(() => {
@@ -293,34 +302,36 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                 {/* Sidebar Header */}
                 <div className="p-3 border-b border-neutral-700 flex items-center justify-between">
                     <h3 className="text-sm font-medium text-neutral-200">Explorer</h3>
-                    <div className="flex justify-end">
-                        <Button
-                            onClick={() => showModal('create')}
-                            disabled={isRunning}
-                            variant="ghost"
-                            size="icon"
-                            title="New File"
-                        >
-                            <IconPlus className='h-4 w-4 text-2xl' />
-                        </Button>
-                        <Input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            style={{ display: 'none' }}
-                            multiple
-                            accept=".java,.zip"
-                        />
-                        {isAllowUpload && (<Button
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isRunning || isUploading}
-                            variant="ghost"
-                            size="icon"
-                            title="Upload Files"
-                        >
-                            <IconUpload className='h-4 w-4 text-2xl' />
-                        </Button>)}
-                    </div>
+                    {!readOnly && (
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={() => showModal('create')}
+                                disabled={isRunning || readOnly}
+                                variant="ghost"
+                                size="icon"
+                                title="New File"
+                            >
+                                <IconPlus className='h-4 w-4 text-2xl' />
+                            </Button>
+                            <Input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                                style={{ display: 'none' }}
+                                multiple
+                                accept=".java,.zip"
+                            />
+                            {isAllowUpload && (<Button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isRunning || isUploading || readOnly}
+                                variant="ghost"
+                                size="icon"
+                                title="Upload Files"
+                            >
+                                <IconUpload className='h-4 w-4 text-2xl' />
+                            </Button>)}
+                        </div>
+                    )}
                 </div>
 
                 {/* File List */}
@@ -338,28 +349,30 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             `}
                         >
                             <span className="flex-grow truncate">{file.fileName}</span>
-                            <div className="flex items-center justify-end opacity-0 group-hover:opacity-100">
-                                <Button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        showModal('rename', file.fileName);
-                                    }}
-                                    variant="ghost"
-                                    title="Rename"
-                                >
-                                    <IconEdit className='h-4 w-4 text-sm' />
-                                </Button>
-                                <Button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        showModal('delete', file.fileName);
-                                    }}
-                                    variant="ghost"
-                                    title="Delete"
-                                >
-                                    <IconX className='h-4 w-4 text-sm' color='red' />
-                                </Button>
-                            </div>
+                            {!readOnly && (
+                                <div className="flex items-center justify-end opacity-0 group-hover:opacity-100">
+                                    <Button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showModal('rename', file.fileName);
+                                        }}
+                                        variant="ghost"
+                                        title="Rename"
+                                    >
+                                        <IconEdit className='h-4 w-4 text-sm' />
+                                    </Button>
+                                    <Button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showModal('delete', file.fileName);
+                                        }}
+                                        variant="ghost"
+                                        title="Delete"
+                                    >
+                                        <IconX className='h-4 w-4 text-sm' color='red' />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -382,25 +395,26 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                             </div>
                         )}
                     </div>
-                    <div className="flex justify-end space-x-2">
+                    {!readOnly && (
+                        <div className="flex justify-end space-x-2">
 
-                        <Button
-                            onClick={() => {
-                                setBottomPanelTab('terminal');
-                                runCode(files)
-                            }}
-                            disabled={isRunning || isUploading}
-                            className="bg-green-600 hover:bg-green-500 text-white"
-                            title="Run Code"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            <span className="ml-2">Run</span>
-                        </Button>
+                            <Button
+                                onClick={() => {
+                                    setBottomPanelTab('terminal');
+                                    runCode(files)
+                                }}
+                                disabled={isRunning || isUploading || readOnly}
+                                className="bg-green-600 hover:bg-green-500 text-white"
+                                title="Run Code"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                <span className="ml-2">Run</span>
+                            </Button>
 
-                    </div>
-
+                        </div>
+                    )}
                 </div>
 
                 {/* Editor and Terminal Container */}
@@ -468,10 +482,11 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                     isRunning={isRunning}
                                     onClear={clearTerminal}
                                     onErrorClick={handleErrorClick}
+                                    readOnly={readOnly}
                                 />
                             ) : (
                                 showTrySubmission && (<TestPanel
-                                    onRunTests={onRunTests}
+                                    onRunTests={onRunTests || (() => Promise.reject('No test handler provided'))}
                                     rubrics={rubrics || []}
                                     assignmentId={assignmentId ?? ''}
                                     testCode={assignment?.testCode}
@@ -479,6 +494,7 @@ const CodeEditor = ({ initialFilesData: propInitialFilesData, onFileChange, read
                                     setBottomPanelTab={setBottomPanelTab}
                                     addOutput={addOutput}
                                     onClear={clearTerminal}
+                                    readOnly={readOnly}
                                 />)
 
                             )}

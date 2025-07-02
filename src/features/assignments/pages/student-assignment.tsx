@@ -6,6 +6,7 @@ import { useAssignmentById } from '@/features/assignments/hooks/use-assignment';
 import { useParams, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Award, BookOpen, Clock, FileText } from 'lucide-react';
 
+import type { Submission } from '@/features/submissions/data/types';
 import { useSubmissionsList } from '@/features/submissions/hooks/use-submission';
 import { useAuthStore } from '@/stores/auth.store';
 import { useState } from 'react';
@@ -25,8 +26,8 @@ export default function StudentAssignment() {
         filter: `assignment=eq:${assignmentId}&student=eq:${auth.user?.id}`,
     });
 
-    const attemptSubmissions = studentSubmission?.content?.filter(sub => sub.type === "ATTEMPT") ?? [];
-    const finalSubmission = studentSubmission?.content?.find(sub => sub.type === "FINAL");
+    const attemptSubmissions: Submission[] = studentSubmission?.content?.filter(sub => sub.type === "ATTEMPT") ?? [];
+    const finalSubmission: Submission | undefined = studentSubmission?.content?.find(sub => sub.type === "FINAL");
 
     const [activeTab, setActiveTab] = useState("overview");
 
@@ -218,13 +219,13 @@ export default function StudentAssignment() {
                             </Tabs>
                         </CardContent>
                     </Card>
-                    {!finalSubmission && (<Card className="max-w-lg w-full mx-auto mb-10 p-10 flex flex-col items-center">
+                    {(!finalSubmission || finalSubmission?.status === "IN_PROGRESS") && (<Card className="max-w-lg w-full mx-auto mb-10 p-10 flex flex-col items-center">
                         <h2 className="text-xl font-bold mb-6">Ready to take the timed assessment?</h2>
                         <Button
                             size="lg"
                             onClick={() => router.navigate({ to: `/app/assignments/$assignmentId/assesment`, params: { assignmentId } })}
                         >
-                            Start Timed Assessment
+                            {finalSubmission?.status === "IN_PROGRESS" ? "Resume Timed Assessment" : "Start Timed Assessment"}
                         </Button>
                     </Card>)}
                 </div>

@@ -8,17 +8,17 @@ import { ThemeSwitch } from '@/components/theme-switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssignmentsForm as AssignmentFormComponent } from '@/features/assignments/components/assignments-form';
+import BulkUpload from '@/features/assignments/components/bulk-upload';
 import { useAssignmentById, useCreateAssignment } from '@/features/assignments/hooks/use-assignment';
 import CodeEditor from '@/features/code-editor';
 import Rubrics from '@/features/rubrics';
 import RubricsProvider from '@/features/rubrics/context/rubrics-context';
-import { TestBuilder } from '@/features/test-builder';
-import TryOutTab from '@/features/try-out/components/try-out-tab';
-import { useAuthStore } from '@/stores/auth.store';
-import { Suspense, useState } from 'react';
-import { useTryOutSubmission } from '@/features/submissions/hooks/use-submission';
-import BulkUpload from '@/features/assignments/components/bulk-upload';
 import type { TestSubmitRequest } from '@/features/submissions/data/types';
+import { useTryOutSubmission } from '@/features/submissions/hooks/use-submission';
+import { TestBuilder } from '@/features/test-builder';
+import { useAuthStore } from '@/stores/auth.store';
+import { ArrowLeft } from 'lucide-react';
+import { Suspense, useState } from 'react';
 
 export const Route = createFileRoute('/_authenticated/admin/assignments/$assignmentId/')({
   component: AssignmentManagePage,
@@ -66,6 +66,7 @@ function AssignmentManagePage() {
 
   return (
     <RubricsProvider>
+      {/* Header Menu */}
       <Header fixed>
         <Search />
         <div className='ml-auto flex items-center space-x-4'>
@@ -74,29 +75,20 @@ function AssignmentManagePage() {
         </div>
       </Header>
       <Main>
-
-        <div className="flex justify-between items-center">
-          <div className='mb-4'>
-            <h2 className='text-2xl font-bold tracking-tight'>Assignment Details</h2>
-            <p className='text-muted-foreground'>
-              Manage your assignment details, rubrics, tests, and code compilation.
-            </p>
+        {/* Header Page */}
+        <div className='flex flex-col gap-2'>
+          <Button variant="outline" size="icon" className='w-fit p-2' onClick={() => router.history.back()}>
+            <ArrowLeft className="h-4 w-4" /> <span>Back</span>
+          </Button>
+          <div className="flex justify-between items-center">
+            <div className='mb-4'>
+              <h2 className='text-2xl font-bold tracking-tight'>Assignment Details</h2>
+              <p className='text-muted-foreground'>
+                Manage your assignment details, rubrics, tests, and code compilation.
+              </p>
+            </div>
           </div>
-          {/* <div className='ml-auto flex items-center space-x-4'>
-            <Button
-              type='button'
-              variant='default'
-              onClick={() => {
-                navigate({
-                  to: '/admin/assignments/$assignmentId/edit',
-                  params: { assignmentId: assignmentId },
-                });
-              }}>
-              Edit <EditIcon className='ml-2 h-4 w-4' />
-            </Button>
-          </div> */}
         </div>
-
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full-sm">
           <TabsList className="grid w-full grid-cols-5">

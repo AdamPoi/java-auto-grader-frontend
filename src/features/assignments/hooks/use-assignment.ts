@@ -57,14 +57,14 @@ export const useAssignment = (params: SearchRequestParams) => {
     };
 };
 
-export const useAssignmentById = (id: string) => {
+export const useAssignmentById = (id: string, options?: { enabled?: boolean }) => {
     return useQuery({
         queryKey: [QUERY_KEY, id],
         queryFn: async () => {
             const response = await assignmentApi.getAssignment(id);
             return response;
         },
-        enabled: !!id,
+        enabled: options?.enabled ?? !!id,
     });
 };
 

@@ -20,7 +20,7 @@ export function getQueryKey({ action, params }: { action?: String, params?: Sear
 }
 
 
-export const useRubrics = (params: SearchRequestParams) => {
+export const useRubrics = (params: SearchRequestParams, options?: { enabled?: boolean }) => {
     const query = useQuery({
         queryKey: getQueryKey({
             action: 'list',
@@ -30,7 +30,7 @@ export const useRubrics = (params: SearchRequestParams) => {
             const response = await rubricApi.getRubrics(params);
             return response;
         },
-        enabled: !!params,
+        enabled: options?.enabled ?? !!params,
     });
 
 

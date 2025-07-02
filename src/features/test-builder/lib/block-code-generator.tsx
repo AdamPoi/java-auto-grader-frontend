@@ -1,4 +1,4 @@
-import type { AssertThatBlock, Block, CaseSourceBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, StaticAssertBlock, StaticAssertType, StructureCheckBlock, VariableBlock } from '../data/types';
+import type { AssertThatBlock, Block, CaseSourceBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, OutputBlock, StaticAssertBlock, StaticAssertType, StructureCheckBlock, VariableBlock } from '../data/types';
 
 
 export const generateSetupCode = () => {
@@ -169,6 +169,21 @@ export const generateBlockCode = (block: Block, indent: string, activeSuite: any
             }).join('');
             blockCode += `${indent} Assertions.assertThat(${assertBlock.target})${chain}; \n`;
             break;
+
+        case 'OUTPUT':
+            const outputBlock = block as OutputBlock;
+            const uniqueSuffix = outputBlock.id ? outputBlock.id.replace(/-/g, '_') : Math.random().toString(36).substr(2, 9);
+            const prefix = '_to';
+            return `PrintStream originalOut = System.out;
+    ByteArrayOutputStream ${prefix}_baos_${uniqueSuffix} = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(${prefix}_baos_${uniqueSuffix}));
+    try {
+        Main.main(new String[] {});
+        String actualOutput = ${prefix}_baos_${uniqueSuffix}.toString().trim();
+        Assertions.assertThat(actualOutput).isEqualTo("${outputBlock.value || 'hello world'}");
+    } finally {
+        System.setOut(originalOut);
+    }`;
         case 'COMMENT':
             blockCode += `${indent}// ${block.value}\n`;
             break;

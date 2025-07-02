@@ -6,6 +6,7 @@ import type {
     FunctionBlock,
     FunctionTestBlock,
     MatcherBlock,
+    OutputBlock,
     VariableBlock
 } from '../data/types';
 
@@ -47,8 +48,6 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
             let isStaticAssert = false;
             let isStructureCheck = false;
             let isFunctionTest = false;
-
-
 
             if (line.includes('Static test')) {
                 if (line.includes('.as("Static test: Expect static field') && line.includes('to be called within method')) {
@@ -315,7 +314,26 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
                     isFunctionTest = true;
                 }
             }
+            // Detect System.out.println for OUTPUT block
 
+            else if (line.includes('System.out.println(') || line.includes('System.out.print(')) {
+                const outputMatch = line.match(/System\.out\.print(?:ln)?\((.*)\);/);
+                if (outputMatch) {
+                    let outputValue = outputMatch[1].trim();
+                    // Remove surrounding quotes if it's a string literal
+                    if (outputValue.startsWith('"') && outputValue.endsWith('"')) {
+                        outputValue = outputValue.slice(1, -1);
+                    }
+
+                    const outputBlock: OutputBlock = {
+                        id: generateId(),
+                        parentId: currentFunctionId,
+                        type: 'OUTPUT',
+                        value: outputValue,
+                    };
+                    blocks.push(outputBlock);
+                }
+            }
             // Detect assertThat calls (only if not a static assert)
             else if (line.includes('assertThat(') && !isStaticAssert && !isStructureCheck && !isFunctionTest) {
                 const assertThatMatch = line.match(/assertThat\((.*?)\)\.(.*);/);
@@ -376,25 +394,22 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
             }
 
             else if (!isStaticAssert && !isStructureCheck && !isFunctionTest) {
+
                 const varMatch = line.match(/(String|int|boolean|double|float|long)\s+(\w+)\s*=\s*(.*);/);
                 if (varMatch) {
                     const [, varType, varName, rawValue] = varMatch;
-
                     // Skip variables with sc_ prefix (structure check variables)
-                    if (!varName.startsWith('sc_') && !varName.startsWith('ft_') && !varName.startsWith('_')) {
+                    if (!varName.startsWith('sc_') && !varName.startsWith('ft_') && !varName.startsWith('_to_') && !varName.startsWith('_')) {
                         // Clean the value by removing type-specific formatting
                         let cleanValue = rawValue.trim().replace(/;$/, '');
-
                         // Remove quotes for String types
                         if (varType === 'String' && cleanValue.startsWith('"') && cleanValue.endsWith('"')) {
                             cleanValue = cleanValue.slice(1, -1);
                         }
-
                         // Remove single quotes for char types
                         if (varType === 'char' && cleanValue.startsWith("'") && cleanValue.endsWith("'")) {
                             cleanValue = cleanValue.slice(1, -1);
                         }
-
                         // Remove type suffixes (L for long, f for float, d for double)
                         if (varType === 'long' && cleanValue.endsWith('L')) {
                             cleanValue = cleanValue.slice(0, -1);
@@ -405,7 +420,6 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
                         if (varType === 'double' && cleanValue.endsWith('d')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
-
                         const variableBlock: VariableBlock = {
                             id: generateId(),
                             parentId: currentFunctionId,
@@ -418,6 +432,7 @@ export const parseJavaCodeToBlocks = (javaCode: string): Block[] => {
                     }
                 }
             }
+
 
             // End of function - when we're back to brace level 0 and have seen a closing brace
             if (braceLevel <= 0 && line.includes('}')) {

@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Trash2, X } from 'lucide-react';
 import React, { useContext, useMemo, useState } from 'react';
 import { BlocksTreeContext } from '..';
-import type { AnyBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, OmittedBlock, StaticAssertBlock, StructureCheckBlock, TestCaseFunctionBlock, VariableBlock } from '../data/types';
+import type { AnyBlock, AssertThatBlock, Block, CommentBlock, ExceptionAssertBlock, FunctionBlock, FunctionTestBlock, MatcherBlock, OmittedBlock, OutputBlock, StaticAssertBlock, StructureCheckBlock, TestCaseFunctionBlock, VariableBlock } from '../data/types';
 import { useTestBuilderStore } from '../hooks/use-test-builder-store';
 
 
@@ -489,6 +489,14 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
                         assertThat(<VariableSelect id={id} field='target' value={assertThatBlock.target} onDataChange={onDataChange} isPalette={isPalette} />)
                     </span>
                 </>;
+
+            case 'OUTPUT':
+                const outputBlock = b as OutputBlock;
+                return <>
+                    <span className='flex items-center mx-1 my-1'>
+                        assert that output equals {renderInput('value', outputBlock.value ?? '', 'String', 'expected')}
+                    </span>
+                </>;
             case 'EXCEPTION_ASSERT':
                 const exceptionAssertBlock = b as ExceptionAssertBlock;
                 return <>
@@ -559,10 +567,8 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
             case 'COMMENT':
                 const commentBlock = b as CommentBlock;
                 return <span className="font-mono">{commentBlock.value}</span>;
-            case 'IS_EQUAL_TO': return <>.isEqualTo({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'expected')})</>;
-            case 'IS_NOT_NULL': return <span className="font-medium">.isNotNull()</span>;
+
             case 'HAS_SIZE': return <>.hasSize({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'size')})</>;
-            case 'IS_INSTANCE_OF': return <>.isInstanceOf({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'ClassName.class')})</>;
             case 'CONTAINS': return <>.contains({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'element')})</>;
             case 'CONTAINS_ONLY': return <>.containsOnly({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'elements')})</>;
             case 'CONTAINS_EXACTLY': return <>.containsExactly({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'elements')})</>;
@@ -576,6 +582,14 @@ const MemoizedBlockContent = React.memo(({ block, onDataChange, isPalette }: { b
             case 'MATCHES': return <>.matches({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'regex')})</>;
             case 'STARTS_WITH': return <>.startsWith({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'prefix')})</>;
             case 'ENDS_WITH': return <>.endsWith({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'suffix')})</>;
+            case 'IS_INSTANCE_OF': return <>.isInstanceOf({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'ClassName.class')})</>;
+            case 'IS_EQUAL_TO': return <>.isEqualTo({renderInput('value', (b as MatcherBlock).value ?? '', 'String', 'expected')})</>;
+            case 'IS_NOT_NULL': return <span className="font-medium">.isNotNull()</span>;
+            case 'IS_TRUE': return <span className="font-medium">.isTrue()</span>;
+            case 'IS_FALSE': return <span className="font-medium">.isFalse()</span>;
+            case 'IS_NULL': return <span className="font-medium">.isNull()</span>;
+            case 'IS_EMPTY': return <span className="font-medium">.isEmpty()</span>;
+            case 'IS_NOT_EMPTY': return <span className="font-medium">.isNotEmpty()</span>;
 
             default: return <span>Unknown Block</span>;
         }

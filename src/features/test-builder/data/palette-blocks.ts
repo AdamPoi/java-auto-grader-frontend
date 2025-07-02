@@ -195,6 +195,7 @@ export const INITIAL_PALETTE_BLOCKS: {
     ],
     assertions: [
         { type: 'ASSERT_THAT', target: 'myString' },
+        { type: 'OUTPUT', value: "hello world" }
         // { type: 'EXCEPTION_ASSERT', exceptionType: 'Exception.class', code: '() -> { /* code that throws */ }' },
         // { type: 'STATIC_ASSERT', checkType: 'VARIABLE_USED_IN_CLASS', value: 'MyClass', className: 'MyClass', methodName: 'myMethod' },
 
@@ -208,7 +209,6 @@ export const INITIAL_PALETTE_BLOCKS: {
     ],
     matchers: [
         { type: 'IS_EQUAL_TO', value: 'hello' },
-        { type: 'IS_NOT_NULL' },
         { type: 'HAS_SIZE', value: '5' },
         { type: 'IS_INSTANCE_OF', value: 'String.class' },
         { type: 'EXTRACTING', value: 'fieldName' },
@@ -229,5 +229,6 @@ export const INITIAL_PALETTE_BLOCKS: {
         { type: 'IS_NOT_NULL', value: 'item' },
         { type: 'IS_EMPTY', value: 'item' },
         { type: 'IS_NOT_EMPTY', value: 'item' },
+        { type: 'IS_NOT_NULL' },
     ],
 };

@@ -54,28 +54,21 @@ export default function TimedAssessmentPage() {
     const isTimed = assignment?.options?.isTimed === true && typeof assignment?.options?.timeLimit === "number" && assignment.options.timeLimit > 0;
     const attemptSubmissions = studentSubmission?.content?.filter(sub => sub.type === "ATTEMPT") ?? [];
 
-    // ---- Main change: Only start the assessment if NOT started
     useEffect(() => {
-        // Only try to start if: not loading, not started, not submitted, and no error in status
         if (!assignmentId || statusLoading || startMutation.isPending || startMutation.isSuccess) return;
 
-        // Status might be undefined on very first load, or if not started yet
         const assessmentNeverStarted = !status || !status.startedAt;
-        const alreadySubmitted = !!status?.submitted; // Or check for status.status === 'COMPLETED' if your API returns it
+        const alreadySubmitted = !!status?.submitted;
 
-        // Only trigger start if never started and not submitted
         if (assessmentNeverStarted && !alreadySubmitted) {
             startMutation.mutate(undefined, {
                 onSuccess: () => refetchStatus(),
-                // Optionally handle error: do nothing (user is not blocked)
             });
         }
     }, [assignmentId, status, statusLoading, startMutation.isPending, startMutation.isSuccess, refetchStatus]);
 
-    // File change
     const handleFileChange = (updatedFiles: FileData[]) => setFiles(updatedFiles);
 
-    // -- Timer logic (unchanged)
     useEffect(() => {
         if (!isTimed) return;
         function doPoll() {
@@ -129,7 +122,7 @@ export default function TimedAssessmentPage() {
         try {
             const submissionPayload: TestSubmitRequest = {
                 assignmentId: assignmentId,
-                sourceFiles: files.filter(file => !file.fileName.toLowerCase().includes('test'))
+                sourceFiles: files
                     .map(file => ({
                         fileName: file.fileName,
                         content: file.content

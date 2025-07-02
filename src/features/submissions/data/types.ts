@@ -14,7 +14,8 @@ export interface Submission {
     status: SubmissionStatus;
     type: SubmissionType;
     totalPoints: number;
-    feedback?: string;
+    manualFeedback?: string;
+    aiFeedback?: string;
     startedAt?: string;
     completedAt?: string;
     assignmentId: string;
@@ -71,12 +72,24 @@ export type TestSubmitRequest = {
     testClassNames?: string[];
     buildTool?: string;
     mainClassName?: string;
+    type?: SubmissionType;
 }
 
 export type AiSubmissionFeedback = {
     sourceFiles: JavaFile[];
     executionTime: number;
 };
+
+export type StudentSubmissionAiFeedbackRequest = {
+    studentCode: JavaFile[];
+    instructions: String
+    rubrics: {
+        name: string;
+        description: string;
+    }
+    // gradingRubric: string;
+    // testCaseResults: string;
+}
 
 export type SubmissionCodeForm = Omit<SubmissionCode, 'id' | 'submission' | 'createdAt' | 'updatedAt'>;
 

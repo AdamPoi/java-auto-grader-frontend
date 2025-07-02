@@ -1,20 +1,21 @@
-import type { SubmissionForm, TestSubmitRequest } from '@/features/submissions/data/types';
+import type { StudentSubmissionAiFeedbackRequest, SubmissionForm, TestSubmitRequest } from '@/features/submissions/data/types';
 import type { SearchRequestParams } from '@/types/api.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { submissionApi } from '../data/api';
 
-export function useSubmissionsList(params: SearchRequestParams) {
+export function useSubmissionsList(params: SearchRequestParams, options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: ['submissions', params],
         queryFn: () => submissionApi.getSubmissions(params),
+        enabled: options?.enabled ?? true,
     });
 }
 
-export function useSubmission(id: string) {
+export function useSubmission(id: string, options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: ['submission', id],
         queryFn: () => submissionApi.getSubmission(id),
-        enabled: !!id,
+        enabled: options?.enabled ?? !!id,
     });
 }
 
@@ -74,8 +75,8 @@ export function useSubmitStudentSubmission() {
 export function useAiCodeFeedback() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: string }) =>
-            submissionApi.getAiCodeFeedback(id, data),
+        mutationFn: ({ data }: { data: StudentSubmissionAiFeedbackRequest }) =>
+            submissionApi.getAiCodeFeedback(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['submissions'] });
         }

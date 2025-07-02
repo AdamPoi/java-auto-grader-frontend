@@ -34,6 +34,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         VARIABLE: 'bg-amber-100 border-amber-300 text-amber-800',
         CASE_SOURCE: 'bg-amber-100 border-amber-300 text-amber-800',
         ASSERT_THAT: 'bg-teal-100 border-teal-300 text-teal-800',
+        OUTPUT: 'bg-teal-100 border-teal-300 text-teal-800',
+
         MATCHER: 'bg-sky-100 border-sky-300 text-sky-800',
         EXCEPTION_ASSERT: 'bg-rose-100 border-rose-300 text-rose-800',
         COMMENT: 'bg-gray-100 border-gray-300 text-gray-500 italic',
@@ -41,10 +43,28 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
 
     const getBlockStyle = (blockType: BlockType) => {
         const matcherTypes = [
-            'IS_EQUAL_TO', 'IS_NOT_NULL', 'HAS_SIZE',
-            'IS_INSTANCE_OF', 'CONTAINS', 'CONTAINS_ONLY', 'CONTAINS_EXACTLY', 'CONTAINS_EXACTLY_IN_ANY_ORDER',
-            'CONTAINS_SEQUENCE', 'CONTAINS_SUBSEQUENCE', 'CONTAINS_ONLY_ONCE', 'CONTAINS_ANY_OF',
-            'DOES_NOT_CONTAIN', 'EXTRACTING', 'MATCHES', 'STARTS_WITH', 'ENDS_WITH'
+            'IS_EQUAL_TO',
+            'HAS_SIZE',
+            'IS_INSTANCE_OF',
+            'CONTAINS',
+            'CONTAINS_ONLY',
+            'CONTAINS_EXACTLY',
+            'CONTAINS_EXACTLY_IN_ANY_ORDER',
+            'CONTAINS_SEQUENCE',
+            'CONTAINS_SUBSEQUENCE',
+            'CONTAINS_ONLY_ONCE',
+            'CONTAINS_ANY_OF',
+            'DOES_NOT_CONTAIN',
+            'EXTRACTING',
+            'MATCHES',
+            'STARTS_WITH',
+            'ENDS_WITH',
+            'IS_TRUE',
+            'IS_FALSE',
+            'IS_NULL',
+            'IS_NOT_NULL',
+            'IS_EMPTY',
+            'IS_NOT_EMPTY',
         ];
         if (matcherTypes.includes(blockType)) {
             return typeStyles.MATCHER;

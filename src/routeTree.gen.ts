@@ -33,7 +33,6 @@ import { Route as AuthenticatedAdminAssignmentsIndexRouteImport } from './routes
 import { Route as AuthenticatedAppSubmissionsIndexRouteImport } from './routes/_authenticated/app/submissions/index.'
 import { Route as AuthenticatedAppCoursesCourseIdIndexRouteImport } from './routes/_authenticated/app/courses/$courseId/index'
 import { Route as AuthenticatedAppAssignmentsAssignmentIdIndexRouteImport } from './routes/_authenticated/app/assignments/$assignmentId/index'
-import { Route as AuthenticatedAdminSubmissionsCreateIndexRouteImport } from './routes/_authenticated/admin/submissions/create/index'
 import { Route as AuthenticatedAdminSubmissionsSubmissionIdIndexRouteImport } from './routes/_authenticated/admin/submissions/$submissionId/index'
 import { Route as AuthenticatedAdminRolesCreateIndexRouteImport } from './routes/_authenticated/admin/roles/create/index'
 import { Route as AuthenticatedAdminCoursesCreateIndexRouteImport } from './routes/_authenticated/admin/courses/create/index'
@@ -180,12 +179,6 @@ const AuthenticatedAppAssignmentsAssignmentIdIndexRoute =
     path: '/assignments/$assignmentId/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAdminSubmissionsCreateIndexRoute =
-  AuthenticatedAdminSubmissionsCreateIndexRouteImport.update({
-    id: '/submissions/create/',
-    path: '/submissions/create/',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
 const AuthenticatedAdminSubmissionsSubmissionIdIndexRoute =
   AuthenticatedAdminSubmissionsSubmissionIdIndexRouteImport.update({
     id: '/submissions/$submissionId/',
@@ -302,7 +295,6 @@ export interface FileRoutesByFullPath {
   '/admin/courses/create': typeof AuthenticatedAdminCoursesCreateIndexRoute
   '/admin/roles/create': typeof AuthenticatedAdminRolesCreateIndexRoute
   '/admin/submissions/$submissionId': typeof AuthenticatedAdminSubmissionsSubmissionIdIndexRoute
-  '/admin/submissions/create': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
   '/app/assignments/$assignmentId': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
   '/app/courses/$courseId': typeof AuthenticatedAppCoursesCourseIdIndexRoute
   '/app/submissions/index': typeof AuthenticatedAppSubmissionsIndexRoute
@@ -340,7 +332,6 @@ export interface FileRoutesByTo {
   '/admin/courses/create': typeof AuthenticatedAdminCoursesCreateIndexRoute
   '/admin/roles/create': typeof AuthenticatedAdminRolesCreateIndexRoute
   '/admin/submissions/$submissionId': typeof AuthenticatedAdminSubmissionsSubmissionIdIndexRoute
-  '/admin/submissions/create': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
   '/app/assignments/$assignmentId': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
   '/app/courses/$courseId': typeof AuthenticatedAppCoursesCourseIdIndexRoute
   '/app/submissions/index': typeof AuthenticatedAppSubmissionsIndexRoute
@@ -382,7 +373,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/courses/create/': typeof AuthenticatedAdminCoursesCreateIndexRoute
   '/_authenticated/admin/roles/create/': typeof AuthenticatedAdminRolesCreateIndexRoute
   '/_authenticated/admin/submissions/$submissionId/': typeof AuthenticatedAdminSubmissionsSubmissionIdIndexRoute
-  '/_authenticated/admin/submissions/create/': typeof AuthenticatedAdminSubmissionsCreateIndexRoute
   '/_authenticated/app/assignments/$assignmentId/': typeof AuthenticatedAppAssignmentsAssignmentIdIndexRoute
   '/_authenticated/app/courses/$courseId/': typeof AuthenticatedAppCoursesCourseIdIndexRoute
   '/_authenticated/app/submissions/index/': typeof AuthenticatedAppSubmissionsIndexRoute
@@ -425,7 +415,6 @@ export interface FileRouteTypes {
     | '/admin/courses/create'
     | '/admin/roles/create'
     | '/admin/submissions/$submissionId'
-    | '/admin/submissions/create'
     | '/app/assignments/$assignmentId'
     | '/app/courses/$courseId'
     | '/app/submissions/index'
@@ -463,7 +452,6 @@ export interface FileRouteTypes {
     | '/admin/courses/create'
     | '/admin/roles/create'
     | '/admin/submissions/$submissionId'
-    | '/admin/submissions/create'
     | '/app/assignments/$assignmentId'
     | '/app/courses/$courseId'
     | '/app/submissions/index'
@@ -504,7 +492,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/courses/create/'
     | '/_authenticated/admin/roles/create/'
     | '/_authenticated/admin/submissions/$submissionId/'
-    | '/_authenticated/admin/submissions/create/'
     | '/_authenticated/app/assignments/$assignmentId/'
     | '/_authenticated/app/courses/$courseId/'
     | '/_authenticated/app/submissions/index/'
@@ -695,13 +682,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAssignmentsAssignmentIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/admin/submissions/create/': {
-      id: '/_authenticated/admin/submissions/create/'
-      path: '/submissions/create'
-      fullPath: '/admin/submissions/create'
-      preLoaderRoute: typeof AuthenticatedAdminSubmissionsCreateIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
     '/_authenticated/admin/submissions/$submissionId/': {
       id: '/_authenticated/admin/submissions/$submissionId/'
       path: '/submissions/$submissionId'
@@ -820,7 +800,6 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCoursesCreateIndexRoute: typeof AuthenticatedAdminCoursesCreateIndexRoute
   AuthenticatedAdminRolesCreateIndexRoute: typeof AuthenticatedAdminRolesCreateIndexRoute
   AuthenticatedAdminSubmissionsSubmissionIdIndexRoute: typeof AuthenticatedAdminSubmissionsSubmissionIdIndexRoute
-  AuthenticatedAdminSubmissionsCreateIndexRoute: typeof AuthenticatedAdminSubmissionsCreateIndexRoute
   AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute: typeof AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute
   AuthenticatedAdminClassroomsClassroomIdEditIndexRoute: typeof AuthenticatedAdminClassroomsClassroomIdEditIndexRoute
   AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute: typeof AuthenticatedAdminCoursesCourseIdAssignmentsIndexRoute
@@ -858,8 +837,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminRolesCreateIndexRoute,
     AuthenticatedAdminSubmissionsSubmissionIdIndexRoute:
       AuthenticatedAdminSubmissionsSubmissionIdIndexRoute,
-    AuthenticatedAdminSubmissionsCreateIndexRoute:
-      AuthenticatedAdminSubmissionsCreateIndexRoute,
     AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute:
       AuthenticatedAdminAssignmentsAssignmentIdEditIndexRoute,
     AuthenticatedAdminClassroomsClassroomIdEditIndexRoute:

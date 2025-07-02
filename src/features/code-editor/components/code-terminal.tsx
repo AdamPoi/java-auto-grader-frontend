@@ -7,9 +7,10 @@ interface TerminalProps {
     onClear: () => void;
     isRunning: boolean;
     onErrorClick: (fileName: string, lineNumber: number) => void;
+    readOnly?: boolean;
 }
 
-const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning, onErrorClick }) => {
+const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning, onErrorClick, readOnly }) => {
     const terminalBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -30,13 +31,13 @@ const Terminal: React.FC<TerminalProps> = ({ output, onClear, isRunning, onError
         <div className="h-full flex flex-col bg-neutral-900">
             <div className="flex-shrink-0 bg-neutral-800 p-2 flex items-center justify-between border-b border-neutral-700">
                 <h3 className="text-sm font-semibold text-neutral-400">OUTPUT</h3>
-                <Button
+                {!readOnly && (<Button
                     onClick={onClear}
                     disabled={isRunning}
                     className="text-xs px-2 py-1 rounded bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50"
                 >
                     Clear
-                </Button>
+                </Button>)}
             </div>
             <div ref={terminalBodyRef} className="flex-grow p-2 overflow-y-auto font-mono text-sm leading-6">
                 {output.map((line, index) => {

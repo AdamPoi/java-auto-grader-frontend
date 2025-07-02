@@ -4,14 +4,14 @@ import { z } from "zod";
 import type { Assignment, AssignmentForm } from "./types";
 
 export const assignmentOptionsSchema = z.object({
-    isTimed: z.boolean().optional(),
-    timeLimit: z.number().int().positive().optional(),   // in seconds
-    maxAttempts: z.number().int().positive().optional(),
-    showTrySubmission: z.boolean().optional(),
-    showFeedback: z.boolean().optional(),
-    showSolution: z.boolean().optional(),
-    allowUpload: z.boolean().optional(),
-    isPublished: z.boolean().optional(),
+    isTimed: z.boolean().nullish(),
+    timeLimit: z.number().int().positive().nullish(),   // in seconds
+    maxAttempts: z.number().int().positive().nullish(),
+    showTrySubmission: z.boolean().nullish(),
+    showFeedback: z.boolean().nullish(),
+    showSolution: z.boolean().nullish(),
+    allowUpload: z.boolean().nullish(),
+    isPublished: z.boolean().nullish(),
 });
 
 export const baseAssignmentSchema = z.object({
@@ -20,8 +20,8 @@ export const baseAssignmentSchema = z.object({
     description: z.string().optional(),
     instructions: z.string().optional(),
     dueDate: z.string().datetime().optional(),
-    starterCode: z.string().optional(),
-    solutionCode: z.string().optional(),
+    starterCode: z.string().nullish(),
+    solutionCode: z.string().nullish(),
     totalPoints: z.coerce.number().positive("Total points must be positive"),
     createdByTeacher: userSchema.optional(),
     options: assignmentOptionsSchema.optional(),

@@ -3,7 +3,7 @@ import { type FC } from 'react';
 
 export type BlockType = 'FUNCTION' | 'TEST_CASE_FUNCTION' | 'VARIABLE' | 'ASSERT_THAT'
     | 'EXCEPTION_ASSERT' | 'STATIC_ASSERT' | 'STRUCTURE_CHECK'
-    | 'COMMENT' | 'TEMPLATE_FUNCTION' | 'CASE_SOURCE' | 'FUNCTION_TEST' | & MatcherBlockType;
+    | 'COMMENT' | 'TEMPLATE_FUNCTION' | 'CASE_SOURCE' | 'FUNCTION_TEST' | 'OUTPUT' | & MatcherBlockType;
 
 export type MatcherBlockType = 'IS_EQUAL_TO' | 'IS_NOT_EQUAL_TO' | 'IS_NOT_NULL' | 'HAS_SIZE'
     | 'IS_INSTANCE_OF' | 'CONTAINS' | 'CONTAINS_ONLY' | 'CONTAINS_EXACTLY' | 'CONTAINS_EXACTLY_IN_ANY_ORDER'
@@ -57,6 +57,11 @@ export interface VariableBlock extends BaseBlock {
 export interface AssertThatBlock extends BaseBlock {
     type: 'ASSERT_THAT'; target: string;
 }
+
+export interface OutputBlock extends BaseBlock {
+    type: 'OUTPUT';
+    value: string;
+}
 export interface ExceptionAssertBlock extends BaseBlock {
     type: 'EXCEPTION_ASSERT'; exceptionType: string; code: string;
 }
@@ -90,7 +95,7 @@ export type Block =
     FunctionBlock | VariableBlock
     | AssertThatBlock | ExceptionAssertBlock | StaticAssertBlock
     | StructureCheckBlock | CommentBlock | MatcherBlock
-    | CaseSourceBlock | FunctionTestBlock;
+    | CaseSourceBlock | FunctionTestBlock | OutputBlock;
 
 export type OmittedBlock = Omit<FunctionBlock, 'id' | 'parentId'>
     | Omit<TestCaseFunctionBlock, 'id' | 'parentId'>
@@ -103,6 +108,7 @@ export type OmittedBlock = Omit<FunctionBlock, 'id' | 'parentId'>
     | Omit<MatcherBlock, 'id' | 'parentId'>
     | Omit<CaseSourceBlock, 'id' | 'parentId'>
     | Omit<FunctionTestBlock, 'id' | 'parentId'>
+    | Omit<OutputBlock, 'id' | 'parentId'>
     ;
 
 export type OmittedFunctionBlock = Omit<FunctionBlock, 'id' | 'parentId' | 'rubricId'>

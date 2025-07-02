@@ -5,8 +5,8 @@ import type { FileData } from '@/features/code-editor/hooks/use-file-management'
 import type { TestSubmitRequest } from '@/features/submissions/data/types';
 import { useCreateSubmission, useDeleteSubmission, useSubmissionsList, useUpdateSubmission } from '@/features/submissions/hooks/use-submission';
 import { useUsersList } from '@/features/users/hooks/use-user';
-import { useParams } from '@tanstack/react-router';
-import { CheckCircle, FileArchive, File as FileIcon, Loader2, Trash2, UploadCloud, User, UserCheck, XCircle } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { CheckCircle, Eye, FileArchive, File as FileIcon, Loader2, Trash2, UploadCloud, User, UserCheck, XCircle } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { useAssignmentById } from '../hooks/use-assignment';
 
@@ -35,6 +35,7 @@ interface PendingSubmission {
 }
 
 export default function BulkUpload() {
+    const navigate = useNavigate();
 
     const getAssignmentId = () => {
         try {
@@ -58,7 +59,7 @@ export default function BulkUpload() {
     const { data: submissionsData, isLoading: isLoadingSubmissions, refetch } = useSubmissionsList({
         page: 0,
         size: 100,
-        filter: `assignment=eq:${assignmentId}`,
+        filter: `assignment=eq:${assignmentId}&type=eq:FINAL`,
     });
 
     const { data: studentsData, isLoading: isLoadingStudentstudents } = useUsersList({
@@ -132,7 +133,6 @@ export default function BulkUpload() {
 
             if (file.type === 'application/zip' || fileName.endsWith('.zip')) {
                 try {
-                    // Import JSZip dynamically
                     const JSZip = (await import('jszip')).default;
                     const zip = new JSZip();
                     const loadedZip = await zip.loadAsync(file);
@@ -174,6 +174,19 @@ export default function BulkUpload() {
         setIsProcessing(false);
     }, []);
 
+    const extractMainClassName = (javaContent: string): string => {
+        const mainMethodRegex = /public\s+static\s+void\s+main\s*\(String\[\]\s*\w+\)\s*{/;
+        const classRegex = /public\s+class\s+(\w+)\s*{/;
+
+        if (mainMethodRegex.test(javaContent)) {
+            const match = javaContent.match(classRegex);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        return '';
+    };
+
     const handleCreateSubmission = useCallback((studentId: string, files: FileData[]) => {
         if (files.length === 0) {
             return;
@@ -192,6 +205,8 @@ export default function BulkUpload() {
             assignmentId,
             userId: studentId,
             totalPoints: 0,
+            mainClassName: files.map(file => extractMainClassName(file.content)).find(name => name !== '') || 'Main',
+            buildTool: 'gradle',
         };
 
         createSubmissionMutation.mutate(submissionData, {
@@ -299,6 +314,9 @@ export default function BulkUpload() {
                     assignmentId,
                     userId: submission.studentId,
                     totalPoints: 0,
+                    mainClassName: submission.files.map(file => extractMainClassName(file.content)).find(name => name !== '') || 'Main',
+                    buildTool: 'gradle',
+                    type: 'FINAL'
                 };
 
                 createSubmissionMutation.mutate(submissionData, {
@@ -333,10 +351,7 @@ export default function BulkUpload() {
 
 
 
-    const clearAll = useCallback(() => {
-        setPendingSubmissions([]);
-        setError(null);
-    }, []);
+
 
     const allStudentsAssigned = pendingSubmissions.every(s => !s.requiresSelection);
 
@@ -391,7 +406,6 @@ export default function BulkUpload() {
                             {submissions.map((submission) => {
                                 const student = students.find(s => s.id === submission.studentId);
                                 const studentName = `${student?.firstName} ${student?.lastName}` || `Student ${submission.studentId}`;
-
                                 return (
                                     <Card key={submission.id}>
                                         <div className="p-4">
@@ -414,10 +428,14 @@ export default function BulkUpload() {
                                                     )}
                                                 </Button>
                                             </div>
-                                            <p className="text-xs text-muted-foreground mb-2">
-                                                NIM: {submission.student?.nim}
-                                                Grade: {submission.totalPoints} / {assignment?.totalPoints}
-                                            </p>
+                                            <div className="text-xs text-muted-foreground mb-2 space-x-2">
+                                                <span>
+                                                    NIM: {submission.student?.nim}
+                                                </span>
+                                                <span>
+                                                    Grade: {submission.totalPoints} / {assignment?.totalPoints}
+                                                </span>
+                                            </div>
                                             {submission.submissionCodes && submission.submissionCodes.length > 0 && (
                                                 <div className="space-y-1">
                                                     <p className="text-xs font-medium">Files:</p>
@@ -429,7 +447,17 @@ export default function BulkUpload() {
                                                     ))}
                                                 </div>
                                             )}
-                                            <div className="mt-3">
+                                            <div className="mt-3 flex flex-col gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => navigate({ to: `/admin/submissions/$submissionId`, params: { submissionId: submission.id } })}
+                                                    className="w-full"
+                                                >
+
+                                                    <Eye className="h-4 w-4" />
+                                                    <span >View details</span>
+                                                </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
@@ -441,7 +469,9 @@ export default function BulkUpload() {
                                                     className="w-full"
                                                 >
                                                     <UploadCloud className="mr-2 h-3 w-3" />
-                                                    Replace Files
+                                                    <span>
+                                                        Replace Files
+                                                    </span>
                                                 </Button>
                                             </div>
                                         </div>

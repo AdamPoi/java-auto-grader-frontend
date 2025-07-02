@@ -55,4 +55,9 @@ export const DOCUMENTATION: Record<string, { description: string; example?: stri
     MATCHES: { description: "Asserts that a string matches the given regular expression.", example: "assertThat(email).matches(\".+@.+\\..+\");", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-strings-matches" },
     STARTS_WITH: { description: "Asserts that a string starts with the given prefix.", example: "assertThat(message).startsWith(\"Hello\");", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-strings-startsWith" },
     ENDS_WITH: { description: "Asserts that a string ends with the given suffix.", example: "assertThat(message).endsWith(\"World\");", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-strings-endsWith" },
+    IS_TRUE: { description: "Asserts that the actual boolean value is true.", example: "assertThat(isValid).isTrue();", link: "https://assertj.github.io/doc/#assertj-core-is-true" },
+    IS_FALSE: { description: "Asserts that the actual boolean value is false.", example: "assertThat(isInvalid).isFalse();", link: "https://assertj.github.io/doc/#assertj-core-is-false" },
+    IS_NULL: { description: "Asserts that the actual value is null.", example: "assertThat(myObject).isNull();", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-objects-isNull" },
+    IS_EMPTY: { description: "Asserts that a string, collection, or array is empty.", example: "assertThat(myList).isEmpty(); assertThat(\"\").isEmpty();", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-iterables-isEmpty" },
+    IS_NOT_EMPTY: { description: "Asserts that a string, collection, or array is not empty.", example: "assertThat(myList).isNotEmpty(); assertThat(\"abc\").isNotEmpty();", link: "https://assertj.github.io/doc/#assertj-core-assertions-for-iterables-isNotEmpty" },
 };

@@ -10,6 +10,8 @@ import { type AssignmentForm } from '@/features/assignments/data/types';
 import { useAssignmentById, useUpdateAssignment } from '@/features/assignments/hooks/use-assignment';
 import { useAuthStore } from '@/stores/auth.store';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/admin/assignments/$assignmentId/edit/')({
   component: EditAssignmentPage,
@@ -47,6 +49,7 @@ function EditAssignmentPage() {
 
   return (
     <>
+      {/* Header Menu */}
       <Header fixed>
         <Search />
         <div className='ml-auto flex items-center space-x-4'>
@@ -55,11 +58,19 @@ function EditAssignmentPage() {
         </div>
       </Header>
       <Main>
-        <div className='mb-4'>
-          <h2 className='text-2xl font-bold tracking-tight'>Edit Assignment: {assignment?.title}</h2>
-          <p className='text-muted-foreground'>
-            Edit the details for the assignment and assign students.
-          </p>
+        {/* Header Page */}
+        <div className='flex flex-col gap-2'>
+          <Button variant="outline" size="icon" className='w-fit p-2' onClick={() => router.history.back()}>
+            <ArrowLeft className="h-4 w-4" /> <span>Back</span>
+          </Button>
+          <div className="flex justify-between items-center">
+            <div className='mb-4'>
+              <h2 className='text-2xl font-bold tracking-tight'>Edit Assignment: {assignment?.title}</h2>
+              <p className='text-muted-foreground'>
+                Edit the details for the assignment and assign students.
+              </p>
+            </div>
+          </div>
         </div>
         <div className='grid gap-4 py-4'>
           <AssignmentFormComponent

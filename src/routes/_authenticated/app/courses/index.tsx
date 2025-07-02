@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CourseCard } from '@/features/courses/components/courses-card';
 import { useCourse } from '@/features/courses/hooks/use-course';
+import { useAuthStore } from '@/stores/auth.store';
 import type { SearchRequestParams } from '@/types/api.types';
 import { createFileRoute } from '@tanstack/react-router';
 import { Suspense, useEffect, useState } from 'react';
@@ -20,9 +21,10 @@ function CoursePage() {
         pageIndex: 0,
         pageSize: 10,
     });
-
+    const { auth } = useAuthStore()
     const [searchValue, setSearchValue] = useState("");
     const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
+
 
     useEffect(() => {
         if (searchValue === '') {
@@ -62,6 +64,13 @@ function CoursePage() {
         }
         window.history.replaceState({}, '', url.toString());
     }, [debouncedSearchValue]);
+
+    useEffect(() => {
+        if (auth.user) {
+            setFilter(`student=eq:${auth.user.id}`)
+        }
+    }, [auth]);
+
     const { data: courses, isLoading } = useCourse(searchParams);
     return (
         <>
