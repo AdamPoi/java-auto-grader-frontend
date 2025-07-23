@@ -150,7 +150,8 @@ export function TestPanel({
             userId: auth.user?.id,
             testClassNames: ['MainTest'],
             buildTool: 'gradle',
-            mainClassName: 'Main'
+            mainClassName: 'Main',
+            type: 'ATTEMPT'
         };
 
         setTestResult(undefined);
@@ -239,7 +240,7 @@ export function TestPanel({
                                         : "bg-neutral-700 text-neutral-200 border-neutral-600"
                             )}
                         >
-                            {hasStarted ? rubricScore : '–'}/{rubricTotal} ({hasStarted ? `${rubricPercentage}%` : '–'})
+                            {hasStarted ? rubricScore : '0'}/{rubricTotal} {hasStarted ? `(${rubricPercentage}%)` : '(0%)'}
                         </Badge>
                     </div>
                     {rubric.description && (
@@ -306,7 +307,7 @@ export function TestPanel({
                 <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium text-neutral-200">Test Cases</h3>
                     <Badge variant="outline" className="bg-neutral-700 text-neutral-200 border-neutral-600">
-                        Overall: {hasStarted ? `${totalScore}/${totalTests}` : `–/${totalTests}`}
+                        Overall: {hasStarted ? `${totalScore}/${totalTests}` : `0/${totalTests}`}
                     </Badge>
                 </div>
                 <Button onClick={handleRunTests} disabled={isRunning || isLoadingRubricGrades} className="w-full bg-neutral-600 hover:bg-green-500 text-neutral-100 border-neutral-500 disabled:bg-neutral-700 disabled:text-neutral-400" size="sm">
@@ -324,7 +325,7 @@ export function TestPanel({
                                 <TabsTrigger key={rubric.id} value={rubric.id} className="text-xs data-[state=active]:bg-neutral-600 data-[state=active]:text-neutral-100 text-neutral-300 flex items-center gap-2">
                                     <span>{rubric.name}</span>
                                     <Badge variant="outline" className={cn("text-xs scale-75", hasStarted && percentage >= 70 ? "bg-green-900/30 text-green-400 border-green-600" : hasStarted && percentage > 0 ? "bg-red-900/30 text-red-400 border-red-600" : "bg-neutral-600 text-neutral-400 border-neutral-500")}>
-                                        {hasStarted ? score : '–'}/{total}
+                                        {hasStarted ? score : '0'}/{total}
                                     </Badge>
                                 </TabsTrigger>
                             );
@@ -360,7 +361,7 @@ export function TestPanel({
                                             <div className="flex items-center justify-between mb-2">
                                                 <h5 className="text-sm font-medium text-neutral-200">{rubric.name}</h5>
                                                 <Badge variant="outline" className={cn("text-xs", hasStarted && percentage >= 70 ? "bg-green-900/20 text-green-300 border-green-500" : hasStarted && percentage > 0 ? "bg-red-900/20 text-red-300 border-red-500" : "bg-neutral-600 text-neutral-400 border-neutral-500")}>
-                                                    {hasStarted ? score : '–'}/{total} ({hasStarted ? `${percentage}%` : '–'})
+                                                    {hasStarted ? score : '0'}/{total} {hasStarted ? `(${percentage}%)` : '(0%)'}
                                                 </Badge>
                                             </div>
                                             <div className="text-xs text-neutral-400">{total} test case{total !== 1 ? 's' : ''} • Click to view details</div>

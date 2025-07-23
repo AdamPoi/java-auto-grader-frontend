@@ -11,7 +11,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import type { SearchRequestParams } from "@/types/api.types";
 import { createFileRoute, useNavigate, useParams, useRouter } from "@tanstack/react-router";
 import 'highlight.js/styles/vs.min.css';
-import { ArrowLeft, Award, BookOpen, Clock, FileText, PanelLeft, PanelRight } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, Clock, FileText, Loader2, PanelLeft, PanelRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -43,6 +43,7 @@ export default function TimedAssessmentPage() {
         refetchInterval: 60000,
     });
     const submitMutation = useTimedAssessmentSubmit(assignmentId);
+    const studentSubmissionMutation = useSubmitStudentSubmission();
 
     // UI state
     const [timer, setTimer] = useState<number | null>(null);
@@ -134,7 +135,8 @@ export default function TimedAssessmentPage() {
                 userId: auth.user?.id,
                 testClassNames: ['MainTest'],
                 buildTool: 'gradle',
-                mainClassName: 'Main'
+                mainClassName: 'Main',
+                type: 'FINAL'
             };
             await submitMutation.mutateAsync(submissionPayload);
             toast.success("Your submission has been submitted successfully.");
@@ -144,7 +146,6 @@ export default function TimedAssessmentPage() {
         }
     };
 
-    const studentSubmissionMutation = useSubmitStudentSubmission();
 
     if (assignmentLoading || statusLoading || !assignment || !status) {
         return (
@@ -185,6 +186,18 @@ export default function TimedAssessmentPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans">
+            {/* --- Submission Loading Overlay --- */}
+            {submitMutation.isPending && (
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="flex flex-col items-center gap-4 p-8 bg-card rounded-lg shadow-xl">
+                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">Submitting Assessment</h2>
+                        <p className="text-muted-foreground">Please wait, this may take a moment...</p>
+                    </div>
+                </div>
+            )}
+            {/* --- End of Overlay --- */}
+
             <div className="mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center gap-4 mb-6">
                     <Button variant="outline" size="icon" onClick={() => router.history.back()}>
@@ -312,10 +325,10 @@ export default function TimedAssessmentPage() {
                                                                             {submission.totalPoints} / {assignment.totalPoints}
                                                                         </span></p>
                                                                     </div>
-                                                                    {submission.feedback && (
+                                                                    {submission.manualFeedback && (
                                                                         <div>
                                                                             <p className="font-semibold mb-1">Instructor:</p>
-                                                                            <p className="text-muted-foreground p-3 bg-muted rounded-md">{submission.feedback}</p>
+                                                                            <p className="text-muted-foreground p-3 bg-muted rounded-md">{submission.manualFeedback}</p>
                                                                         </div>
                                                                     )}
                                                                 </div>

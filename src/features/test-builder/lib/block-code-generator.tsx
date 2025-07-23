@@ -419,7 +419,7 @@ ${indent}        .isTrue();
 ${indent}String ${prefix}_expectedReturnType_${uniqueSuffix} = "${block.varType}"; 
 ${indent}boolean ${prefix}_hasCorrectReturnType_${uniqueSuffix} = allCompilationUnits.stream()
 ${indent}        .flatMap(cu -> cu.findAll(MethodDeclaration.class).stream())
-${indent}        .filter(md -> md.getNameAsString().equals(methodName_${uniqueSuffix}))
+${indent}        .filter(md -> md.getNameAsString().equals(${prefix}_methodName_${uniqueSuffix}))
 ${indent}        .anyMatch(md -> {
 ${indent}            Type returnType = md.getType();
 ${indent}            if (returnType.isClassOrInterfaceType()) {
